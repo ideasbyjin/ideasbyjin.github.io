@@ -6,10 +6,8 @@ category: stats
 mathjax: true
 ---
 
-# Clustering Primer - Episode I
-
 ### Context
-From the [last blog post](), we saw that data can come with many features. When data gets very complex (at least, more complex than the Starbucks data from the last post), we can rely on machine learning methods to "learn" patterns in the data. For example, suppose you have 1000 photos, of which 500 are cats, and the other 500 are dogs. Machine learning methods can, for instance, read the RGB channels of the images' pixels, then use that information to distinguish which combinations of pixels are associated with cat images, and which combinations are linked to dogs.
+From the [last blog post](../17/pca.html), we saw that data can come with many features. When data gets very complex (at least, more complex than the Starbucks data from the last post), we can rely on machine learning methods to "learn" patterns in the data. For example, suppose you have 1000 photos, of which 500 are cats, and the other 500 are dogs. Machine learning methods can, for instance, read the RGB channels of the images' pixels, then use that information to distinguish which combinations of pixels are associated with cat images, and which combinations are linked to dogs.
 
 Typically, machine learning methods are used for _classification_ - that is, given some data features, such as image pixels, can we say if a photo contains a cat or a dog? Machine learning can also perform _regression_; for example, given Steph Curry's scoring record for the past _n_ games, how many points will he score this coming season? Anyway, for the purposes of this post let's stick to classification.
 
@@ -26,7 +24,9 @@ I have data with lots of features, what groups do they belong to?
 * **30 seconds**: Hierarchical clustering is an unsupervised machine learning method. Users must...
     * Define a way to quantify the distance between data points (e.g. Euclidean distance), and
     * How those distances are leveraged for grouping data, aka the linkage criterion (e.g. use the average distance or maximum distance between hypothetical clusters)
-* **8 minutes or more**: Read down below.
+* **10 minutes or more**: Read down below.
+
+### Walkthrough
 
 
 ```python
@@ -36,8 +36,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.spatial.distance import pdist     # pairwise distances
 from scipy.cluster.hierarchy import linkage, dendrogram
-
-plt.style.use("ggplot")
 ```
 
 Let's get the data, do any cleaning necessary beforehand. We'll do the McDonald's food menu, courtesy of Kaggle.
@@ -220,26 +218,6 @@ df.head()
 
 
 
-
-```python
-df.columns
-```
-
-
-
-
-    Index(['Category', 'Item', 'Serving Size', 'Calories', 'Calories from Fat',
-           'Total Fat', 'Total Fat (% Daily Value)', 'Saturated Fat',
-           'Saturated Fat (% Daily Value)', 'Trans Fat', 'Cholesterol',
-           'Cholesterol (% Daily Value)', 'Sodium', 'Sodium (% Daily Value)',
-           'Carbohydrates', 'Carbohydrates (% Daily Value)', 'Dietary Fiber',
-           'Dietary Fiber (% Daily Value)', 'Sugars', 'Protein',
-           'Vitamin A (% Daily Value)', 'Vitamin C (% Daily Value)',
-           'Calcium (% Daily Value)', 'Iron (% Daily Value)'],
-          dtype='object')
-
-
-
 What is very nice about this dataset (aside from making people hungry) is that the food categories are pre-defined for us. This gives us a nice validation of our clustering methods later on. There are some things we can see here:
 * Some columns are redundant (e.g. Saturated Fat + Saturated Fat % daily value)
 * Calories are effectively redundant (e.g. calories = sum of nutrients; total fat is related to sat. and trans. fat)
@@ -247,8 +225,8 @@ What is very nice about this dataset (aside from making people hungry) is that t
 * Some columns _only_ have % daily value (e.g. Vitamin A) or don't have any (e.g. Sugars)
 * Serving sizes of drinks are mixed in with serving size of solid food
 
-For simplicity, let's apply the following normalisation:
-* Only use the following items for clustering purposes:
+For simplicity, let's...
+* Only use the following columns for clustering:
     * Serving size with grams only
     * Saturated Fat, Trans Fat, Cholesterol, Sodium, Carbohydrates, Dietary Fiber, Sugars, Protein
     * Vitamin A (% Daily Value), Vitamin C (% Daily Value), Calcium (% Daily Value), Iron (% Daily Value)
@@ -303,7 +281,9 @@ food_names = dict(zip(food.index, food['Item']))
 cat_names = dict(zip(food.index, food['Category']))
 ```
 
-Okay, this looks good. So in any clustering algorithm, we need to define a distance metric, i.e., how far apart is an `Egg McMuffin` from a `Sausage McMuffin`? One of the most common ways to measure the distance between data points is Euclidean distance, also known as the $l_2$ norm. For two points $a$ and $b$ from $q$-dimensional data, the Euclidean distance is
+### How far is an Egg McMuffin from a Sausage McMuffin?
+
+In any clustering algorithm, we need to define a distance metric, i.e., how far apart is an `Egg McMuffin` from a `Sausage McMuffin`? One of the most common ways to measure the distance between data points is Euclidean distance, also known as the $$l_2$$ norm. For two points _a_ and _b_ from _q_-dimensional data, the Euclidean distance is
 
 $$d = \sqrt{\sum_{i=1}^{q} (a_i - b_i) }$$
 
@@ -314,31 +294,77 @@ We can calculate the Euclidean distance between the food items based on the serv
 # Calculate the pairwise distances between items using Euclidean distance
 food_values = food[food.columns[2:]].values 
 distance_matrix = pdist(food_values, metric = 'euclidean')
-distance_matrix.shape
 ```
 
-
-
-
-    (6903,)
-
-
-
-Just a heads-up that the distance matrix calculated by SciPy is a "condensed" matrix. The distance between two points in Euclidean space is the same whether you measure it $a \rightarrow b$ or $b \rightarrow a$, so we only calculate this in one direction. Furthermore, the distance of a point to itself is 0.
+Just a heads-up that the distance matrix calculated by SciPy is a "condensed" matrix. The distance between two points in Euclidean space is the same whether you measure it $$a \rightarrow b$$ or $$b \rightarrow a$$, so we only calculate this in one direction. Furthermore, the distance of a point to itself is 0.
 
 Once we have this matrix, then we can apply clustering! Now, we'll use the `scipy` implementation because it natively allows us to visualise dendrograms, and it also doesn't require us to define how many clusters we expect.
 
+### How do we merge points? - Linkage criteria.
 From the distance matrix, there are several types of "linkage" criteria we can use. 
 The linkage criteria essentially asks, 
-> If there are two hypothetical clusters $c_1$ and $c_2$ of sizes $n$ and $m$, do we use the minimum, maximum, or average distances between the points?
+> If there are two hypothetical clusters $$c_1$$ and $$c_2$$ of sizes $$n$$ and $$m$$,
+> do we use the minimum, maximum, or average distances between the points in $$c_1$$ and $$c_2$$?
 
 The cluster with the **lowest** minimum/maximum/average distance is then merged to the current cluster.
 >The Wikipedia page on [Complete clustering](https://en.wikipedia.org/wiki/Complete-linkage_clustering#First_step) explains the algorithm well. 
 
 Note that the choice of the distance metric and linkage criteria can affect the results substantially. For this exercise, I will only use Euclidean distance, but will cycle through the different linkage criteria.
 
+At first instance, we can apply the average linkage criterion, also known as UPGMA (unweighted pair group method with
+arithmetic mean). 
+
+### UPGMA toy example with distance matrix
+> Feel free to skip this section if you know how UPGMA works "under the hood"  
+
+For a pairwise distance matrix like this:
+
+|  |a |b |c |d |e |
+|--|--|--|--|--|--|
+|a|0|17|21|31|23|
+|b|17|0|30|34|21|
+|c|21|30|0|28|39|
+|d|31|34|28|0|43|
+|e|23|21|39|43|0|
+
+1. Merge points _a_ and _b_ as they have the lowest distance among all possible pairs.
+2. Compute the distances between the new cluster, (_a_,_b_), with respect to _c_, _d_, _e_.
+    * Thus, we have the following distances: $$d_{(a,b)\rightarrow c}, d_{(a,b)\rightarrow d}, d_{(a,b)\rightarrow e}$$
+   
+    * $$d_{(a,b)\rightarrow c} = \dfrac{\left(d_{a\rightarrow c} + d_{b\rightarrow c}\right)}{2}$$,
+    * $$d_{(a,b)\rightarrow d} = \dfrac{\left(d_{a\rightarrow d} + d_{b\rightarrow d}\right)}{2}$$,
+    * etc.
+3. This creates a new distance matrix, 
+
+|  |a,b |c |d |e |
+|--|--|--|--|--|
+|a,b|0|25.5|32.5|22|
+|c|25.5|0|28|39|
+|d|32.5|28|0|43|
+|e|22|39|43|0|
+
+4. Merge _e_ to (_a_, _b_) as it has the lowest average distance (22).
+5. Compute the distances between the new cluster (_a_,_b_,_e_) to _c_ and _d_:
+    * Thus, $$d_{(a,b,e)\rightarrow c} = \dfrac{\left(d_{a,b\rightarrow c} + d_{a,b\rightarrow c} + d_{e\rightarrow c}\right)}{3}$$,
+    * and $$d_{(a,b,e)\rightarrow d} = \dfrac{\left(d_{a,b\rightarrow d} + d_{a,b\rightarrow d} + d_{e\rightarrow d}\right)}{3}$$
+6. Which then leads to...
+
+|  |a,b,e|c |d |
+|--|--|--|--|
+|a,b,e|0|30|36|
+|c|30|0|28|
+|d|36|28|0|
+
+and repeat!
+
+### UPGMA in code
+
 
 ```python
+# this is just to make the dendrograms a bit prettier
+from scipy.cluster import hierarchy
+hierarchy.set_link_color_palette(['#f58426', '#e8291c', '#ffc0cb'])
+
 # UPGMA, or average linkage
 UPGMA = linkage(distance_matrix, 'average')
 ```
@@ -359,7 +385,7 @@ fig.set_size_inches((8,4))
 ```
 
 
-![png](/assets/notebooks/hclust/output_14_0.png)
+![png](/assets/notebooks/hclust/output_18_0.png)
 
 
 For the dendrogram, to avoid having too many labels that are too small to read, I've only plotted the top 7 levels. Anything in brackets is essentially saying that there are, say, 20 items in that branch.
@@ -383,7 +409,7 @@ fig.set_size_inches((8,4))
 ```
 
 
-![png](/assets/notebooks/hclust/output_16_0.png)
+![png](/assets/notebooks/hclust/output_20_0.png)
 
 
 Now with Ward clustering:
@@ -403,7 +429,7 @@ fig.set_size_inches((8,4))
 ```
 
 
-![png](/assets/notebooks/hclust/output_18_0.png)
+![png](/assets/notebooks/hclust/output_22_0.png)
 
 
 So while we have some common patterns, it's clear that different linkage criteria affect the clustering results, leading to the different dendrograms. None of these are necessarily better than the other; they are just alternative ways to cluster your data. In fact, the linkage criterion that you end up choosing should largely depend on your data distribution; see [here](https://scikit-learn.org/stable/auto_examples/cluster/plot_linkage_comparison.html) for an example.
@@ -417,7 +443,7 @@ from scipy.spatial.distance import squareform
 from sklearn.decomposition import PCA
 from sklearn.cluster import AgglomerativeClustering
 
-pca = PCA(n_components = 2) # we already have a distance matrix
+pca = PCA(n_components = 2)
 coords = pca.fit_transform(food_values - food_values.mean()) # remember to scale the data
 
 # Let's use the actual categories from McDonald's as a "true" set of labels
@@ -433,17 +459,6 @@ num_clust = len(set(categories))
 ac = AgglomerativeClustering(n_clusters = num_clust, linkage= 'ward')
 ac.fit(food[food.columns[2:]].values)
 ```
-
-
-
-
-    AgglomerativeClustering(affinity='euclidean', compute_full_tree='auto',
-                            connectivity=None, distance_threshold=None,
-                            linkage='ward', memory=None, n_clusters=7,
-                            pooling_func='deprecated')
-
-
-
 
 ```python
 # map labels to colour palette - choose something that's discrete to allow easier colour disambiguation.
@@ -471,12 +486,17 @@ ax[0].set_title("Predicted categories")
 ax[1].set_title("True categories")
 ```
 
-![png](/assets/notebooks/hclust/output_22_1.png)
+![png](/assets/notebooks/hclust/output_26_1.png)
 
 
-Interpreting this plot may be difficult, but essentially, it would be ideal to have the same set of points in both the left-hand and right-hand plots to share a colour. In other words, the points that are red don't necessarily have to be red in the right-hand plot, but those same points should hopefully share one colour (whether it's blue, pink, or whatever).
+Interpreting this plot may be difficult, but essentially, it would be ideal to have the same set of points in both the left-hand and right-hand plots to share a colour. In other words, the points that are red in the left-hand plot don't necessarily have to be red in the right-hand plot _per se_.
+However, those same points should hopefully share one colour, whether it's blue, pink, or whatever.
 
-We see that this isn't the case - so what then? This means that we'd have to do a more careful look into what categories the food items belong to, and question more carefully on what the "true" categories are here. Essentially, the categories are only designating whether a food item is something you have for breakfast, or it contains fish, etc. However, we've clustered the data on the basis of their nutrition. The "true" cluster membership is, in hindsight, not well-aligned to what we had clustered the data with. (i.e. nutrition profiles alone don't tell you whether something is a breakfast item vs. a fish burger).
+We see that this isn't the case - so what then? This means that we'd have to do a more careful look into what categories the food items belong to, and question more carefully on what the "true" categories are here.
+Essentially, the true categories are only designating whether a food item is something you have for breakfast, or it contains fish, etc.
+However, we've clustered the data on the basis of their nutrition. In hindsight, what we used for clustering does not necessarily align
+with the true known information about a food item's category. In other words, nutrition profiles aren't exactly related to
+an item being a "breakfast" item.
 
 Earlier, we saw in the dendrograms that individually similar food items _did_ cluster together (e.g. the different flavours of salads), so we know that there is some information of use here. However, grouping food items into larger categories may not be as intuitive. 
 
