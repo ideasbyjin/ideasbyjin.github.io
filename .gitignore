@@ -1,0 +1,10 @@
+_site
+.sass-cache
+.jekyll-cache
+.jekyll-metadata
+*.ipynb
+*.xml
+*.iml
+vendor
+Gemfile
+Gemfile.lock
