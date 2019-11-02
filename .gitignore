@@ -8,3 +8,12 @@ _site
 vendor
 Gemfile
 Gemfile.lock
+/assets/notebooks/gene_exp/E-MTAB-2706-query-results.fpkms.tsv
+/assets/notebooks/gene_exp/E-MTAB-2706-query-results.tpms.tsv
+/assets/notebooks/gene_exp/E-MTAB-5214-query-results.fpkms.tsv
+/assets/notebooks/gene_exp/E-MTAB-5214-query-results.tpms.tsv
+/assets/data/hockey/game_goalie_stats.csv
+/assets/data/hockey/game_skater_stats.csv
+/assets/data/hockey/game_teams_stats.csv
+/assets/data/hockey/player_info.csv
+/assets/notebooks/hockey/SupervisedML.zip
