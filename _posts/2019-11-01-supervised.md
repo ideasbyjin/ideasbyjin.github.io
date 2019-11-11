@@ -43,7 +43,9 @@ For example, if a fantasy team has a bunch of goal-scoring centremen, which posi
 
 Hockey is slightly more complex than meets the eye. Typically, being a defenseman or forward can largely constrain your statistical profile; there are some defensemen that are very talented on offense (e.g. Morgan Reilly), and some forwards who are tougher, and deployed on a "checking" line to provide strength.
 
-![MR](https://imagesvc.timeincapp.com/v3/fan/image?url=https%3A%2F%2Feditorinleaf.com%2Fwp-content%2Fuploads%2Fgetty-images%2F2018%2F06%2F949930044.jpeg&c=sc&w=736&h=485)
+<div style="text-align: center">
+    <img src="https://imagesvc.timeincapp.com/v3/fan/image?url=https%3A%2F%2Feditorinleaf.com%2Fwp-content%2Fuploads%2Fgetty-images%2F2018%2F06%2F949930044.jpeg&c=sc&w=736&h=485"/>
+</div>
 
 (This is Morgan Reilly.)
 
@@ -78,7 +80,7 @@ pinfo = pd.read_csv("player_info.csv")
 
 
 ```python
-df.head()
+df.head(3)
 ```
 
 
@@ -198,57 +200,9 @@ df.head()
       <td>0</td>
       <td>16</td>
     </tr>
-    <tr>
-      <td>3</td>
-      <td>2011030221</td>
-      <td>8471816</td>
-      <td>1</td>
-      <td>1134</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>4</td>
-      <td>0</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>-1</td>
-      <td>935</td>
-      <td>183</td>
-      <td>16</td>
-    </tr>
-    <tr>
-      <td>4</td>
-      <td>2011030221</td>
-      <td>8472410</td>
-      <td>1</td>
-      <td>436</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>3</td>
-      <td>0</td>
-      <td>0</td>
-      <td>...</td>
-      <td>6</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>-1</td>
-      <td>436</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
   </tbody>
 </table>
-<p>5 rows × 22 columns</p>
+<p>3 rows × 22 columns</p>
 </div>
 
 
@@ -273,7 +227,7 @@ reg_season['Season'] = reg_season['game_id'].apply(lambda x: x[:4])
 
 
 ```python
-reg_season.head()
+reg_season.head(3)
 ```
 
 
@@ -393,57 +347,9 @@ reg_season.head()
       <td>86</td>
       <td>2013</td>
     </tr>
-    <tr>
-      <td>25382</td>
-      <td>2013020674</td>
-      <td>8473534</td>
-      <td>19</td>
-      <td>1006</td>
-      <td>1</td>
-      <td>0</td>
-      <td>3</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>...</td>
-      <td>2</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>930</td>
-      <td>42</td>
-      <td>34</td>
-      <td>2013</td>
-    </tr>
-    <tr>
-      <td>25383</td>
-      <td>2013020674</td>
-      <td>8466160</td>
-      <td>19</td>
-      <td>593</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>3</td>
-      <td>0</td>
-      <td>0</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>-1</td>
-      <td>593</td>
-      <td>0</td>
-      <td>0</td>
-      <td>2013</td>
-    </tr>
   </tbody>
 </table>
-<p>5 rows × 23 columns</p>
+<p>3 rows × 23 columns</p>
 </div>
 
 
@@ -476,7 +382,7 @@ aggregated_stats = reg_season.groupby('player_id').agg(
     }
 )
 aggregated_stats.columns = ['games_played'] + list(aggregated_stats.columns[1:])
-aggregated_stats
+aggregated_stats.head(3)
 ```
 
 
@@ -610,185 +516,9 @@ aggregated_stats
       <td>594.250000</td>
       <td>0.575000</td>
     </tr>
-    <tr>
-      <td>8450725</td>
-      <td>81</td>
-      <td>966.283951</td>
-      <td>14</td>
-      <td>34</td>
-      <td>132</td>
-      <td>81</td>
-      <td>6</td>
-      <td>11</td>
-      <td>35</td>
-      <td>52</td>
-      <td>97</td>
-      <td>16</td>
-      <td>32</td>
-      <td>0</td>
-      <td>1</td>
-      <td>25</td>
-      <td>13</td>
-      <td>761.962963</td>
-      <td>43.308642</td>
-    </tr>
-    <tr>
-      <td>8455919</td>
-      <td>18</td>
-      <td>558.111111</td>
-      <td>2</td>
-      <td>0</td>
-      <td>11</td>
-      <td>21</td>
-      <td>0</td>
-      <td>0</td>
-      <td>8</td>
-      <td>101</td>
-      <td>189</td>
-      <td>4</td>
-      <td>10</td>
-      <td>0</td>
-      <td>0</td>
-      <td>10</td>
-      <td>-1</td>
-      <td>414.444444</td>
-      <td>140.055556</td>
-    </tr>
-    <tr>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <td>8481442</td>
-      <td>1</td>
-      <td>760.000000</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>2</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>1</td>
-      <td>760.000000</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <td>8481477</td>
-      <td>2</td>
-      <td>767.000000</td>
-      <td>0</td>
-      <td>0</td>
-      <td>7</td>
-      <td>3</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>5</td>
-      <td>17</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>2</td>
-      <td>0</td>
-      <td>717.000000</td>
-      <td>43.000000</td>
-    </tr>
-    <tr>
-      <td>8481479</td>
-      <td>2</td>
-      <td>801.000000</td>
-      <td>0</td>
-      <td>0</td>
-      <td>3</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>2</td>
-      <td>-1</td>
-      <td>801.000000</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <td>8481481</td>
-      <td>1</td>
-      <td>672.000000</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>4</td>
-      <td>8</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>-1</td>
-      <td>672.000000</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <td>8481486</td>
-      <td>1</td>
-      <td>1263.000000</td>
-      <td>0</td>
-      <td>1</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>-1</td>
-      <td>1152.000000</td>
-      <td>2.000000</td>
-    </tr>
   </tbody>
 </table>
-<p>1995 rows × 19 columns</p>
+<p>3 rows × 19 columns</p>
 </div>
 
 
@@ -807,7 +537,7 @@ percentage = (aggregated_stats['faceOffWins'] / aggregated_stats['faceoffTaken']
 percentage = [ _ if not np.isnan(_) else 0 for _ in percentage ]
 
 aggregated_stats['faceOffPercentage'] = percentage
-aggregated_stats.drop(columns=['powerPlayGoals', 'powerPlayAssists', 'shortHandedGoals', 'shortHandedAssists', 'faceOffWins', 'faceoffTaken'])
+aggregated_stats.drop(columns=['powerPlayGoals', 'powerPlayAssists', 'shortHandedGoals', 'shortHandedAssists', 'faceOffWins', 'faceoffTaken']).head(3)
 ```
 
 
@@ -926,161 +656,9 @@ aggregated_stats.drop(columns=['powerPlayGoals', 'powerPlayAssists', 'shortHande
       <td>0</td>
       <td>48.540146</td>
     </tr>
-    <tr>
-      <td>8450725</td>
-      <td>81</td>
-      <td>966.283951</td>
-      <td>14</td>
-      <td>34</td>
-      <td>132</td>
-      <td>81</td>
-      <td>35</td>
-      <td>16</td>
-      <td>32</td>
-      <td>25</td>
-      <td>13</td>
-      <td>761.962963</td>
-      <td>43.308642</td>
-      <td>17</td>
-      <td>1</td>
-      <td>53.608247</td>
-    </tr>
-    <tr>
-      <td>8455919</td>
-      <td>18</td>
-      <td>558.111111</td>
-      <td>2</td>
-      <td>0</td>
-      <td>11</td>
-      <td>21</td>
-      <td>8</td>
-      <td>4</td>
-      <td>10</td>
-      <td>10</td>
-      <td>-1</td>
-      <td>414.444444</td>
-      <td>140.055556</td>
-      <td>0</td>
-      <td>0</td>
-      <td>53.439153</td>
-    </tr>
-    <tr>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <td>8481442</td>
-      <td>1</td>
-      <td>760.000000</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>2</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>1</td>
-      <td>760.000000</td>
-      <td>0.000000</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <td>8481477</td>
-      <td>2</td>
-      <td>767.000000</td>
-      <td>0</td>
-      <td>0</td>
-      <td>7</td>
-      <td>3</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>2</td>
-      <td>0</td>
-      <td>717.000000</td>
-      <td>43.000000</td>
-      <td>0</td>
-      <td>0</td>
-      <td>29.411765</td>
-    </tr>
-    <tr>
-      <td>8481479</td>
-      <td>2</td>
-      <td>801.000000</td>
-      <td>0</td>
-      <td>0</td>
-      <td>3</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>1</td>
-      <td>2</td>
-      <td>-1</td>
-      <td>801.000000</td>
-      <td>0.000000</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <td>8481481</td>
-      <td>1</td>
-      <td>672.000000</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>1</td>
-      <td>-1</td>
-      <td>672.000000</td>
-      <td>0.000000</td>
-      <td>0</td>
-      <td>0</td>
-      <td>50.000000</td>
-    </tr>
-    <tr>
-      <td>8481486</td>
-      <td>1</td>
-      <td>1263.000000</td>
-      <td>0</td>
-      <td>1</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>1</td>
-      <td>-1</td>
-      <td>1152.000000</td>
-      <td>2.000000</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0.000000</td>
-    </tr>
   </tbody>
 </table>
-<p>1995 rows × 16 columns</p>
+<p>3 rows × 16 columns</p>
 </div>
 
 
@@ -1097,7 +675,7 @@ for n,g in aggregated_stats.groupby('player_id'):
 
 final_stats = aggregated_stats[aggregated_stats.index.get_level_values("player_id").isin(sufficient_games)].copy()
 final_stats_players = final_stats.index.get_level_values('player_id')
-final_stats
+final_stats.head(3)
 ```
 
 
@@ -1241,201 +819,9 @@ final_stats
       <td>1</td>
       <td>53.608247</td>
     </tr>
-    <tr>
-      <td>8456283</td>
-      <td>47</td>
-      <td>1075.510638</td>
-      <td>0</td>
-      <td>8</td>
-      <td>23</td>
-      <td>55</td>
-      <td>0</td>
-      <td>0</td>
-      <td>33</td>
-      <td>0</td>
-      <td>...</td>
-      <td>15</td>
-      <td>0</td>
-      <td>0</td>
-      <td>67</td>
-      <td>-9</td>
-      <td>896.234043</td>
-      <td>170.702128</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <td>8457063</td>
-      <td>152</td>
-      <td>1416.460526</td>
-      <td>27</td>
-      <td>69</td>
-      <td>323</td>
-      <td>90</td>
-      <td>11</td>
-      <td>45</td>
-      <td>48</td>
-      <td>0</td>
-      <td>...</td>
-      <td>56</td>
-      <td>0</td>
-      <td>1</td>
-      <td>171</td>
-      <td>19</td>
-      <td>1049.921053</td>
-      <td>133.348684</td>
-      <td>56</td>
-      <td>1</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <td>8480839</td>
-      <td>82</td>
-      <td>1269.329268</td>
-      <td>9</td>
-      <td>35</td>
-      <td>177</td>
-      <td>97</td>
-      <td>5</td>
-      <td>15</td>
-      <td>34</td>
-      <td>0</td>
-      <td>...</td>
-      <td>79</td>
-      <td>0</td>
-      <td>0</td>
-      <td>66</td>
-      <td>-13</td>
-      <td>1088.743902</td>
-      <td>9.500000</td>
-      <td>20</td>
-      <td>0</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <td>8480943</td>
-      <td>53</td>
-      <td>840.905660</td>
-      <td>3</td>
-      <td>4</td>
-      <td>43</td>
-      <td>57</td>
-      <td>0</td>
-      <td>0</td>
-      <td>14</td>
-      <td>0</td>
-      <td>...</td>
-      <td>34</td>
-      <td>0</td>
-      <td>0</td>
-      <td>48</td>
-      <td>0</td>
-      <td>835.075472</td>
-      <td>4.113208</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <td>8480944</td>
-      <td>65</td>
-      <td>680.800000</td>
-      <td>1</td>
-      <td>12</td>
-      <td>65</td>
-      <td>58</td>
-      <td>0</td>
-      <td>0</td>
-      <td>18</td>
-      <td>204</td>
-      <td>...</td>
-      <td>12</td>
-      <td>0</td>
-      <td>0</td>
-      <td>55</td>
-      <td>5</td>
-      <td>581.415385</td>
-      <td>95.230769</td>
-      <td>0</td>
-      <td>0</td>
-      <td>50.122850</td>
-    </tr>
-    <tr>
-      <td>8480946</td>
-      <td>82</td>
-      <td>849.024390</td>
-      <td>13</td>
-      <td>24</td>
-      <td>137</td>
-      <td>13</td>
-      <td>1</td>
-      <td>1</td>
-      <td>6</td>
-      <td>22</td>
-      <td>...</td>
-      <td>24</td>
-      <td>0</td>
-      <td>0</td>
-      <td>27</td>
-      <td>10</td>
-      <td>781.475610</td>
-      <td>3.963415</td>
-      <td>2</td>
-      <td>0</td>
-      <td>36.065574</td>
-    </tr>
-    <tr>
-      <td>8480950</td>
-      <td>41</td>
-      <td>824.365854</td>
-      <td>0</td>
-      <td>4</td>
-      <td>27</td>
-      <td>150</td>
-      <td>0</td>
-      <td>0</td>
-      <td>13</td>
-      <td>0</td>
-      <td>...</td>
-      <td>22</td>
-      <td>0</td>
-      <td>0</td>
-      <td>61</td>
-      <td>-9</td>
-      <td>807.512195</td>
-      <td>14.463415</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0.000000</td>
-    </tr>
   </tbody>
 </table>
-<p>1367 rows × 22 columns</p>
+<p>3 rows × 22 columns</p>
 </div>
 
 
@@ -1473,7 +859,7 @@ playerIdIndex = aggregated_stats.index.get_level_values("player_id")
 # Get the training set and test set of data.
 training_set = aggregated_stats[playerIdIndex.isin(training_ids)].copy()
 test_set = aggregated_stats[playerIdIndex.isin(test_ids)].copy()
-training_set.head(20)
+training_set.head(3)
 ```
 
 
@@ -1617,417 +1003,9 @@ training_set.head(20)
       <td>0</td>
       <td>0.000000</td>
     </tr>
-    <tr>
-      <td>8457063</td>
-      <td>152</td>
-      <td>1416.460526</td>
-      <td>27</td>
-      <td>69</td>
-      <td>323</td>
-      <td>90</td>
-      <td>11</td>
-      <td>45</td>
-      <td>48</td>
-      <td>0</td>
-      <td>...</td>
-      <td>56</td>
-      <td>0</td>
-      <td>1</td>
-      <td>171</td>
-      <td>19</td>
-      <td>1049.921053</td>
-      <td>133.348684</td>
-      <td>56</td>
-      <td>1</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <td>8458529</td>
-      <td>88</td>
-      <td>982.227273</td>
-      <td>18</td>
-      <td>21</td>
-      <td>172</td>
-      <td>21</td>
-      <td>7</td>
-      <td>5</td>
-      <td>50</td>
-      <td>4</td>
-      <td>...</td>
-      <td>70</td>
-      <td>0</td>
-      <td>0</td>
-      <td>13</td>
-      <td>-7</td>
-      <td>808.840909</td>
-      <td>6.965909</td>
-      <td>12</td>
-      <td>0</td>
-      <td>30.769231</td>
-    </tr>
-    <tr>
-      <td>8458537</td>
-      <td>258</td>
-      <td>1019.697674</td>
-      <td>61</td>
-      <td>134</td>
-      <td>527</td>
-      <td>81</td>
-      <td>18</td>
-      <td>55</td>
-      <td>70</td>
-      <td>66</td>
-      <td>...</td>
-      <td>155</td>
-      <td>0</td>
-      <td>0</td>
-      <td>55</td>
-      <td>21</td>
-      <td>812.027132</td>
-      <td>1.325581</td>
-      <td>73</td>
-      <td>0</td>
-      <td>39.285714</td>
-    </tr>
-    <tr>
-      <td>8458590</td>
-      <td>179</td>
-      <td>931.262570</td>
-      <td>34</td>
-      <td>32</td>
-      <td>325</td>
-      <td>185</td>
-      <td>8</td>
-      <td>10</td>
-      <td>88</td>
-      <td>28</td>
-      <td>...</td>
-      <td>36</td>
-      <td>1</td>
-      <td>1</td>
-      <td>87</td>
-      <td>-9</td>
-      <td>759.122905</td>
-      <td>67.363128</td>
-      <td>18</td>
-      <td>2</td>
-      <td>41.791045</td>
-    </tr>
-    <tr>
-      <td>8458938</td>
-      <td>163</td>
-      <td>1196.533742</td>
-      <td>7</td>
-      <td>41</td>
-      <td>194</td>
-      <td>143</td>
-      <td>2</td>
-      <td>13</td>
-      <td>123</td>
-      <td>0</td>
-      <td>...</td>
-      <td>99</td>
-      <td>0</td>
-      <td>0</td>
-      <td>355</td>
-      <td>13</td>
-      <td>1009.042945</td>
-      <td>101.754601</td>
-      <td>15</td>
-      <td>0</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <td>8458943</td>
-      <td>65</td>
-      <td>1014.615385</td>
-      <td>12</td>
-      <td>27</td>
-      <td>116</td>
-      <td>64</td>
-      <td>3</td>
-      <td>9</td>
-      <td>24</td>
-      <td>17</td>
-      <td>...</td>
-      <td>28</td>
-      <td>0</td>
-      <td>0</td>
-      <td>30</td>
-      <td>5</td>
-      <td>819.969231</td>
-      <td>1.292308</td>
-      <td>12</td>
-      <td>0</td>
-      <td>45.945946</td>
-    </tr>
-    <tr>
-      <td>8459053</td>
-      <td>175</td>
-      <td>1202.914286</td>
-      <td>5</td>
-      <td>30</td>
-      <td>217</td>
-      <td>274</td>
-      <td>1</td>
-      <td>2</td>
-      <td>110</td>
-      <td>1</td>
-      <td>...</td>
-      <td>47</td>
-      <td>0</td>
-      <td>0</td>
-      <td>155</td>
-      <td>24</td>
-      <td>1027.645714</td>
-      <td>141.737143</td>
-      <td>3</td>
-      <td>0</td>
-      <td>100.000000</td>
-    </tr>
-    <tr>
-      <td>8459424</td>
-      <td>63</td>
-      <td>1349.619048</td>
-      <td>5</td>
-      <td>32</td>
-      <td>135</td>
-      <td>56</td>
-      <td>4</td>
-      <td>18</td>
-      <td>54</td>
-      <td>0</td>
-      <td>...</td>
-      <td>33</td>
-      <td>0</td>
-      <td>1</td>
-      <td>141</td>
-      <td>8</td>
-      <td>917.968254</td>
-      <td>205.857143</td>
-      <td>22</td>
-      <td>1</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <td>8459427</td>
-      <td>71</td>
-      <td>765.535211</td>
-      <td>5</td>
-      <td>14</td>
-      <td>80</td>
-      <td>37</td>
-      <td>0</td>
-      <td>0</td>
-      <td>22</td>
-      <td>129</td>
-      <td>...</td>
-      <td>23</td>
-      <td>0</td>
-      <td>0</td>
-      <td>21</td>
-      <td>-8</td>
-      <td>709.816901</td>
-      <td>48.000000</td>
-      <td>0</td>
-      <td>0</td>
-      <td>46.739130</td>
-    </tr>
-    <tr>
-      <td>8459429</td>
-      <td>145</td>
-      <td>888.668966</td>
-      <td>34</td>
-      <td>31</td>
-      <td>311</td>
-      <td>66</td>
-      <td>10</td>
-      <td>12</td>
-      <td>66</td>
-      <td>836</td>
-      <td>...</td>
-      <td>32</td>
-      <td>0</td>
-      <td>0</td>
-      <td>24</td>
-      <td>7</td>
-      <td>750.558621</td>
-      <td>3.482759</td>
-      <td>22</td>
-      <td>0</td>
-      <td>50.270595</td>
-    </tr>
-    <tr>
-      <td>8459442</td>
-      <td>261</td>
-      <td>1053.302682</td>
-      <td>45</td>
-      <td>94</td>
-      <td>347</td>
-      <td>164</td>
-      <td>8</td>
-      <td>21</td>
-      <td>150</td>
-      <td>2328</td>
-      <td>...</td>
-      <td>127</td>
-      <td>1</td>
-      <td>3</td>
-      <td>104</td>
-      <td>6</td>
-      <td>840.793103</td>
-      <td>108.582375</td>
-      <td>29</td>
-      <td>4</td>
-      <td>51.848552</td>
-    </tr>
-    <tr>
-      <td>8459454</td>
-      <td>80</td>
-      <td>630.387500</td>
-      <td>1</td>
-      <td>2</td>
-      <td>55</td>
-      <td>73</td>
-      <td>0</td>
-      <td>0</td>
-      <td>10</td>
-      <td>63</td>
-      <td>...</td>
-      <td>13</td>
-      <td>0</td>
-      <td>1</td>
-      <td>77</td>
-      <td>-16</td>
-      <td>529.350000</td>
-      <td>98.887500</td>
-      <td>0</td>
-      <td>1</td>
-      <td>44.680851</td>
-    </tr>
-    <tr>
-      <td>8459457</td>
-      <td>144</td>
-      <td>951.277778</td>
-      <td>15</td>
-      <td>42</td>
-      <td>285</td>
-      <td>170</td>
-      <td>1</td>
-      <td>6</td>
-      <td>77</td>
-      <td>21</td>
-      <td>...</td>
-      <td>47</td>
-      <td>0</td>
-      <td>0</td>
-      <td>44</td>
-      <td>-10</td>
-      <td>775.534722</td>
-      <td>78.770833</td>
-      <td>7</td>
-      <td>0</td>
-      <td>35.593220</td>
-    </tr>
-    <tr>
-      <td>8459461</td>
-      <td>105</td>
-      <td>927.228571</td>
-      <td>13</td>
-      <td>41</td>
-      <td>132</td>
-      <td>30</td>
-      <td>3</td>
-      <td>11</td>
-      <td>28</td>
-      <td>573</td>
-      <td>...</td>
-      <td>55</td>
-      <td>1</td>
-      <td>1</td>
-      <td>39</td>
-      <td>8</td>
-      <td>731.742857</td>
-      <td>81.380952</td>
-      <td>14</td>
-      <td>2</td>
-      <td>49.567474</td>
-    </tr>
-    <tr>
-      <td>8459462</td>
-      <td>67</td>
-      <td>1174.029851</td>
-      <td>7</td>
-      <td>21</td>
-      <td>122</td>
-      <td>86</td>
-      <td>4</td>
-      <td>9</td>
-      <td>34</td>
-      <td>0</td>
-      <td>...</td>
-      <td>31</td>
-      <td>0</td>
-      <td>0</td>
-      <td>72</td>
-      <td>2</td>
-      <td>899.298507</td>
-      <td>57.447761</td>
-      <td>13</td>
-      <td>0</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <td>8459492</td>
-      <td>159</td>
-      <td>1020.603774</td>
-      <td>37</td>
-      <td>71</td>
-      <td>311</td>
-      <td>140</td>
-      <td>9</td>
-      <td>23</td>
-      <td>76</td>
-      <td>82</td>
-      <td>...</td>
-      <td>35</td>
-      <td>0</td>
-      <td>0</td>
-      <td>72</td>
-      <td>-4</td>
-      <td>834.566038</td>
-      <td>1.761006</td>
-      <td>32</td>
-      <td>0</td>
-      <td>51.572327</td>
-    </tr>
-    <tr>
-      <td>8459514</td>
-      <td>178</td>
-      <td>545.769663</td>
-      <td>9</td>
-      <td>22</td>
-      <td>142</td>
-      <td>233</td>
-      <td>0</td>
-      <td>1</td>
-      <td>231</td>
-      <td>408</td>
-      <td>...</td>
-      <td>37</td>
-      <td>0</td>
-      <td>0</td>
-      <td>48</td>
-      <td>1</td>
-      <td>469.595506</td>
-      <td>66.780899</td>
-      <td>1</td>
-      <td>0</td>
-      <td>55.585831</td>
-    </tr>
   </tbody>
 </table>
-<p>20 rows × 22 columns</p>
+<p>3 rows × 22 columns</p>
 </div>
 
 
@@ -2455,7 +1433,7 @@ test_to_names = pd.merge(
 correct = test_to_names[test_to_names['primaryPosition']==test_to_names['pred']].copy()
 incorrect = test_to_names[test_to_names['primaryPosition']!=test_to_names['pred']].copy()
 
-incorrect[['firstName', 'lastName', 'primaryPosition', 'pred']]
+incorrect[['firstName', 'lastName', 'primaryPosition', 'pred']].head(5)
 ```
 
 
@@ -2521,51 +1499,9 @@ incorrect[['firstName', 'lastName', 'primaryPosition', 'pred']]
       <td>RW</td>
       <td>C</td>
     </tr>
-    <tr>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <td>327</td>
-      <td>Nick</td>
-      <td>Lappin</td>
-      <td>RW</td>
-      <td>LW</td>
-    </tr>
-    <tr>
-      <td>328</td>
-      <td>Patrik</td>
-      <td>Laine</td>
-      <td>RW</td>
-      <td>LW</td>
-    </tr>
-    <tr>
-      <td>334</td>
-      <td>Vinni</td>
-      <td>Lettieri</td>
-      <td>C</td>
-      <td>LW</td>
-    </tr>
-    <tr>
-      <td>340</td>
-      <td>Brady</td>
-      <td>Tkachuk</td>
-      <td>LW</td>
-      <td>RW</td>
-    </tr>
-    <tr>
-      <td>341</td>
-      <td>Dominik</td>
-      <td>Kahun</td>
-      <td>C</td>
-      <td>LW</td>
-    </tr>
   </tbody>
 </table>
-<p>105 rows × 4 columns</p>
+<p>5 rows × 4 columns</p>
 </div>
 
 
