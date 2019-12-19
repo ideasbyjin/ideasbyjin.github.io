@@ -630,7 +630,9 @@ plt.scatter(coords[:,0], coords[:,1])
 
 
 
-![png](/assets/notebooks/gene_exp/output_42_1.png)
+<div style="text-align: center">
+    <img src="/assets/notebooks/gene_exp/mds.png" width = "75%">
+</div>
 
 
 Now that we know where the samples sit with respect to each other, let's see what the DBSCAN algorithm generates. We mentioned earlier that the DBSCAN algorithm depends on some distance parameter, $\epsilon$, to determine how objects are clustered together.
@@ -693,7 +695,10 @@ plt.scatter(coords[:,0], coords[:,1], c = colours)
 
 
 
-![png](/assets/notebooks/gene_exp/output_48_1.png)
+<div style="text-align: center">
+    <img src="/assets/notebooks/gene_exp/gtex_clusters.png" width = "75%">
+</div>
+
 
 
 That's beautiful isn't it? Notice how the green dots are situated in two distinct areas of this MDS plot. This is not a surprising behaviour because we're plotting the samples in a two-dimensional MDS plot, which is a reconstruction from the distance matrix we gave. In fact, in a higher-dimensional space, it's likely that these green dots are indeed close, but beyond three dimensions it's slightly hard to visualise dots.
