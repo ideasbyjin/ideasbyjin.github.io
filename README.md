@@ -8,3 +8,5 @@ Procedure:
 Some other stuff:
 * [ ] _layouts is based on the original minima theme with some minor changes
 * [ ] Some CSS components can be overwritten through the `scss` files (see repo)
+
+Serve locally using `bundle jekyll exec serve`
