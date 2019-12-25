@@ -17,3 +17,7 @@ Gemfile.lock
 /assets/data/hockey/game_teams_stats.csv
 /assets/data/hockey/player_info.csv
 /assets/notebooks/hockey/SupervisedML.zip
+/assets/notebooks/gene_exp/GTEX + DBSCAN.md
+/assets/notebooks/gene_exp/GTEX + DBSCAN.zip
+/assets/notebooks/santa_bayes/Santa Bayes.md
+/assets/notebooks/santa_bayes/Santa Bayes.zip
