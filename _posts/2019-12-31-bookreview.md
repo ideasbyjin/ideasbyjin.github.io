@@ -11,7 +11,7 @@ I'm hoping that 2020 will be a year where I'll get to read more and do something
 
 ## Bad Blood
 <div style="text-align: center">
-    <img src="https://images-na.ssl-images-amazon.com/images/I/41a3ILoKeXL._SX328_BO1,204,203,200_.jpg" width="50%">
+    <img src="https://images-na.ssl-images-amazon.com/images/I/41a3ILoKeXL._SX328_BO1,204,203,200_.jpg" width="30%">
 </div>
 
 This is one of those books that made me thinking,
@@ -26,7 +26,7 @@ and/or medicine.
 ## Eleanor Oliphant is Completely Fine
 
 <div style="text-align: center">
-    <img src="https://www.irishtimes.com/polopoly_fs/1.3157827.1500304158!/image/image.jpg" width="50%">
+    <img src="https://www.irishtimes.com/polopoly_fs/1.3157827.1500304158!/image/image.jpg" width="30%">
 </div>
 
 Historically, I didn't read a lot of fiction until this year. I always maintain the idea that I want to read something
@@ -39,7 +39,7 @@ for many. It can get dark, be warned!
 ## Freakonomics
 
 <div style="text-align: center">
-    <img src="https://images-na.ssl-images-amazon.com/images/I/81vvkWOSr7L.jpg" width="50%">
+    <img src="https://images-na.ssl-images-amazon.com/images/I/81vvkWOSr7L.jpg" width="30%">
 </div>
 
 Not exactly the "newest" book to get off the shelves, but this was a very thought-provoking book indeed. As a
@@ -50,7 +50,7 @@ Dubner touch on how a reduction in crime is a consequence of _reduced abortions_
 
 ## Brave New World
 <div style="text-align: center">
-    <img src="https://images-na.ssl-images-amazon.com/images/I/91D4YvdC0dL.jpg" width="50%">
+    <img src="https://images-na.ssl-images-amazon.com/images/I/91D4YvdC0dL.jpg" width="30%">
 </div>
 
 Again, an old classic, but one where I saw many parallels with our society today. Instead of _soma_, I would
@@ -61,7 +61,7 @@ division of classes, low-key racism) are still making headlines today.
 
 ## Fahrenheit 451  
 <div style="text-align: center">
-    <img src="https://images-na.ssl-images-amazon.com/images/I/91EKCYo8gVL.jpg" width="50%">
+    <img src="https://images-na.ssl-images-amazon.com/images/I/91EKCYo8gVL.jpg" width="30%">
 </div>
 
 The last of old classics in the list for 2019. Another reminder of why books are, in my view, under-rated in
@@ -71,7 +71,7 @@ in books, and they should be held as treasures.
 
 ## Meaning of Marriage
 <div style="text-align: center">
-    <img src="https://images-na.ssl-images-amazon.com/images/I/41kyfU8xFIL._SX324_BO1,204,203,200_.jpg" width="50%">
+    <img src="https://images-na.ssl-images-amazon.com/images/I/41kyfU8xFIL._SX324_BO1,204,203,200_.jpg" width="30%">
 </div>
 
 Earlier this year, my wife and I got married in a church ceremony. This book was a good reminder for the types
