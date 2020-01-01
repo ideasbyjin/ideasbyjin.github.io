@@ -4,6 +4,7 @@ title: "Book reviews of 2019"
 date: 2019-12-31
 category: other
 image: https://images-na.ssl-images-amazon.com/images/I/41a3ILoKeXL._SX328_BO1,204,203,200_.jpg
+summary: These are the books of 2019 that I found to be thought-provoking.
 ---
 
 Following on some amazing heroes like [Barack Obama](https://twitter.com/barackobama) and [Bill Gates](https://twitter.com/billgates),
