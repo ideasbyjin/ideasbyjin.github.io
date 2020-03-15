@@ -38,14 +38,17 @@ good, and while I don't think I'd rave about it, it's worth a try if you want so
 </div>
 
 This book starts off in tremendous pace, talking about the harsh realities of global warming and what it means
-to the future of mankind. The book offers almost zero optimism to the planet's future, and no real solutions for
-the reader, either. After about 2-3 chapters, it almost feels more like a rant than it is a scientific discussion
-on what we must do in order to tackle global warming. Not to mention the book contains zero figures! 
+to the future of mankind. After about 2-3 chapters, it almost feels more like a rant than it is a scientific
+discussion on what we must do in order to tackle global warming. Not to mention the book contains zero figures!
+The book offers almost zero optimism to the planet's future, and no real solutions for the reader, either.  
 
-However, and most importantly, I'm afraid the book suffers from poor scientific writing standards. For example,
-the book continually uses Fahrenheit and Celsius in interchangeable ways. In addition, the book mentions percentages
-after percentages, numbers after numbers - but how do we interpret these numbers? As a bioinformatician/data
-scientist, one takeaway I had from this book was just how much scientists must adhere to, and practice, good
+However, and most importantly, I'm afraid the book suffers from poor scientific writing. For example, the book
+continually uses Fahrenheit and Celsius in interchangeable ways. In addition, the book mentions facts
+after facts, without a deep interpretation on what that can mean. The book also has run-on sentences that, if
+read aloud, make you struggle to keep your breath (maybe this is intentional?). Finally, it has vocabulary that
+you wouldn't really find in either natural science or casual science books, such as "quotidian", "anthropogenic", etc.
+
+As a bioinformatician/data scientist, one takeaway I had from this book was just how much scientists must adhere to, and practice, good
 communication skills. Through deliberate practice and rigour, this will help deliver impact and convey the importance
 of observations in our data, and form strategies for further action.
 
