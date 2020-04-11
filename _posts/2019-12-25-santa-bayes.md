@@ -4,7 +4,7 @@ title: "Santa Bayes: a Christmas introduction to Bayesian inference"
 date: 2019-12-25
 category: stats
 mathjax: true
-image: /assets/notebooks/santa_bayes/num_naughty.png
+image: https://ideasbyjin.github.io/assets/notebooks/santa_bayes/num_naughty.png 
 ---
 It's Christmas, and Santa is here! He's got his list and he's about to see who's been naughty or nice this year. While on his way out of the North Pole, he comes across some turbulence, and he loses his list. Rudolph tried his hardest, but to no avail.
 
