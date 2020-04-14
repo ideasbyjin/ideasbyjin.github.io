@@ -8,9 +8,9 @@ summary: A cheat sheet for probability distributions.
 mathjax: true
 ---
 
-With Covid-19 sweeping the planet, there has been a surge of people contributing their ideas to understanding, analysing, and even modelling the spread of the virus. It's been amazing to see so many data scientists across the globe getting together to solve such an important challenge.
-
-In this post, I wanted to provide a primer / cheat-sheet on probability distributions to equip the community with a toolkit to understanding Covid-19. Of course, this can also be a point of reference for any other data science / statistical modelling activities!
+In this post, I wanted to provide a primer / cheat-sheet on probability distributions to equip the community with a toolkit
+to tackle a wide range of data science problems -- for example, the current ongoing COVID-19 crisis.
+> Disclaimer: please **do not** assume that COVID-19 behaves as simply as the probability distributions below.
 
 If you have...
 * 30 seconds: a table of distributions and some use cases are shown below.

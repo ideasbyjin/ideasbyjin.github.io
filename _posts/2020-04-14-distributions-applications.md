@@ -43,7 +43,10 @@ Thus, the hypergeometric distribution represents the probability that $$k$$ take
 
 ### The hypergeometric virus
 Let's suppose we live in a town with **1000 people**. We know from official statistics that **10** people have been
-diagnosed with COVID-19 (and _for sake of argument_, let's assume the disease is not transmissible). 
+diagnosed with COVID-19.
+> Disclaimer: this post is intended to be an example, providing a more intuitive guide on how statistical models can help
+us think about this huge global problem. This is not an infectious disease modelling exercise, and in fact the post assumes
+the virus is not transmissible. We know that's _definitely_ not the case. **Please stay home.**  
 
 With the lockdown / social distancing in place, you decide to use your "exercise once a day" credit for a walk in the local park. However, you see **20** other individuals in the park. You may then ask,
 > Can I estimate how many of these 20 individuals have COVID-19?
