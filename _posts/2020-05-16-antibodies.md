@@ -3,7 +3,7 @@ layout: post
 title: "What are antibodies, anyway?"
 date: 2020-05-16
 category: bioinf
-image: https://ideasbyjin.github.io/assets/notebooks/distributions/hypergeometric_pmf.png
+image: https://ideasbyjin.github.io/assets/antibody-structure.png
 summary: A primer on antibodies
 mathjax: true
 ---
