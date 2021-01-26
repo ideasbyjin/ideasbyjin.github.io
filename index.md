@@ -12,4 +12,4 @@ Data science, sports, and bio/medtech are my jam, and I'll try to post pieces on
 regularly. 
 
 All views and work expressed here are my own. It would be great to keep in touch via 
-LinkedIn, or follow each other on Twitter.
+LinkedIn, or follow each other on Twitter. 
