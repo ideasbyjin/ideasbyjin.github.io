@@ -1,0 +1,25 @@
+baseURL: ""
+disablePathToLower: true
+languageCode: en-gb
+title: Read between the rows
+theme: PaperMod
+
+params:
+    env: production
+    defaultTheme: light
+    ShowReadingTime: true
+    ShowShareButtons: true
+    showtoc: true
+    comments: false
+
+    profileMode:
+        enabled: false
+    homeInfoParams:
+        Title: "Hi there!"
+        Content: This is some subtext
+
+    socialIcons:
+        - name: Twitter
+          url: http://twitter.com/ideasbyjin
+        - name: LinkedIn
+          url: http://

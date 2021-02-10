@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="416724ec-a57a-4a88-b02c-918d42892d29" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitmodules" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/themes/PaperMod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/404.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Gemfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_config.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/footer.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/google-analytics.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_includes/head.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_layouts/default.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_layouts/home.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_layouts/page.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_layouts/post.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2019-01-28-mesh-cpp-python.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2019-09-17-pca.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2019-09-23-clustering-1.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2019-10-05-korea.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2019-10-06-rmsd.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2019-11-01-supervised.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2019-12-18-clustering-2.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2019-12-25-santa-bayes.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2019-12-31-bookreview.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2020-02-26-anns.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2020-03-15-bookreview.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2020-04-11-distributions.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2020-04-14-distributions-applications.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2020-05-16-antibodies.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2020-05-23-docker.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2021-01-26-pandas.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/_posts/2021-01-30-numba.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/about.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/antibody-binding.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/antibody-detection.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/antibody-doublesandwich.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/antibody-response.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/antibody-structure.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/antibody-vdj.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/data/mcdonalds-menu/menu.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/data/starbucks-menu/starbucks-menu-nutrition-drinks.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/data/starbucks-menu/starbucks-menu-nutrition-food.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/data/starbucks-menu/starbucks_drinkMenu_expanded.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/jin.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/main.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/distributions/beta_pdf.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/distributions/continuous_distributions.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/distributions/discrete_distributions.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/distributions/hypergeometric_pmf.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/distributions/inset_hypergeometric.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/distributions/posterior_distribution.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/gene_exp/gtex_clusters.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/gene_exp/mds.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/gene_exp/output_29_1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/gene_exp/output_31_1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/gene_exp/output_33_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/gene_exp/output_36_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/gene_exp/output_42_1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/gene_exp/output_48_1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/hclust/hierarchical-clustering.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/hclust/output_18_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/hclust/output_20_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/hclust/output_22_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/hclust/output_26_1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/hockey/hockey_players_position.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/hockey/output_18_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/hockey/output_27_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/hockey/output_28_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/hockey/output_33_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/hockey/output_34_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/hockey/output_39_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/hockey/output_44_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/hockey/output_45_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/hockey/output_48_1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/neural-networks/neuralnetwork-setup.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/neural-networks/neuralnetwork.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/neural-networks/output_29_1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/neural-networks/output_3_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/neural-networks/output_52_1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/neural-networks/output_5_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/numba/contact_map.tsv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/pandas/output_5_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/pandas/output_6_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/pca/.ipynb_checkpoints/PCA-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/pca/PCA.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/pca/output_11_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/pca/output_15_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/pca/output_8_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/rmsd/1hso.pdb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/rmsd/1ht0.pdb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/rmsd/RMSD notebook.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/rmsd/adh.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/rmsd/aln_1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/rmsd/aln_2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/rmsd/aln_3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/rmsd/cartoon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/rmsd/rmsd_schematic.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/rmsd/svd.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/santa_bayes/num_naughty.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/santa_bayes/output_11_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/santa_bayes/output_17_2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/santa_bayes/output_19_2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/santa_bayes/output_23_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/santa_bayes/output_28_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/santa_bayes/output_3_1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/notebooks/santa_bayes/output_9_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/posts.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/themes/PaperMod/layouts/partials/header.html" beforeDir="false" afterPath="$PROJECT_DIR$/themes/PaperMod/layouts/partials/header.html" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
+  </component>
+  <component name="IgnoredFileRootStore">
+    <option name="generatedRoots">
+      <set>
+        <option value="$PROJECT_DIR$/.idea" />
+      </set>
+    </option>
+  </component>
+  <component name="ProjectId" id="1QzX01Fxxm5bEi7zqWFL6vTj19N" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="PropertiesComponent">
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/_posts" />
+    <property name="settings.editor.selected.configurable" value="vcs.Git" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/_posts" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="416724ec-a57a-4a88-b02c-918d42892d29" name="Default Changelist" comment="" />
+      <created>1568774171948</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1568774171948</updated>
+    </task>
+    <task id="LOCAL-00001" summary="Some minor fixes">
+      <created>1568775047851</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1568775047851</updated>
+    </task>
+    <task id="LOCAL-00002" summary="More fixes">
+      <created>1568775248609</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1568775248609</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Add clustering post">
+      <created>1568944252161</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1568944252161</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Add clustering post">
+      <created>1569249278894</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1569249278894</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Push some minor changes">
+      <created>1569249302458</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1569249302458</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Korea post">
+      <created>1570290399529</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1570290399529</updated>
+    </task>
+    <task id="LOCAL-00007" summary="RMSD post">
+      <created>1570389399084</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1570389399084</updated>
+    </task>
+    <task id="LOCAL-00008" summary="RMSD post">
+      <created>1570389499299</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1570389499299</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Hockey post">
+      <created>1572643251217</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1572643251217</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Gitignore">
+      <created>1572655837840</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1572655837840</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Add background to image">
+      <created>1572656425533</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1572656425533</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Yum page real estate">
+      <created>1573515696617</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1573515696617</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Add DBSCAN page">
+      <created>1576717807421</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1576717807421</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Commit images">
+      <created>1576717847682</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1576717847682</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Add some images">
+      <created>1576794356156</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1576794356156</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Add Christmas post">
+      <created>1577289424063</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1577289424063</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Add gitignore">
+      <created>1577289450434</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1577289450434</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Add bookreview post">
+      <created>1577829327125</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1577829327125</updated>
+    </task>
+    <task id="LOCAL-00019" summary="NN post">
+      <created>1582791211743</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1582791211743</updated>
+    </task>
+    <task id="LOCAL-00020" summary="More gitignoring">
+      <created>1582791266332</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1582791266332</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Meta: refer image for git preview">
+      <created>1582791622740</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1582791622740</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Q12020 book review">
+      <created>1584282975710</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1584282975710</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Distributions cheat sheet post">
+      <created>1586642875252</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1586642875252</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Update gitignore">
+      <created>1586642920879</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1586642920879</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Head faff">
+      <created>1586643341116</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1586643341116</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Oopsie">
+      <created>1586816986394</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1586816986394</updated>
+    </task>
+    <task id="LOCAL-00027" summary="Add new post">
+      <created>1586872479422</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1586872479422</updated>
+    </task>
+    <task id="LOCAL-00028" summary="Update gitignore">
+      <created>1586872494217</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1586872494217</updated>
+    </task>
+    <task id="LOCAL-00029" summary="Disclaimers">
+      <created>1586875225173</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1586875225173</updated>
+    </task>
+    <task id="LOCAL-00030" summary="Antibody post">
+      <created>1589756547638</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1589756547638</updated>
+    </task>
+    <option name="localTasksCounter" value="31" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Push some minor changes" />
+    <MESSAGE value="Korea post" />
+    <MESSAGE value="RMSD post" />
+    <MESSAGE value="Hockey post" />
+    <MESSAGE value="Hockey data" />
+    <MESSAGE value="Gitignore" />
+    <MESSAGE value="Add background to image" />
+    <MESSAGE value="Yum page real estate" />
+    <MESSAGE value="Add DBSCAN page" />
+    <MESSAGE value="Commit images" />
+    <MESSAGE value="Add some images" />
+    <MESSAGE value="Add Christmas post" />
+    <MESSAGE value="Add gitignore" />
+    <MESSAGE value="Add bookreview post" />
+    <MESSAGE value="NN post" />
+    <MESSAGE value="More gitignoring" />
+    <MESSAGE value="Meta: refer image for git preview" />
+    <MESSAGE value="Q12020 book review" />
+    <MESSAGE value="Distributions cheat sheet post" />
+    <MESSAGE value="Head faff" />
+    <MESSAGE value="Oopsie" />
+    <MESSAGE value="Add new post" />
+    <MESSAGE value="Update gitignore" />
+    <MESSAGE value="Disclaimers" />
+    <MESSAGE value="Antibody post" />
+    <option name="LAST_COMMIT_MESSAGE" value="Antibody post" />
+  </component>
+</project>
