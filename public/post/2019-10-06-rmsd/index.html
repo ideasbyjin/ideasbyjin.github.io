@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>RMSD using SVD | Read between the rows</title>
+
+<meta name="keywords" content="" />
+<meta name="description" content="During my PhD and postdoc, my main day-to-day was driven by one question:
+ How do we make the best model protein structures?
+ To answer that question, this is often done by calculating the root-mean square deviation (RMSD) between the predicted structure vs. the known &lsquo;true&rsquo; protein structure. There are other measures (e.g. TM-score, GDT_TS), but RMSD is still the most intuitive, and (unfortunately?) the accepted standard metric for goodness-of-fit.">
+<meta name="author" content="">
+<link rel="canonical" href="/post/2019-10-06-rmsd/" />
+<link href="/assets/css/stylesheet.min.ba79064eecb9dc2a7050b36f485dfa34d91c3405027f95064142d0c857cd81ba.css" integrity="sha256-unkGTuy53CpwULNvSF36NNkcNAUCf5UGQULQyFfNgbo=" rel="preload stylesheet"
+    as="style">
+
+<link rel="icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="mask-icon" href="safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<meta name="generator" content="Hugo 0.80.0" />
+
+
+
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$','$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+  };
+
+  window.addEventListener('load', (event) => {
+      document.querySelectorAll("mjx-container").forEach(function(x){
+        x.parentElement.classList += 'has-jax'})
+    });
+
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><meta property="og:title" content="RMSD using SVD" />
+<meta property="og:description" content="During my PhD and postdoc, my main day-to-day was driven by one question:
+ How do we make the best model protein structures?
+ To answer that question, this is often done by calculating the root-mean square deviation (RMSD) between the predicted structure vs. the known &lsquo;true&rsquo; protein structure. There are other measures (e.g. TM-score, GDT_TS), but RMSD is still the most intuitive, and (unfortunately?) the accepted standard metric for goodness-of-fit." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/post/2019-10-06-rmsd/" />
+<meta property="article:published_time" content="2019-10-06T00:00:00+00:00" />
+<meta property="article:modified_time" content="2019-10-06T00:00:00+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="RMSD using SVD"/>
+<meta name="twitter:description" content="During my PhD and postdoc, my main day-to-day was driven by one question:
+ How do we make the best model protein structures?
+ To answer that question, this is often done by calculating the root-mean square deviation (RMSD) between the predicted structure vs. the known &lsquo;true&rsquo; protein structure. There are other measures (e.g. TM-score, GDT_TS), but RMSD is still the most intuitive, and (unfortunately?) the accepted standard metric for goodness-of-fit."/>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "RMSD using SVD",
+  "name": "RMSD using SVD",
+  "description": "During my PhD and postdoc, my main day-to-day was driven by one question:\n How do we make the best model protein structures?\n To answer that question, this is often done by …",
+  "keywords": [
+    
+  ],
+  "articleBody": "During my PhD and postdoc, my main day-to-day was driven by one question:\n How do we make the best model protein structures?\n To answer that question, this is often done by calculating the root-mean square deviation (RMSD) between the predicted structure vs. the known ‘true’ protein structure. There are other measures (e.g. TM-score, GDT_TS), but RMSD is still the most intuitive, and (unfortunately?) the accepted standard metric for goodness-of-fit.\n RMSD has some flaws; for example, it suffers from size-dependent effects, but we will discuss this another time.  If you have less than 3 minutes\n Singular-value decomposition (SVD) allows us to find the optimal rotation and translation matrices that best aligns the predicted structure to the true protein structure. Following alignment, it’s a case of just computing $$RMSD = \\sqrt{\\dfrac{1}{n} \\sum_{i=1}^{n} d_i}$$ where $$d_i = (x_{i,nat}-x_{i, model})^2 + (y_{i,nat}-y_{i, model})^2 + (z_{i,nat}-z_{i, model})^2$$  If you have about 10 minutes\n Read on.  A very short primer on protein structure data - feel free to skip if you know what protein structures are like! The Protein Data Bank (PDB) is the central repository that contains protein structure data. The data is gathered from scientists from around the world who determine the structure of a protein through experimental methods (typically X-ray crystallography, but the trend is going toward cryo electron microscopy; cryo-EM). One thing to bear in mind is that every structure that we have, even though it’s experimental data, is in fact (yet another) a model!\nCondensing lots of physics and theory here, but in the case of X-ray crystallography, it largely has to do with the fact that the method detects and “sees” electron diffraction. It doesn’t see proteins as fancy helices or loops like this:\nThus, to resolve from an electron diffraction to signals that can be used as atomic coordinates, lots of physics and maths are involved. Essentially, the final structure we obtain is a model of the electron density data.\nProtein structures are then represented in an unusual 80-character format (historical reasons) that contain:\n Information about a protein’s sequence Information about the amino acids that make up the protein, and most importantly for this exercise, The coordinates of each atom in the protein.  The coordinates are in 3-dimensional $$(x,y,z)$$ space, and represented by an $$N \\times 3$$ matrix:\n[ 16.54 , 10.798, -30.122], [ 16.677, 12.283, -30.154], [ 16.876, 12.799, -28.737], ..., [ -7.62 , -7.475, -5.355], [-11.083, 2.95 , -9.974], [-10.271, 2.053, -12.363] leading to a structure like this:\nRMSD - the maths Given two protein structures with $$n$$ atoms, the RMSD between the two can be calulated by:\n$$RMSD = \\sqrt{\\dfrac{1}{n} \\sum_{i=1}^{n} (d_i) }$$\nwhere\n$$d_i = (x_{i,nat}-x_{i, model})^2 + (y_{i,nat}-y_{i, model})^2 + (z_{i,nat}-z_{i, model})^2$$\nSo what does this mean? We iterate across $$n$$ aligned (this will be explained later) atoms, and take the difference in their x-, y-, and z-coordinates. We then take the square root of the average deviation. This metric can be custom fit to either calculate across all atoms of two protein structures, or a subset - so long as $$n$$ is identical between the predicted and true structures.\nAlign structures before calculating RMSD! Before we calculate the RMSD, we need to align our structures for two reasons:\n PDB structures are typically situated in different starting coordinates of Euclidean space. There can be small differences in length between the true and predicted structures, and/or it may be relevant to measure the RMSD across a comparable region.  However, how do we align two protein structures? Structural alignment can be done with many variations; the green structure is the “true” answer and the purple one is the prediction.\nIntuitively, we can see that the third alignment is the “correct” one - it maximises the ‘fit’ between the green and purple structures. This is the alignment that minimises the RMSD, and this alignment is obtained by singular value decomposition (SVD). In fact, for the purposes of calculating RMSD for model prediction, we often find this optimal alignment first, then measure the RMSD.\nComputationally, the simplest way to align two structures is to use BioPython. When we align structures, it’s good practice to be mindful of the following:\n There should be a way to align the sequences of two structures. This does not mean that there has to be an exact amino acid sequence match between the native structure and the predicted structure. However, a mechanism to compare them should be considered. Simply using residue numbers doesn’t always work, either! (but this is for another time) We can align one part of the structure to then measure the RMSD of another. This is particularly useful when we want to measure the RMSD of a very specific subsequence when the remaining bits of the protein structure are almost invariant.  Calculating RMSD using BioPython We will assume, for sake of argument, that the alpha alcohol dehydrogenase (PDB: 1hso) is the “true” structure and the gamma alcohol dehydrogenase (PDB: 1ht0) is the “model” structure.\n# This makes life so much easier. from Bio.PDB.PDBParser import PDBParser from Bio.SVDSuperimposer import SVDSuperimposer import numpy as np # Let's get our two structures; call them native (true) and model  p = PDBParser(QUIET=True) native = p.get_structure(\"native\", \"1hso.pdb\") model = p.get_structure(\"model\", \"1ht0.pdb\") Protein structures contain the following:\n Chains (these are typically codified with a letter) Residues (these are almost always numbered) Atoms  A protein structure object from the PDB parser allows us to grab each; e.g., to get the set of residues in chain A of the protein,\nchain_a = native[0]['A'] residues_a = [ r for r in chain_a ] (For the eagle-eyed of you, you would have noticed a 0 indexing above. That’s because the Structure object from the BioPython PDBParser also adds another layer, called the Model layer (not to be confused with “model structure” as we have mentioned previously))\nfrom Bio.PDB.Polypeptide import three_to_one from Bio.SVDSuperimposer import SVDSuperimposer from Bio.PDB.Structure import Structure AA = [\"ALA\", \"CYS\", \"ASP\", \"GLU\", \"PHE\", \"GLY\", \"HIS\", \"ILE\", \"LYS\", \"LEU\", \"MET\", \"ASN\", \"PRO\", \"GLN\", \"ARG\", \"SER\", \"THR\", \"VAL\", \"TRP\", \"TYR\"] # Type functions because it's helpful. def align(native: Structure, model: Structure, atom_types = [\"CA\", \"N\", \"C\", \"O\"]) - SVDSuperimposer: \"\"\" Aligns a model structure onto a native structure Using the atom types listed in `atom_types`. \"\"\" # A long one-liner that gets the one-letter amino acid representation for each residue in a structure, # then joins those letters into one long string. native_seq = \"\".join([ three_to_one(r.resname) for r in native[0].get_residues() if r.resname in AA ]) model_seq = \"\".join([ three_to_one(r.resname) for r in model[0].get_residues() if r.resname in AA ]) ## Some assertions that can be used # assert model_seq in native_seq, \"There should be an alignable sequence.\" assert len(model_seq) == len(native_seq), \"The sequences should be of identical length.\" # Get the coordinates of the Atom object if the Atom is from an amino acid residue, # and the atom type is what's specified in atom_types. # Traditionally RMSD is calculated for either: # Only the alpha-carbon atoms (CA), or # The \"protein backbone\" atoms (CA, N, C, O), or # All atoms native_coords = [ a.coord for a in native[0].get_atoms() if a.parent.resname in AA and a.name in atom_types ] model_coords = [ a.coord for a in model[0].get_atoms() if a.parent.resname in AA and a.name in atom_types ] si = SVDSuperimposer() si.set(np.array(native_coords), np.array(model_coords)) si.run() # Run the SVD alignment return si si = align(native, model) print(\"Initial RMSD: {:.2f} angstroms; full-backbone RMSD after alignment: {:.2f} angstroms\".format(si.get_init_rms(), si.get_rms())) Initial RMSD: 35.26 angstroms; full-backbone RMSD after alignment: 0.84 angstroms  We can see above that aligning two protein structures prior to calculating the RMSD can have a huge effect on the RMSD value. For some, this might seem like a bit of a cheat: we aligned the structure to minimise RMSD, so obviously this is bound to happen!\nWhile that’s true, we have to account for the fact that protein structures are often not standardised to a specific region of the coordinate space, and so this is a necessary process to avoid over-penalisation. Furthermore, it’s always possible to align one region of a protein to then measure the RMSD of another region. This is an approach that was used by the Antibody modelling assessment (AMA) to calculate the RMSD of specific loops of antibodies.\nIn fact, we can do something broadly similar; we can align using half of the atoms, but then calculate the RMSD of the full protein:\ndef rmsd(native_coords, model_coords, rot, tran): model_coords_rotated = np.dot(model_coords, rot) + tran diff = native_coords - model_coords_rotated RMSD = np.sqrt(sum(sum(diff**2))/native_coords.shape[0]) return RMSD def specific_align(native: Structure, model: Structure, aln_atoms = 0.5, atom_types = [\"CA\", \"N\", \"C\", \"O\"]) - list: # A long one-liner that gets the one-letter amino acid representation for each residue in a structure, # then joins those letters into one long string. native_seq = \"\".join([ three_to_one(r.resname) for r in native[0].get_residues() if r.resname in AA ]) model_seq = \"\".join([ three_to_one(r.resname) for r in model[0].get_residues() if r.resname in AA ]) assert len(model_seq) == len(native_seq), \"The sequences should be of identical length.\" # Get the atoms that we want to align native_coords = [ a.coord for a in native[0].get_atoms() if a.parent.resname in AA and a.name in atom_types ] model_coords = [ a.coord for a in model[0].get_atoms() if a.parent.resname in AA and a.name in atom_types ] # Convert to numpy arrays native_coords = np.array(native_coords) model_coords = np.array(model_coords) # Use a specific percentage of atoms to align. percentage_to_aln = int(aln_atoms * len(native_coords)) si = SVDSuperimposer() si.set(native_coords[:percentage_to_aln], model_coords[:percentage_to_aln]) si.run() # The SVD superimposer above gives us the rotation and translation matrices # that we can use to \"transform\" the model coordinates. The rotation and translation # matrices were based on aligning 50% of the backbone atoms. I will explain this a bit more later. RMSD = rmsd(native_coords, model_coords, si.rot, si.tran) return [si, RMSD] si_specific, rmsd_bb = specific_align(native, model) print(\"The initial RMSD is {:.2f}, with a 50% aligned backbone RMSD of {:.2f} and a full backbone RMSD of {:.2f}\".format( si_specific.get_init_rms(), si_specific.get_rms(), rmsd_bb)) The initial RMSD is 30.11, with a 50% aligned backbone RMSD of 0.40 and a full backbone RMSD of 1.47  So there are a couple of observations to be made here:\n The initial and 50%-aligned RMSD values are lower, but these are not comparable to the previous experiment. This is because we were calculating the distance over 50% of the backbone atoms, rather than the complete set. Essentially, the previous experiment is more likely to have a higher RMSD because there can be more anomalous atom coordinates that throw off the RMSD value. The full backbone RMSD is what’s comparable to the previous experiment. The difference is an RMSD of 0.84A when we align all backbone atoms vs. 1.47A for when we align half of the backbone atoms, but still calculate the distance across all backbone atoms. We can thus see that the alignment can have a huge impact on the reported RMSD.  The magical element in all of this is the SVD. If you want to stop here, the above code is a basic way to calculate RMSD using BioPython. Otherwise, continue!\nManually Calculating RMSD / What on earth is SVD? Essentially, it decomposes a $$m\\times n$$ matrix $$M$$ into three matrices:\n A $$m \\times n$$ matrix $$\\Sigma$$ whose diagonal contains the square-root of the eigenvalue of $$\\mathbf{MM^{*}}$$ A $$m\\times m$$ matrix U whose columns are the eigenvectors of $$\\mathbf{MM^{*}}$$ A $$n\\times n$$ matrix _V*_ whose columns are the eigenvectors of $$\\mathbf{M^{*}M}$$  I won’t go into the details of how SVD is run (outside the scope of this post).\nRemember from a previous post that a vector $$v$$ is an eigenvector if it satisfies $$Mv = \\lambda v$$, i.e., $$v$$ only changes by a scalar factor $$\\lambda$$ when it is transformed by $$M$$. In practice, this means that $$v$$ captures the direction of the transformation applied by $$M$$.\nIn the context of the work here, we use SVD to find the rotation and translation matrices that aligns the model protein structure onto the native one.\nFor ease of notation, the set of $$n \\times 3$$ coordinates from the model structure will be known as $$P$$ while the set of $$n \\times 3$$ coordinates from the native (true) structure will be denoted as $$Q$$.\nThe entire procedure for aligning protein structures using SVD is as follows:\n “Centre” the structures by the centroids $$C_P$$ and $$C_Q$$: $$P_m = P-C_P$$ and $$Q_m = Q-C_Q$$ Obtain the covariance matrix $$W = Q_m^TP_m$$ Run SVD on $$W$$ to obtain $$U, \\Sigma, V^*$$ Compute the (possible) rotation matrix $$R = (VU^T)$$.   If the determinant of $$R$$ is negative, then flip the sign of $$V_z$$ to keep it in the right-hand coordinate system; otherwise, we’re good.\n The translation matrix $$T = C_Q - C_PR$$.  # Function to get rotation and translation matrices def get_rot_tran(coord_true, coord_pred): \"\"\" Given two matrices, return a rotation and translation matrix to move pred coords onto true coords. Largely based on SVDSuperimposer implementation from BioPython with some tweaks. \"\"\" centroid_pred = np.sum(coord_pred, axis=0) / coord_pred.shape[0] centroid_true = np.sum(coord_true, axis=0) / coord_true.shape[0] p_prime = coord_pred - centroid_pred q_prime = coord_true - centroid_true W = np.dot(q_prime.T, p_prime) U, S, Vt = np.linalg.svd(W) V = Vt.T rot = np.dot(V, U.T) det = np.linalg.det(rot) # The determinant is needed to detect whether we need a right-hand coordinate system or not # This basically means we just have to flip the Z-axis if det  0: Vt[:,2] = -Vt[:,2] V = Vt.T rot = np.dot(V, U.T) tran = centroid_true - np.dot(centroid_pred, rot) return rot, tran def get_specific_atoms(structure, atom_types = [\"CA\", \"N\", \"C\", \"O\"]): \"\"\" Get atom coordinates of a Structure object for specified atom types \"\"\" return np.array([a.coord for a in structure.get_atoms() if a.parent.resname in AA and a.name in atom_types ]) # Let's run this and compare with the BioPython superimposer native_backbone = get_specific_atoms(native) model_backbone = get_specific_atoms(model) rot, tran = get_rot_tran(native_backbone, model_backbone) si = SVDSuperimposer() si.set(native_backbone, model_backbone) si.run() Once we have the rotation and translation matrices, the calculation of RMSD is then:\nrmsd(native_backbone, model_backbone, rot, tran) 0.836309515402226  si.get_rms() 0.836309515402226  Voila!\nFurther reading  https://www.evl.uic.edu/ralph/508S98/coordinates.html - what’s a RHS? https://machinelearningmastery.com/singular-value-decomposition-for-machine-learning/ - SVD guide https://biopython.org/DIST/docs/api/Bio.SVDSuperimposer.SVDSuperimposer-class.html - BioPython reference  ",
+  "wordCount" : "2336",
+  "inLanguage": "en",
+  "datePublished": "2019-10-06T00:00:00Z",
+  "dateModified": "2019-10-06T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/post/2019-10-06-rmsd/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Read between the rows",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "favicon.ico"
+    }
+  }
+}
+</script>
+
+
+
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    }
+
+</script>
+<noscript>
+    <style type="text/css">
+        .theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="" accesskey="h" title="Read between the rows (Alt + H)">Read between the rows</a>
+            <span class="logo-switches">
+                <a id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </a>
+                
+                
+            </span>
+        </div>
+        <ul id="menu" onscroll="menu_on_scroll()"></ul>
+    </nav>
+</header>
+
+    <main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+
+    <h1 class="post-title">
+      RMSD using SVD
+    </h1>
+    <div class="post-meta">October 6, 2019&nbsp;·&nbsp;11 min
+
+</div>
+  </header> 
+
+  <div class="toc">
+    <details >
+      <summary accesskey="c" title="(Alt + C)">
+        <div class="details">Table of Contents</div>
+      </summary>
+      <div class="inner"><ul><ul><li>
+        <a href="#a-very-short-primer-on-protein-structure-data---feel-free-to-skip-if-you-know-what-protein-structures-are-like" aria-label="A very short primer on protein structure data - feel free to skip if you know what protein structures are like!">A very short primer on protein structure data - feel free to skip if you know what protein structures are like!</a></li></ul>
+        <li>
+        <a href="#rmsd---the-maths" aria-label="RMSD - the maths">RMSD - the maths</a><ul>
+            <li>
+        <a href="#align-structures-_before_-calculating-rmsd" aria-label="Align structures before calculating RMSD!">Align structures <em>before</em> calculating RMSD!</a></li></ul>
+    </li><li>
+        <a href="#calculating-rmsd-using-biopython" aria-label="Calculating RMSD using BioPython">Calculating RMSD using BioPython</a></li><li>
+        <a href="#manually-calculating-rmsd--what-on-earth-is-svd" aria-label="Manually Calculating RMSD / What on earth is SVD?">Manually Calculating RMSD / What on earth is SVD?</a><ul>
+            <ul>
+            <li>
+        <a href="#further-reading" aria-label="Further reading">Further reading</a></li></ul></ul>
+</li></ul>
+      </div>
+    </details>
+  </div>
+  <div class="post-content">
+<p>During my PhD and postdoc, my main day-to-day was driven by one question:</p>
+<blockquote>
+<p>How do we make the best model protein structures?</p>
+</blockquote>
+<p>To answer that question, this is often done by calculating the root-mean square deviation (RMSD) between the predicted structure vs. the known &lsquo;true&rsquo; protein structure. There are other measures (e.g. TM-score, GDT_TS), but RMSD is still the most intuitive, and (unfortunately?) the accepted standard metric for goodness-of-fit.</p>
+<ul>
+<li>RMSD has some flaws; for example, it suffers from <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4321859/">size-dependent effects</a>, but we will discuss this another time.</li>
+</ul>
+<p><strong>If you have less than 3 minutes</strong></p>
+<ul>
+<li>Singular-value decomposition (SVD) allows us to find the optimal <em>rotation</em> and <em>translation</em> matrices that best aligns the predicted structure to the true protein structure. Following alignment, it&rsquo;s a case of just computing
+$$RMSD = \sqrt{\dfrac{1}{n} \sum_{i=1}^{n} d_i}$$
+where
+$$d_i = (x_{i,nat}-x_{i, model})^2 + (y_{i,nat}-y_{i, model})^2 + (z_{i,nat}-z_{i, model})^2$$</li>
+</ul>
+<!-- raw HTML omitted -->
+<p><strong>If you have about 10 minutes</strong></p>
+<ul>
+<li>Read on.</li>
+</ul>
+<h3 id="a-very-short-primer-on-protein-structure-data---feel-free-to-skip-if-you-know-what-protein-structures-are-like">A very short primer on protein structure data - feel free to skip if you know what protein structures are like!<a hidden class="anchor" aria-hidden="true" href="#a-very-short-primer-on-protein-structure-data---feel-free-to-skip-if-you-know-what-protein-structures-are-like">#</a></h3>
+<p>The Protein Data Bank (PDB) is <em>the</em> central repository that contains protein structure data. The data is gathered from scientists from around the world who determine the structure of a protein through experimental methods (typically X-ray crystallography, but the trend is going toward cryo electron microscopy; cryo-EM). One thing to bear in mind is that every structure that we have, even though it&rsquo;s experimental data, is in fact (yet another) a model!</p>
+<p>Condensing lots of physics and theory here, but in the case of X-ray crystallography, it largely has to do with the fact that the method detects and &ldquo;sees&rdquo; <em>electron diffraction</em>. It doesn&rsquo;t see proteins as fancy helices or loops like this:</p>
+<!-- raw HTML omitted -->
+<p>Thus, to resolve from an electron diffraction to signals that can be used as atomic coordinates, lots of physics and maths are involved. Essentially, the final structure we obtain is a <em>model of the electron density data</em>.</p>
+<p>Protein structures are then represented in an unusual 80-character format (historical reasons) that contain:</p>
+<ul>
+<li>Information about a protein&rsquo;s sequence</li>
+<li>Information about the amino acids that make up the protein, and <em>most importantly for this exercise</em>,</li>
+<li>The coordinates of each <strong>atom</strong> in the protein.</li>
+</ul>
+<p>The coordinates are in 3-dimensional $$(x,y,z)$$ space, and represented by an $$N \times 3$$ matrix:</p>
+<pre><code>[ 16.54 ,  10.798, -30.122],
+[ 16.677,  12.283, -30.154],
+[ 16.876,  12.799, -28.737],
+...,
+[ -7.62 ,  -7.475,  -5.355],
+[-11.083,   2.95 ,  -9.974],
+[-10.271,   2.053, -12.363]
+</code></pre><p>leading to a structure like this:</p>
+<!-- raw HTML omitted -->
+<h2 id="rmsd---the-maths">RMSD - the maths<a hidden class="anchor" aria-hidden="true" href="#rmsd---the-maths">#</a></h2>
+<p>Given two protein structures with $$n$$ atoms, the RMSD between the two can be calulated by:</p>
+<p>$$RMSD = \sqrt{\dfrac{1}{n} \sum_{i=1}^{n} (d_i) }$$</p>
+<p>where</p>
+<p>$$d_i = (x_{i,nat}-x_{i, model})^2 + (y_{i,nat}-y_{i, model})^2 + (z_{i,nat}-z_{i, model})^2$$</p>
+<p>So what does this mean? We iterate across $$n$$ aligned (this will be explained later) atoms, and take the difference in their x-, y-, and z-coordinates.
+We then take the square root of the average deviation. This metric can be custom fit to either calculate across <em>all</em> atoms of two protein structures, or a subset - so long as $$n$$ is identical between the predicted and true structures.</p>
+<h3 id="align-structures-_before_-calculating-rmsd">Align structures <em>before</em> calculating RMSD!<a hidden class="anchor" aria-hidden="true" href="#align-structures-_before_-calculating-rmsd">#</a></h3>
+<p>Before we calculate the RMSD, we need to <code>align</code> our structures for two reasons:</p>
+<ul>
+<li>PDB structures are typically situated in different starting coordinates of Euclidean space.</li>
+<li>There can be small differences in length between the true and predicted structures, and/or it may be relevant to measure the RMSD across a comparable region.</li>
+</ul>
+<p>However, <em>how</em> do we align two protein structures? Structural alignment can be done with many variations; the green structure is the &ldquo;true&rdquo; answer and the purple one is the prediction.</p>
+<!-- raw HTML omitted -->
+<p>Intuitively, we can see that the third alignment is the &ldquo;correct&rdquo; one - it maximises the &lsquo;fit&rsquo; between the green and purple structures. This is the alignment that <strong>minimises the RMSD</strong>, and this alignment is obtained by singular value decomposition (SVD). In fact, for the purposes of calculating RMSD for model prediction, we often find this optimal alignment first, <em>then</em> measure the RMSD.</p>
+<p>Computationally, the simplest way to align two structures is to use BioPython. When we align structures, it&rsquo;s good practice to be mindful of the following:</p>
+<ul>
+<li>There should be a way to align the sequences of two structures. This does <strong>not</strong> mean that there has to be an <em>exact amino acid sequence match</em> between the native structure and the predicted structure. However, a mechanism to compare them should be considered. Simply using residue numbers doesn&rsquo;t always work, either! (but this is for another time)</li>
+<li>We can align one part of the structure to then measure the RMSD of another. This is particularly useful when we want to measure the RMSD of a very specific subsequence when the remaining bits of the protein structure are almost invariant.</li>
+</ul>
+<h2 id="calculating-rmsd-using-biopython">Calculating RMSD using BioPython<a hidden class="anchor" aria-hidden="true" href="#calculating-rmsd-using-biopython">#</a></h2>
+<p>We will assume, for sake of argument, that the <em>alpha</em> alcohol dehydrogenase (PDB: 1hso) is the &ldquo;true&rdquo; structure and the <em>gamma</em> alcohol dehydrogenase (PDB: 1ht0) is the &ldquo;model&rdquo; structure.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># This makes life so much easier.</span>
+<span style="color:#f92672">from</span> Bio.PDB.PDBParser <span style="color:#f92672">import</span> PDBParser
+<span style="color:#f92672">from</span> Bio.SVDSuperimposer <span style="color:#f92672">import</span> SVDSuperimposer
+<span style="color:#f92672">import</span> numpy <span style="color:#f92672">as</span> np
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Let&#39;s get our two structures; call them native (true) and model </span>
+p <span style="color:#f92672">=</span> PDBParser(QUIET<span style="color:#f92672">=</span>True)
+native <span style="color:#f92672">=</span> p<span style="color:#f92672">.</span>get_structure(<span style="color:#e6db74">&#34;native&#34;</span>, <span style="color:#e6db74">&#34;1hso.pdb&#34;</span>)
+model  <span style="color:#f92672">=</span> p<span style="color:#f92672">.</span>get_structure(<span style="color:#e6db74">&#34;model&#34;</span>, <span style="color:#e6db74">&#34;1ht0.pdb&#34;</span>)
+</code></pre></div><p>Protein structures contain the following:</p>
+<ul>
+<li>Chains (these are typically codified with a letter)</li>
+<li>Residues (these are almost always numbered)</li>
+<li>Atoms</li>
+</ul>
+<p>A protein structure object from the PDB parser allows us to grab each; e.g., to get the set of residues in chain A of the protein,</p>
+<pre><code>chain_a = native[0]['A']
+residues_a = [ r for r in chain_a ]
+</code></pre><p>(For the eagle-eyed of you, you would have noticed a <code>0</code> indexing above. That&rsquo;s because the <code>Structure</code> object from the BioPython PDBParser also adds another layer, called the <code>Model</code> layer (<strong>not</strong> to be confused with &ldquo;model structure&rdquo; as we have mentioned previously))</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">from</span> Bio.PDB.Polypeptide <span style="color:#f92672">import</span> three_to_one
+<span style="color:#f92672">from</span> Bio.SVDSuperimposer <span style="color:#f92672">import</span> SVDSuperimposer
+<span style="color:#f92672">from</span> Bio.PDB.Structure <span style="color:#f92672">import</span> Structure
+
+AA <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#34;ALA&#34;</span>, <span style="color:#e6db74">&#34;CYS&#34;</span>, <span style="color:#e6db74">&#34;ASP&#34;</span>, <span style="color:#e6db74">&#34;GLU&#34;</span>, <span style="color:#e6db74">&#34;PHE&#34;</span>, <span style="color:#e6db74">&#34;GLY&#34;</span>, <span style="color:#e6db74">&#34;HIS&#34;</span>, <span style="color:#e6db74">&#34;ILE&#34;</span>, <span style="color:#e6db74">&#34;LYS&#34;</span>, <span style="color:#e6db74">&#34;LEU&#34;</span>, <span style="color:#e6db74">&#34;MET&#34;</span>, <span style="color:#e6db74">&#34;ASN&#34;</span>, <span style="color:#e6db74">&#34;PRO&#34;</span>, <span style="color:#e6db74">&#34;GLN&#34;</span>,
+      <span style="color:#e6db74">&#34;ARG&#34;</span>, <span style="color:#e6db74">&#34;SER&#34;</span>, <span style="color:#e6db74">&#34;THR&#34;</span>, <span style="color:#e6db74">&#34;VAL&#34;</span>, <span style="color:#e6db74">&#34;TRP&#34;</span>, <span style="color:#e6db74">&#34;TYR&#34;</span>]
+
+<span style="color:#75715e"># Type functions because it&#39;s helpful.</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">align</span>(native: Structure, model: Structure, atom_types <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#34;CA&#34;</span>, <span style="color:#e6db74">&#34;N&#34;</span>, <span style="color:#e6db74">&#34;C&#34;</span>, <span style="color:#e6db74">&#34;O&#34;</span>]) <span style="color:#f92672">-&gt;</span> SVDSuperimposer:
+    <span style="color:#e6db74">&#34;&#34;&#34;
+</span><span style="color:#e6db74">    Aligns a model structure onto a native structure
+</span><span style="color:#e6db74">    Using the atom types listed in `atom_types`.
+</span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+    
+    <span style="color:#75715e"># A long one-liner that gets the one-letter amino acid representation for each residue in a structure,</span>
+    <span style="color:#75715e"># then joins those letters into one long string.</span>
+    native_seq <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">.</span>join([ three_to_one(r<span style="color:#f92672">.</span>resname) <span style="color:#66d9ef">for</span> r <span style="color:#f92672">in</span> native[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>get_residues() <span style="color:#66d9ef">if</span> r<span style="color:#f92672">.</span>resname <span style="color:#f92672">in</span> AA ])
+    model_seq <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">.</span>join([ three_to_one(r<span style="color:#f92672">.</span>resname) <span style="color:#66d9ef">for</span> r <span style="color:#f92672">in</span> model[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>get_residues() <span style="color:#66d9ef">if</span> r<span style="color:#f92672">.</span>resname <span style="color:#f92672">in</span> AA ])
+
+    <span style="color:#75715e">## Some assertions that can be used</span>
+    <span style="color:#75715e"># assert model_seq in native_seq, &#34;There should be an alignable sequence.&#34;</span>
+    <span style="color:#66d9ef">assert</span> len(model_seq) <span style="color:#f92672">==</span> len(native_seq), <span style="color:#e6db74">&#34;The sequences should be of identical length.&#34;</span>
+    
+    <span style="color:#75715e"># Get the coordinates of the Atom object if the Atom is from an amino acid residue,</span>
+    <span style="color:#75715e"># and the atom type is what&#39;s specified in atom_types.</span>
+    <span style="color:#75715e"># Traditionally RMSD is calculated for either:</span>
+    <span style="color:#75715e"># Only the alpha-carbon atoms (CA), or</span>
+    <span style="color:#75715e"># The &#34;protein backbone&#34; atoms (CA, N, C, O), or</span>
+    <span style="color:#75715e"># All atoms</span>
+    native_coords <span style="color:#f92672">=</span> [ a<span style="color:#f92672">.</span>coord <span style="color:#66d9ef">for</span> a <span style="color:#f92672">in</span> native[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>get_atoms() <span style="color:#66d9ef">if</span> a<span style="color:#f92672">.</span>parent<span style="color:#f92672">.</span>resname <span style="color:#f92672">in</span> AA <span style="color:#f92672">and</span> a<span style="color:#f92672">.</span>name <span style="color:#f92672">in</span> atom_types ]
+    model_coords <span style="color:#f92672">=</span> [ a<span style="color:#f92672">.</span>coord <span style="color:#66d9ef">for</span> a <span style="color:#f92672">in</span> model[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>get_atoms() <span style="color:#66d9ef">if</span> a<span style="color:#f92672">.</span>parent<span style="color:#f92672">.</span>resname <span style="color:#f92672">in</span> AA <span style="color:#f92672">and</span> a<span style="color:#f92672">.</span>name <span style="color:#f92672">in</span> atom_types ]
+    
+    si <span style="color:#f92672">=</span> SVDSuperimposer()
+    si<span style="color:#f92672">.</span>set(np<span style="color:#f92672">.</span>array(native_coords), np<span style="color:#f92672">.</span>array(model_coords))
+    si<span style="color:#f92672">.</span>run() <span style="color:#75715e"># Run the SVD alignment</span>
+    
+    <span style="color:#66d9ef">return</span> si
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">si <span style="color:#f92672">=</span> align(native, model)
+<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;Initial RMSD: {:.2f} angstroms; full-backbone RMSD after alignment: {:.2f} angstroms&#34;</span><span style="color:#f92672">.</span>format(si<span style="color:#f92672">.</span>get_init_rms(), si<span style="color:#f92672">.</span>get_rms()))
+</code></pre></div><pre><code>Initial RMSD: 35.26 angstroms; full-backbone RMSD after alignment: 0.84 angstroms
+</code></pre>
+<p>We can see above that aligning two protein structures prior to calculating the RMSD can have a huge effect on the RMSD value. For some, this might seem like a bit of a cheat: we aligned the structure to <em>minimise</em> RMSD, so obviously this is bound to happen!</p>
+<p>While that&rsquo;s true, we have to account for the fact that protein structures are often not standardised to a specific region of the coordinate space, and so this is a necessary process to avoid over-penalisation. Furthermore, it&rsquo;s always possible to align one region of a protein to then measure the RMSD of another region. This is an approach that was used by the <a href="https://www.ncbi.nlm.nih.gov/pubmed/24668560">Antibody modelling assessment (AMA)</a> to calculate the RMSD of specific loops of antibodies.</p>
+<p>In fact, we can do something broadly similar; we can <em>align</em> using half of the atoms, but then calculate the RMSD of the full protein:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">rmsd</span>(native_coords, model_coords, rot, tran):
+    model_coords_rotated <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>dot(model_coords, rot) <span style="color:#f92672">+</span> tran
+    diff <span style="color:#f92672">=</span> native_coords <span style="color:#f92672">-</span> model_coords_rotated
+    RMSD <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>sqrt(sum(sum(diff<span style="color:#f92672">**</span><span style="color:#ae81ff">2</span>))<span style="color:#f92672">/</span>native_coords<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">0</span>])
+    <span style="color:#66d9ef">return</span> RMSD
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">specific_align</span>(native: Structure, model: Structure, 
+          aln_atoms <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.5</span>,
+          atom_types <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#34;CA&#34;</span>, <span style="color:#e6db74">&#34;N&#34;</span>, <span style="color:#e6db74">&#34;C&#34;</span>, <span style="color:#e6db74">&#34;O&#34;</span>]) <span style="color:#f92672">-&gt;</span> list:
+    
+    <span style="color:#75715e"># A long one-liner that gets the one-letter amino acid representation for each residue in a structure,</span>
+    <span style="color:#75715e"># then joins those letters into one long string.</span>
+    native_seq <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">.</span>join([ three_to_one(r<span style="color:#f92672">.</span>resname) <span style="color:#66d9ef">for</span> r <span style="color:#f92672">in</span> native[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>get_residues() <span style="color:#66d9ef">if</span> r<span style="color:#f92672">.</span>resname <span style="color:#f92672">in</span> AA ])
+    model_seq <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">.</span>join([ three_to_one(r<span style="color:#f92672">.</span>resname) <span style="color:#66d9ef">for</span> r <span style="color:#f92672">in</span> model[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>get_residues() <span style="color:#66d9ef">if</span> r<span style="color:#f92672">.</span>resname <span style="color:#f92672">in</span> AA ])
+    
+    <span style="color:#66d9ef">assert</span> len(model_seq) <span style="color:#f92672">==</span> len(native_seq), <span style="color:#e6db74">&#34;The sequences should be of identical length.&#34;</span>
+    
+    <span style="color:#75715e"># Get the atoms that we want to align</span>
+    native_coords <span style="color:#f92672">=</span> [ a<span style="color:#f92672">.</span>coord <span style="color:#66d9ef">for</span> a <span style="color:#f92672">in</span> native[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>get_atoms() <span style="color:#66d9ef">if</span> a<span style="color:#f92672">.</span>parent<span style="color:#f92672">.</span>resname <span style="color:#f92672">in</span> AA <span style="color:#f92672">and</span> a<span style="color:#f92672">.</span>name <span style="color:#f92672">in</span> atom_types ]
+    model_coords <span style="color:#f92672">=</span> [ a<span style="color:#f92672">.</span>coord <span style="color:#66d9ef">for</span> a <span style="color:#f92672">in</span> model[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>get_atoms() <span style="color:#66d9ef">if</span> a<span style="color:#f92672">.</span>parent<span style="color:#f92672">.</span>resname <span style="color:#f92672">in</span> AA <span style="color:#f92672">and</span> a<span style="color:#f92672">.</span>name <span style="color:#f92672">in</span> atom_types ]
+
+    <span style="color:#75715e"># Convert to numpy arrays</span>
+    native_coords <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array(native_coords)
+    model_coords <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array(model_coords)
+    
+    <span style="color:#75715e"># Use a specific percentage of atoms to align.</span>
+    percentage_to_aln <span style="color:#f92672">=</span> int(aln_atoms <span style="color:#f92672">*</span> len(native_coords))
+    
+    si <span style="color:#f92672">=</span> SVDSuperimposer()
+    si<span style="color:#f92672">.</span>set(native_coords[:percentage_to_aln], model_coords[:percentage_to_aln])
+    si<span style="color:#f92672">.</span>run()
+    
+    <span style="color:#75715e"># The SVD superimposer above gives us the rotation and translation matrices</span>
+    <span style="color:#75715e"># that we can use to &#34;transform&#34; the model coordinates. The rotation and translation</span>
+    <span style="color:#75715e"># matrices were based on aligning 50% of the backbone atoms. I will explain this a bit more later.</span>
+    RMSD <span style="color:#f92672">=</span> rmsd(native_coords, model_coords, si<span style="color:#f92672">.</span>rot, si<span style="color:#f92672">.</span>tran)
+    
+    <span style="color:#66d9ef">return</span> [si, RMSD]
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">si_specific, rmsd_bb <span style="color:#f92672">=</span> specific_align(native, model)
+<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;The initial RMSD is {:.2f}, with a 50% aligned backbone RMSD of {:.2f} and a full backbone RMSD of {:.2f}&#34;</span><span style="color:#f92672">.</span>format(
+    si_specific<span style="color:#f92672">.</span>get_init_rms(), si_specific<span style="color:#f92672">.</span>get_rms(), rmsd_bb))
+</code></pre></div><pre><code>The initial RMSD is 30.11, with a 50% aligned backbone RMSD of 0.40 and a full backbone RMSD of 1.47
+</code></pre>
+<p>So there are a couple of observations to be made here:</p>
+<ul>
+<li>The initial and 50%-aligned RMSD values are lower, but these are <em>not</em> comparable to the previous experiment. This is because we were calculating the distance over 50% of the backbone atoms, rather than the complete set. Essentially, the previous experiment is more likely to have a higher RMSD because there can be more anomalous atom coordinates that throw off the RMSD value.</li>
+<li>The full backbone RMSD is what&rsquo;s comparable to the previous experiment. The difference is an RMSD of 0.84A when we align <em>all</em> backbone atoms vs. 1.47A for when we align <em>half</em> of the backbone atoms, but <strong>still</strong> calculate the distance across all backbone atoms. We can thus see that the alignment can have a huge impact on the reported RMSD.</li>
+</ul>
+<p>The magical element in all of this is the <strong>SVD</strong>. If you want to stop here, the above code is a basic way to calculate RMSD using BioPython. Otherwise, continue!</p>
+<h2 id="manually-calculating-rmsd--what-on-earth-is-svd">Manually Calculating RMSD / What on earth is SVD?<a hidden class="anchor" aria-hidden="true" href="#manually-calculating-rmsd--what-on-earth-is-svd">#</a></h2>
+<!-- raw HTML omitted -->
+<p>Essentially, it decomposes a $$m\times n$$ matrix $$M$$ into three matrices:</p>
+<ul>
+<li>A $$m \times n$$ matrix $$\Sigma$$ whose diagonal contains the <em>square-root of the eigenvalue</em> of $$\mathbf{MM^{*}}$$</li>
+<li>A $$m\times m$$ matrix <em>U</em> whose columns are the eigenvectors of $$\mathbf{MM^{*}}$$</li>
+<li>A $$n\times n$$ matrix _V*_ whose columns are the eigenvectors of $$\mathbf{M^{*}M}$$</li>
+</ul>
+<p>I won&rsquo;t go into the details of <em>how</em> SVD is run (outside the scope of this post).</p>
+<p>Remember from a <a href="../../../../../../stats/2019/09/17/pca.html">previous post</a> that a vector
+$$v$$ is an <strong>eigenvector</strong> if it satisfies $$Mv = \lambda v$$, i.e., $$v$$ only changes by a scalar factor
+$$\lambda$$ when it is transformed by $$M$$. In practice, this means that $$v$$ captures the <em>direction</em> of the
+transformation applied by $$M$$.</p>
+<p>In the context of the work here, we use SVD to find the rotation and translation matrices that aligns the model protein structure onto the native one.</p>
+<p>For ease of notation, the set of $$n \times 3$$ coordinates from the <em>model</em> structure will be known as $$P$$ while
+the set of $$n \times 3$$ coordinates from the <em>native</em> (true) structure will be denoted as $$Q$$.</p>
+<p>The entire procedure for aligning protein structures using SVD is as follows:</p>
+<ol>
+<li>&ldquo;Centre&rdquo; the structures by the centroids $$C_P$$ and $$C_Q$$: $$P_m = P-C_P$$ and $$Q_m = Q-C_Q$$</li>
+<li>Obtain the covariance matrix $$W = Q_m^TP_m$$</li>
+<li>Run SVD on $$W$$ to obtain $$U, \Sigma, V^*$$</li>
+<li>Compute the (possible) rotation matrix $$R = (VU^T)$$.</li>
+</ol>
+<blockquote>
+<p>If the determinant of $$R$$ is negative, then flip the sign of $$V_z$$ to keep it in the right-hand coordinate system; otherwise, we&rsquo;re good.</p>
+</blockquote>
+<ol start="5">
+<li>The translation matrix $$T = C_Q - C_PR$$.</li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Function to get rotation and translation matrices</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_rot_tran</span>(coord_true, coord_pred):
+    <span style="color:#e6db74">&#34;&#34;&#34;
+</span><span style="color:#e6db74">    Given two matrices, return a rotation and translation matrix to move
+</span><span style="color:#e6db74">    pred coords onto true coords.
+</span><span style="color:#e6db74">    Largely based on SVDSuperimposer implementation from BioPython with some tweaks.
+</span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+    centroid_pred <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>sum(coord_pred, axis<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>) <span style="color:#f92672">/</span> coord_pred<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">0</span>]
+    centroid_true <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>sum(coord_true, axis<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>) <span style="color:#f92672">/</span> coord_true<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">0</span>]
+    
+    p_prime <span style="color:#f92672">=</span> coord_pred <span style="color:#f92672">-</span> centroid_pred
+    q_prime <span style="color:#f92672">=</span> coord_true <span style="color:#f92672">-</span> centroid_true
+    
+    W <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>dot(q_prime<span style="color:#f92672">.</span>T, p_prime)
+    U, S, Vt <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>linalg<span style="color:#f92672">.</span>svd(W)
+    
+    V <span style="color:#f92672">=</span> Vt<span style="color:#f92672">.</span>T
+    
+    rot <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>dot(V, U<span style="color:#f92672">.</span>T)
+    det <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>linalg<span style="color:#f92672">.</span>det(rot)
+    
+    <span style="color:#75715e"># The determinant is needed to detect whether we need a right-hand coordinate system or not</span>
+    <span style="color:#75715e"># This basically means we just have to flip the Z-axis</span>
+    <span style="color:#66d9ef">if</span> det <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span>:
+        Vt[:,<span style="color:#ae81ff">2</span>] <span style="color:#f92672">=</span> <span style="color:#f92672">-</span>Vt[:,<span style="color:#ae81ff">2</span>]
+        V <span style="color:#f92672">=</span> Vt<span style="color:#f92672">.</span>T
+        rot <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>dot(V, U<span style="color:#f92672">.</span>T)
+        
+    tran <span style="color:#f92672">=</span> centroid_true <span style="color:#f92672">-</span> np<span style="color:#f92672">.</span>dot(centroid_pred, rot)
+    <span style="color:#66d9ef">return</span> rot, tran
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_specific_atoms</span>(structure, atom_types <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#34;CA&#34;</span>, <span style="color:#e6db74">&#34;N&#34;</span>, <span style="color:#e6db74">&#34;C&#34;</span>, <span style="color:#e6db74">&#34;O&#34;</span>]):
+    <span style="color:#e6db74">&#34;&#34;&#34;
+</span><span style="color:#e6db74">    Get atom coordinates of a Structure object for specified atom types
+</span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+    <span style="color:#66d9ef">return</span> np<span style="color:#f92672">.</span>array([a<span style="color:#f92672">.</span>coord <span style="color:#66d9ef">for</span> a <span style="color:#f92672">in</span> structure<span style="color:#f92672">.</span>get_atoms() <span style="color:#66d9ef">if</span> a<span style="color:#f92672">.</span>parent<span style="color:#f92672">.</span>resname <span style="color:#f92672">in</span> AA <span style="color:#f92672">and</span> a<span style="color:#f92672">.</span>name <span style="color:#f92672">in</span> atom_types ])
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Let&#39;s run this and compare with the BioPython superimposer</span>
+native_backbone <span style="color:#f92672">=</span> get_specific_atoms(native)
+model_backbone  <span style="color:#f92672">=</span> get_specific_atoms(model)
+
+rot, tran <span style="color:#f92672">=</span> get_rot_tran(native_backbone, model_backbone)
+si <span style="color:#f92672">=</span> SVDSuperimposer()
+si<span style="color:#f92672">.</span>set(native_backbone, model_backbone)
+si<span style="color:#f92672">.</span>run()
+</code></pre></div><p>Once we have the rotation and translation matrices, the calculation of RMSD is then:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">rmsd(native_backbone, model_backbone, rot, tran)
+</code></pre></div><pre><code>0.836309515402226
+</code></pre>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">si<span style="color:#f92672">.</span>get_rms()
+</code></pre></div><pre><code>0.836309515402226
+</code></pre>
+<p>Voila!</p>
+<h4 id="further-reading">Further reading<a hidden class="anchor" aria-hidden="true" href="#further-reading">#</a></h4>
+<ul>
+<li><a href="https://www.evl.uic.edu/ralph/508S98/coordinates.html">https://www.evl.uic.edu/ralph/508S98/coordinates.html</a> - what&rsquo;s a RHS?</li>
+<li><a href="https://www.evl.uic.edu/ralph/508S98/coordinates.html">https://machinelearningmastery.com/singular-value-decomposition-for-machine-learning/</a> - SVD guide</li>
+<li><a href="https://www.evl.uic.edu/ralph/508S98/coordinates.html">https://biopython.org/DIST/docs/api/Bio.SVDSuperimposer.SVDSuperimposer-class.html</a> - BioPython reference</li>
+</ul>
+
+</div>
+  <footer class="post-footer">
+
+
+
+<div class="share-buttons">
+    <a target="_blank" rel="noopener noreferrer" aria-label="share RMSD using SVD on twitter"
+        href="https://twitter.com/intent/tweet/?text=RMSD%20using%20SVD&amp;url=%2fpost%2f2019-10-06-rmsd%2f&amp;hashtags=">
+        <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve">
+            <path
+                d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-253.927,424.544c135.939,0 210.268,-112.643 210.268,-210.268c0,-3.218 0,-6.437 -0.153,-9.502c14.406,-10.421 26.973,-23.448 36.935,-38.314c-13.18,5.824 -27.433,9.809 -42.452,11.648c15.326,-9.196 26.973,-23.602 32.49,-40.92c-14.252,8.429 -30.038,14.56 -46.896,17.931c-13.487,-14.406 -32.644,-23.295 -53.946,-23.295c-40.767,0 -73.87,33.104 -73.87,73.87c0,5.824 0.613,11.494 1.992,16.858c-61.456,-3.065 -115.862,-32.49 -152.337,-77.241c-6.284,10.881 -9.962,23.601 -9.962,37.088c0,25.594 13.027,48.276 32.95,61.456c-12.107,-0.307 -23.448,-3.678 -33.41,-9.196l0,0.92c0,35.862 25.441,65.594 59.311,72.49c-6.13,1.686 -12.72,2.606 -19.464,2.606c-4.751,0 -9.348,-0.46 -13.946,-1.38c9.349,29.426 36.628,50.728 68.965,51.341c-25.287,19.771 -57.164,31.571 -91.8,31.571c-5.977,0 -11.801,-0.306 -17.625,-1.073c32.337,21.15 71.264,33.41 112.95,33.41Z" />
+        </svg>
+    </a>
+    <a target="_blank" rel="noopener noreferrer" aria-label="share RMSD using SVD on linkedin"
+        href="https://www.linkedin.com/shareArticle?mini=true&amp;url=%2fpost%2f2019-10-06-rmsd%2f&amp;title=RMSD%20using%20SVD&amp;summary=RMSD%20using%20SVD&amp;source=%2fpost%2f2019-10-06-rmsd%2f">
+        <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve">
+            <path
+                d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-288.985,423.278l0,-225.717l-75.04,0l0,225.717l75.04,0Zm270.539,0l0,-129.439c0,-69.333 -37.018,-101.586 -86.381,-101.586c-39.804,0 -57.634,21.891 -67.617,37.266l0,-31.958l-75.021,0c0.995,21.181 0,225.717 0,225.717l75.02,0l0,-126.056c0,-6.748 0.486,-13.492 2.474,-18.315c5.414,-13.475 17.767,-27.434 38.494,-27.434c27.135,0 38.007,20.707 38.007,51.037l0,120.768l75.024,0Zm-307.552,-334.556c-25.674,0 -42.448,16.879 -42.448,39.002c0,21.658 16.264,39.002 41.455,39.002l0.484,0c26.165,0 42.452,-17.344 42.452,-39.002c-0.485,-22.092 -16.241,-38.954 -41.943,-39.002Z" />
+        </svg>
+    </a>
+    <a target="_blank" rel="noopener noreferrer" aria-label="share RMSD using SVD on reddit"
+        href="https://reddit.com/submit?url=%2fpost%2f2019-10-06-rmsd%2f&title=RMSD%20using%20SVD">
+        <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve">
+            <path
+                d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-3.446,265.638c0,-22.964 -18.616,-41.58 -41.58,-41.58c-11.211,0 -21.361,4.457 -28.841,11.666c-28.424,-20.508 -67.586,-33.757 -111.204,-35.278l18.941,-89.121l61.884,13.157c0.756,15.734 13.642,28.29 29.56,28.29c16.407,0 29.706,-13.299 29.706,-29.701c0,-16.403 -13.299,-29.702 -29.706,-29.702c-11.666,0 -21.657,6.792 -26.515,16.578l-69.105,-14.69c-1.922,-0.418 -3.939,-0.042 -5.585,1.036c-1.658,1.073 -2.811,2.761 -3.224,4.686l-21.152,99.438c-44.258,1.228 -84.046,14.494 -112.837,35.232c-7.468,-7.164 -17.589,-11.591 -28.757,-11.591c-22.965,0 -41.585,18.616 -41.585,41.58c0,16.896 10.095,31.41 24.568,37.918c-0.639,4.135 -0.99,8.328 -0.99,12.576c0,63.977 74.469,115.836 166.33,115.836c91.861,0 166.334,-51.859 166.334,-115.836c0,-4.218 -0.347,-8.387 -0.977,-12.493c14.564,-6.47 24.735,-21.034 24.735,-38.001Zm-119.474,108.193c-20.27,20.241 -59.115,21.816 -70.534,21.816c-11.428,0 -50.277,-1.575 -70.522,-21.82c-3.007,-3.008 -3.007,-7.882 0,-10.889c3.003,-2.999 7.882,-3.003 10.885,0c12.777,12.781 40.11,17.317 59.637,17.317c19.522,0 46.86,-4.536 59.657,-17.321c3.016,-2.999 7.886,-2.995 10.885,0.008c3.008,3.011 3.003,7.882 -0.008,10.889Zm-5.23,-48.781c-16.373,0 -29.701,-13.324 -29.701,-29.698c0,-16.381 13.328,-29.714 29.701,-29.714c16.378,0 29.706,13.333 29.706,29.714c0,16.374 -13.328,29.698 -29.706,29.698Zm-160.386,-29.702c0,-16.381 13.328,-29.71 29.714,-29.71c16.369,0 29.689,13.329 29.689,29.71c0,16.373 -13.32,29.693 -29.689,29.693c-16.386,0 -29.714,-13.32 -29.714,-29.693Z" />
+        </svg>
+    </a>
+    <a target="_blank" rel="noopener noreferrer" aria-label="share RMSD using SVD on facebook"
+        href="https://facebook.com/sharer/sharer.php?u=%2fpost%2f2019-10-06-rmsd%2f">
+        <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve">
+            <path
+                d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-106.468,0l0,-192.915l66.6,0l12.672,-82.621l-79.272,0l0,-53.617c0,-22.603 11.073,-44.636 46.58,-44.636l36.042,0l0,-70.34c0,0 -32.71,-5.582 -63.982,-5.582c-65.288,0 -107.96,39.569 -107.96,111.204l0,62.971l-72.573,0l0,82.621l72.573,0l0,192.915l-191.104,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Z" />
+        </svg>
+    </a>
+    <a target="_blank" rel="noopener noreferrer" aria-label="share RMSD using SVD on whatsapp"
+        href="https://api.whatsapp.com/send?text=RMSD%20using%20SVD%20-%20%2fpost%2f2019-10-06-rmsd%2f">
+        <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve">
+            <path
+                d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-58.673,127.703c-33.842,-33.881 -78.847,-52.548 -126.798,-52.568c-98.799,0 -179.21,80.405 -179.249,179.234c-0.013,31.593 8.241,62.428 23.927,89.612l-25.429,92.884l95.021,-24.925c26.181,14.28 55.659,21.807 85.658,21.816l0.074,0c98.789,0 179.206,-80.413 179.247,-179.243c0.018,-47.895 -18.61,-92.93 -52.451,-126.81Zm-126.797,275.782l-0.06,0c-26.734,-0.01 -52.954,-7.193 -75.828,-20.767l-5.441,-3.229l-56.386,14.792l15.05,-54.977l-3.542,-5.637c-14.913,-23.72 -22.791,-51.136 -22.779,-79.287c0.033,-82.142 66.867,-148.971 149.046,-148.971c39.793,0.014 77.199,15.531 105.329,43.692c28.128,28.16 43.609,65.592 43.594,105.4c-0.034,82.149 -66.866,148.983 -148.983,148.984Zm81.721,-111.581c-4.479,-2.242 -26.499,-13.075 -30.604,-14.571c-4.105,-1.495 -7.091,-2.241 -10.077,2.241c-2.986,4.483 -11.569,14.572 -14.182,17.562c-2.612,2.988 -5.225,3.364 -9.703,1.12c-4.479,-2.241 -18.91,-6.97 -36.017,-22.23c-13.314,-11.876 -22.304,-26.542 -24.916,-31.026c-2.612,-4.484 -0.279,-6.908 1.963,-9.14c2.016,-2.007 4.48,-5.232 6.719,-7.847c2.24,-2.615 2.986,-4.484 4.479,-7.472c1.493,-2.99 0.747,-5.604 -0.374,-7.846c-1.119,-2.241 -10.077,-24.288 -13.809,-33.256c-3.635,-8.733 -7.327,-7.55 -10.077,-7.688c-2.609,-0.13 -5.598,-0.158 -8.583,-0.158c-2.986,0 -7.839,1.121 -11.944,5.604c-4.105,4.484 -15.675,15.32 -15.675,37.364c0,22.046 16.048,43.342 18.287,46.332c2.24,2.99 31.582,48.227 76.511,67.627c10.685,4.615 19.028,7.371 25.533,9.434c10.728,3.41 20.492,2.929 28.209,1.775c8.605,-1.285 26.499,-10.833 30.231,-21.295c3.732,-10.464 3.732,-19.431 2.612,-21.298c-1.119,-1.869 -4.105,-2.99 -8.583,-5.232Z" />
+        </svg>
+    </a>
+    <a target="_blank" rel="noopener noreferrer" aria-label="share RMSD using SVD on telegram"
+        href="https://telegram.me/share/url?text=RMSD%20using%20SVD&amp;url=%2fpost%2f2019-10-06-rmsd%2f">
+        <svg version="1.1" xml:space="preserve" viewBox="2 2 28 28">
+            <path
+                d="M26.49,29.86H5.5a3.37,3.37,0,0,1-2.47-1,3.35,3.35,0,0,1-1-2.47V5.48A3.36,3.36,0,0,1,3,3,3.37,3.37,0,0,1,5.5,2h21A3.38,3.38,0,0,1,29,3a3.36,3.36,0,0,1,1,2.46V26.37a3.35,3.35,0,0,1-1,2.47A3.38,3.38,0,0,1,26.49,29.86Zm-5.38-6.71a.79.79,0,0,0,.85-.66L24.73,9.24a.55.55,0,0,0-.18-.46.62.62,0,0,0-.41-.17q-.08,0-16.53,6.11a.59.59,0,0,0-.41.59.57.57,0,0,0,.43.52l4,1.24,1.61,4.83a.62.62,0,0,0,.63.43.56.56,0,0,0,.4-.17L16.54,20l4.09,3A.9.9,0,0,0,21.11,23.15ZM13.8,20.71l-1.21-4q8.72-5.55,8.78-5.55c.15,0,.23,0,.23.16a.18.18,0,0,1,0,.06s-2.51,2.3-7.52,6.8Z" />
+        </svg>
+    </a>
+</div>
+
+  </footer>
+</article>
+    </main><footer class="footer">
+    <span>&copy; 2021 <a href="">Read between the rows</a></span>
+    <span>&middot;</span>
+    <span>Powered by <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a></span>
+    <span>&middot;</span>
+    <span>Theme <a href="https://git.io/hugopapermod" rel="noopener" target="_blank">PaperMod</a></span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)">
+    <button class="top-link" id="top-link" type="button" accesskey="g">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+            <path d="M12 6H0l6-6z" />
+        </svg>
+    </button>
+</a>
+
+
+
+<script defer src="/assets/js/highlight.min.27cd435cc9ed6abb4b496581b151804f79f366c412620272bb94e2f5f598ebcc.js" integrity="sha256-J81DXMntartLSWWBsVGAT3nzZsQSYgJyu5Ti9fWY68w="
+    onload="hljs.initHighlightingOnLoad();"></script>
+<script>
+    window.onload = function () {
+        if (localStorage.getItem("menu-scroll-position")) {
+            document.getElementById('menu').scrollLeft = localStorage.getItem("menu-scroll-position");
+        }
+    }
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+    function menu_on_scroll() {
+        localStorage.setItem("menu-scroll-position", document.getElementById('menu').scrollLeft);
+    }
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+
+</body>
+
+</html>

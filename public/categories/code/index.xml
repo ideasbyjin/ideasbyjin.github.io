@@ -5,12 +5,8 @@
     <link>/categories/code/</link>
     <description>Recent content in code on Read between the rows</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    <lastBuildDate>Mon, 28 Jan 2019 00:00:00 +0000</lastBuildDate>
-    
-	<atom:link href="/categories/code/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <language>en-gb</language>
+    <lastBuildDate>Mon, 28 Jan 2019 00:00:00 +0000</lastBuildDate><atom:link href="/categories/code/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Building Python modules using C&#43;&#43;</title>
       <link>/post/2019-01-28-mesh-cpp-python/</link>

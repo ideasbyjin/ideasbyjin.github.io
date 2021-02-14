@@ -5,12 +5,8 @@
     <link>/post/</link>
     <description>Recent content in Posts on Read between the rows</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    <lastBuildDate>Sat, 30 Jan 2021 00:00:00 +0000</lastBuildDate>
-    
-	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <language>en-gb</language>
+    <lastBuildDate>Sat, 30 Jan 2021 00:00:00 +0000</lastBuildDate><atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Numba in action!</title>
       <link>/post/2021-01-30-numba/</link>
@@ -149,7 +145,7 @@ $$\dagger$$: this is a gross generalisation. More formally, for some dataset $$\
       <pubDate>Mon, 23 Sep 2019 00:00:00 +0000</pubDate>
       
       <guid>/post/2019-09-23-clustering-1/</guid>
-      <description>Context From the last blog post, we saw that data can come with many features. When data gets very complex (at least, more complex than the Starbucks data from the last post), we can rely on machine learning methods to &amp;ldquo;learn&amp;rdquo; patterns in the data. For example, suppose you have 1000 photos, of which 500 are cats, and the other 500 are dogs. Machine learning methods can, for instance, read the RGB channels of the images&amp;rsquo; pixels, then use that information to distinguish which combinations of pixels are associated with cat images, and which combinations are linked to dogs.</description>
+      <description>Context From the last blog post, we saw that data can come with many features. When data gets very complex (at least, more complex than the Starbucks data from the last post), we can rely on machine learning methods to &amp;ldquo;learn&amp;rdquo; patterns in the data. For example, suppose you have 1000 photos, of which 500 are cats, and the other 500 are dogs. Machine learning methods can, for instance, read the RGB channels of the images&#39; pixels, then use that information to distinguish which combinations of pixels are associated with cat images, and which combinations are linked to dogs.</description>
     </item>
     
     <item>

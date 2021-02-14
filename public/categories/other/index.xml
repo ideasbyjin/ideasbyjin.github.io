@@ -5,12 +5,8 @@
     <link>/categories/other/</link>
     <description>Recent content in other on Read between the rows</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    <lastBuildDate>Sun, 15 Mar 2020 00:00:00 +0000</lastBuildDate>
-    
-	<atom:link href="/categories/other/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <language>en-gb</language>
+    <lastBuildDate>Sun, 15 Mar 2020 00:00:00 +0000</lastBuildDate><atom:link href="/categories/other/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Book reviews of Q1 2020</title>
       <link>/post/2020-03-15-bookreview/</link>

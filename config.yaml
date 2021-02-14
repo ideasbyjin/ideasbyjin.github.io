@@ -15,11 +15,20 @@ params:
     profileMode:
         enabled: false
     homeInfoParams:
-        Title: "Hi there!"
-        Content: This is some subtext
+        Title: "Hey there! 👋🏼"
+        Content: "I'm Jin. I'm the Data Science Lead at [Alchemab Therapeutics](http://alchemab.com/). Data science,
+        sports, and bio/medtech are my jam, and I'll try to post pieces on these themes regularly. All views and work
+        expressed here are my own. It would be great to keep in touch via LinkedIn, or follow each other on Twitter."
 
     socialIcons:
         - name: Twitter
           url: http://twitter.com/ideasbyjin
         - name: LinkedIn
-          url: http://
+          url: https://www.linkedin.com/in/jleem/
+
+menu:
+    main:
+        - identifier: about
+          name: about
+          url: /about
+          weight: 10
