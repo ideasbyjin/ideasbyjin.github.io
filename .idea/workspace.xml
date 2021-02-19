@@ -2,125 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="416724ec-a57a-4a88-b02c-918d42892d29" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitmodules" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/themes/PaperMod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/gh-pages.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/gh-pages.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/404.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Gemfile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_config.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/footer.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/google-analytics.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_includes/head.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_layouts/default.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_layouts/home.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_layouts/page.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_layouts/post.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_posts/2019-01-28-mesh-cpp-python.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_posts/2019-09-17-pca.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_posts/2019-09-23-clustering-1.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_posts/2019-10-05-korea.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_posts/2019-10-06-rmsd.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_posts/2019-11-01-supervised.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_posts/2019-12-18-clustering-2.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_posts/2019-12-25-santa-bayes.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_posts/2019-12-31-bookreview.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_posts/2020-02-26-anns.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_posts/2020-03-15-bookreview.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_posts/2020-04-11-distributions.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_posts/2020-04-14-distributions-applications.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_posts/2020-05-16-antibodies.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_posts/2020-05-23-docker.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_posts/2021-01-26-pandas.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/_posts/2021-01-30-numba.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/about.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/antibody-binding.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/antibody-detection.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/antibody-doublesandwich.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/antibody-response.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/antibody-structure.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/antibody-vdj.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/data/mcdonalds-menu/menu.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/data/starbucks-menu/starbucks-menu-nutrition-drinks.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/data/starbucks-menu/starbucks-menu-nutrition-food.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/data/starbucks-menu/starbucks_drinkMenu_expanded.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/jin.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/main.scss" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/distributions/beta_pdf.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/distributions/continuous_distributions.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/distributions/discrete_distributions.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/distributions/hypergeometric_pmf.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/distributions/inset_hypergeometric.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/distributions/posterior_distribution.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/gene_exp/gtex_clusters.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/gene_exp/mds.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/gene_exp/output_29_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/gene_exp/output_31_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/gene_exp/output_33_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/gene_exp/output_36_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/gene_exp/output_42_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/gene_exp/output_48_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/hclust/hierarchical-clustering.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/hclust/output_18_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/hclust/output_20_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/hclust/output_22_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/hclust/output_26_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/hockey/hockey_players_position.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/hockey/output_18_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/hockey/output_27_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/hockey/output_28_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/hockey/output_33_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/hockey/output_34_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/hockey/output_39_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/hockey/output_44_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/hockey/output_45_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/hockey/output_48_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/neural-networks/neuralnetwork-setup.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/neural-networks/neuralnetwork.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/neural-networks/output_29_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/neural-networks/output_3_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/neural-networks/output_52_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/neural-networks/output_5_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/numba/contact_map.tsv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/pandas/output_5_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/pandas/output_6_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/pca/.ipynb_checkpoints/PCA-checkpoint.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/pca/PCA.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/pca/output_11_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/pca/output_15_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/pca/output_8_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/rmsd/1hso.pdb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/rmsd/1ht0.pdb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/rmsd/RMSD notebook.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/rmsd/adh.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/rmsd/aln_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/rmsd/aln_2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/rmsd/aln_3.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/rmsd/cartoon.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/rmsd/rmsd_schematic.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/rmsd/svd.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/santa_bayes/num_naughty.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/santa_bayes/output_11_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/santa_bayes/output_17_2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/santa_bayes/output_19_2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/santa_bayes/output_23_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/santa_bayes/output_28_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/santa_bayes/output_3_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notebooks/santa_bayes/output_9_0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/posts.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/categories/bioinf/index.xml" beforeDir="false" afterPath="$PROJECT_DIR$/public/categories/bioinf/index.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/categories/code/index.xml" beforeDir="false" afterPath="$PROJECT_DIR$/public/categories/code/index.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/categories/index.xml" beforeDir="false" afterPath="$PROJECT_DIR$/public/categories/index.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/categories/other/index.xml" beforeDir="false" afterPath="$PROJECT_DIR$/public/categories/other/index.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/categories/stats/index.xml" beforeDir="false" afterPath="$PROJECT_DIR$/public/categories/stats/index.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/index.xml" beforeDir="false" afterPath="$PROJECT_DIR$/public/index.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/post/index.xml" beforeDir="false" afterPath="$PROJECT_DIR$/public/post/index.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/sitemap.xml" beforeDir="false" afterPath="$PROJECT_DIR$/public/sitemap.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/tags/index.xml" beforeDir="false" afterPath="$PROJECT_DIR$/public/tags/index.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/themes/PaperMod" beforeDir="false" afterPath="$PROJECT_DIR$/themes/PaperMod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/themes/PaperMod/assets/css/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/themes/PaperMod/assets/css/main.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/themes/PaperMod/layouts/partials/extend_head.html" beforeDir="false" afterPath="$PROJECT_DIR$/themes/PaperMod/layouts/partials/extend_head.html" afterDir="false" />
     </list>
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -139,9 +27,13 @@
   </component>
   <component name="ProjectId" id="1QzX01Fxxm5bEi7zqWFL6vTj19N" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$/_posts" />
-    <property name="settings.editor.selected.configurable" value="vcs.Git" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -152,18 +44,7 @@
       <recent name="$PROJECT_DIR$/_posts" />
     </key>
   </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
-      <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
-      </list>
-    </option>
-  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -393,15 +274,17 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State>
-              <option name="COLUMN_ORDER" />
-            </State>
+            <State />
           </value>
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/themes/doks" />
+    </ignored-roots>
     <MESSAGE value="Push some minor changes" />
     <MESSAGE value="Korea post" />
     <MESSAGE value="RMSD post" />
