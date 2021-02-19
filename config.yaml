@@ -8,7 +8,7 @@ params:
     env: production
     defaultTheme: light
     ShowReadingTime: true
-    ShowShareButtons: true
+    ShowShareButtons: false
     showtoc: true
     comments: false
 
