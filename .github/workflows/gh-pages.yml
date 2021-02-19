@@ -30,6 +30,6 @@ jobs:
           publish_dir: ./public
 
       - name: Setup Hugo
-        uses: peaceiris/actions-hugo@latest
+        uses: peaceiris/actions-hugo
         with:
           hugo-version: 'latest'
