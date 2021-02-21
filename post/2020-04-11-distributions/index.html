@@ -1,166 +1,601 @@
-<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Distributions Cheat sheet | Read between the rows</title><meta name=keywords content><meta name=description content="A cheat sheet for probability distributions."><meta name=author content><link rel=canonical href=https://ideasbyjin.github.io/post/2020-04-11-distributions/><link href=/assets/css/stylesheet.min.54720d48c4fa0c4ebe8555f04b9fc5b856112ec49cafef19cb385e89661150b7.css integrity="sha256-VHINSMT6DE6+hVXwS5/FuFYRLsScr+8ZyzheiWYRULc=" rel="preload stylesheet" as=style><link rel=icon href=https://ideasbyjin.github.io/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://ideasbyjin.github.io/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://ideasbyjin.github.io/favicon-32x32.png><link rel=apple-touch-icon href=https://ideasbyjin.github.io/apple-touch-icon.png><link rel=mask-icon href=https://ideasbyjin.github.io/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><meta name=generator content="Hugo 0.80.0"><script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true,processEnvironments:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};window.addEventListener('load',(event)=>{document.querySelectorAll("mjx-container").forEach(function(x){x.parentElement.classList+='has-jax'})});</script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type=text/javascript id=MathJax-script async src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js></script><meta property="og:title" content="Distributions Cheat sheet"><meta property="og:description" content="A cheat sheet for probability distributions."><meta property="og:type" content="article"><meta property="og:url" content="https://ideasbyjin.github.io/post/2020-04-11-distributions/"><meta property="article:published_time" content="2020-04-11T00:00:00+00:00"><meta property="article:modified_time" content="2020-04-11T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Distributions Cheat sheet"><meta name=twitter:description content="A cheat sheet for probability distributions."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Distributions Cheat sheet","name":"Distributions Cheat sheet","description":"A cheat sheet for probability distributions.","keywords":[],"articleBody":"In this post, I wanted to provide a primer / cheat-sheet on probability distributions to equip the community with a toolkit to tackle a wide range of data science problems – for example, the current ongoing COVID-19 crisis.\n Disclaimer: please do not assume that COVID-19 behaves as simply as the probability distributions below.\n If you have…\n 30 seconds: a table of distributions and some use cases are shown below. 2 minutes:  Random variables can be discrete or continuous. Probability mass functions are used to explain discrete random variables; examples include the poisson distribution, binomial distribution, and the hypergeometric distribution. Probability density functions are used to explain continuous random variables; examples include the uniform distribution, the normal distribution, and the beta distribution.   7 minutes: go on.  Distributions of discrete variables We’re going to draw 1000 samples from the following distributions.\n   Name Used to… Example use case Parameters     Binomial Represent number of successes of $$n$$ trials How many heads will I get from $$n$$ coin tosses? $$p$$: probability of “success”; $$n$$: number of trials   Geometric Represent number of trials until first success How many tails will I see until the first head? $$p$$: probability of success   Negative binomial Represent number of failures before we see $$n$$ successful binary events How many tails will I see before I see $$n$$ heads? $$p$$: probability of success; $$n$$: number of successes   Poisson Represent number of successesful events where we have infinite trials How many red buses will I see at my bus stop today? $$\\lambda$$: rate of success   Hypergeometric Represent number of type $$I$$ objects drawn from a sample of size $$n$$ without replacement from a population $$N$$ From a bag with 10 red balls and 90 blue balls, I will randomly sample 20 balls; how many of these are red? $$K$$: total number of “successful” cases (i.e. type $$I$$ objects); $$n$$: sample size; $$N$$: total number of objects    Distributions of continuous variables We’re going to draw 1000 samples from the following distributions.\n   Name Used to… Example use case Parameters     Uniform Represent a random variable whose value occurs between $$a$$ and $$b$$ The hyper-parameter of a model, $$\\theta$$, where $$\\theta$$ can take any value between $$a$$ and $$b$$ $$a$$: minimum value; $$b$$: maximum value   Beta Represent the distribution of a random variable whose value is between 0 and 1 Estimating the distribution of a probability (e.g. free throw percentage) Shape parameters $$\\alpha$$ and $$\\beta$$. (*NB: A beta distribution with $$\\alpha = \\beta = 1$$ is the same as a uniform distribution with $$a = 0, b = 1$$.)   Exponential Represent a random variable that decays exponentially How long do I have to wait until the first success? (The “continuous version” of the geometric distribution) $$\\lambda$$: rate parameter   Gamma Represent a random variable that decays exponentially How long do I have to wait until the $$k$$th success? $$k$$: shape parameter; $$\\theta$$: scale parameter; OR $$\\alpha$$: shape parameter (same as $$k$$); $$\\beta$$: rate parameter where $$\\beta = 1/\\theta$$   Normal Represent the behaviour of most continuous random variables (e.g. height, scores, protein mass, etc.) Captures many types of continuous variables and is usually a good approximation for most use cases. Represent quantities that follow a “bell curve” distribution $$\\mu$$: expected value of the random variable; $$\\sigma$$: standard deviation   von Mises distribution Represent “circular” random variables Sampling torsion angles of amino acids $$\\mu$$: central location (radians); $$\\kappa$$: dispersion   t-distribution Represents the distribution of the sample means from a normally distributed random variable t-tests df: degrees of freedom   $$\\chi^2$$ distribution Represents the sum of the squares of $$k$$ normally-distributed random variables Used for the a “goodness of fit” test or independence of categorical variables df: degrees of freedom   Dirichlet distribution Represent the probability distribution space of $$K$$ events If an event has $$K$$ possibilities, what would be its possible probability distributions? $$\\alpha$$: a $$K$$-sized vector of numbers    Let’s start by defining what a random variable is…\n A random variable is a real-valued function that maps probability events to measurable values.\n Random variables are also considered to either be discrete or continuous. We’ll first start with the discrete case.\nDiscrete random variables and probability mass functions The definition of a random variable can sound a bit vague; the oft-quoted “coin toss” provides a good way to understand random variables.\n The “event space” is whether a coin is heads or tails. A sequence of heads/tails is thus the sequence of events. Thus, a “random variable” can be used to express the number of heads in that sequence.  These types of random variables are known as discrete random variables. Other examples include:\n The sum of two dice that are rolled The number of objects drawn from a bag The number of days elapsed between visits to the grocery store  As a rule of thumb, if you can count it / it’s an integer, it’s likely to be discrete.\nSince discrete random variables can only take on a limited set of values, it is thus possible to calculate the probability space of that random variable.\n Consider a traditional six-sided die. We know that there are six and only six possible faces, so we can calculate the probability of landing on one of those six faces.\n Thus, the probability of the discrete random variable $$X$$ taking some value $$x$$, $$Pr(X = x)$$, can be calculated by a probability mass function (PMF). Different types of discrete random variables have different PMFs. We can also visualise the probability space of PMFs using histograms.\n# Import stuff import numpy as np import scipy.stats as sp import seaborn as sns import matplotlib.pyplot as plt sns.set_style(\"ticks\") sns.set_context(\"paper\") # Let's generate some random numbers np.random.seed(42) # 100 tosses; 20% chance of success. Do 1000 such trials. binomial = sp.binom.rvs(n = 100, p = 0.2, size = 1000) binomial_bins = np.arange(10, 41, 5) # How many trials will we need until we see the first success? 20% chance of success. Run this 1000 times. geometric = sp.geom.rvs(p=0.2, size = 1000) geometric_bins = np.arange(0, 31, 5) # How many failures will we see before the 10th success? Success rate of 40%. Run this experiment 1000 times. nbinomial = sp.nbinom.rvs(n = 10, p = 0.4, size = 1000) nbinomial_bins = np.arange(0, 11, 1) # How many red buses will we see over 1000 days if they come at a rate of 0.4? # rate (mu) = n x p where n is infinite trials, and p is the probability of success. poisson = sp.poisson.rvs(mu = 0.4, size = 1000) poisson_bins = np.arange(0, 6, 1) # 10 red balls in a bag of 100. If I sample 20, how many red balls will I get? Run this experiment 1000 times. # Scipy's notation is a bit confusing hypergeometric = sp.hypergeom.rvs(M = 100, n = 10, N = 20, size = 1000) hypergeometric_bins = np.arange(0, 11, 1) fig, axes = plt.subplots(2,3) ax = axes.flatten() distributions = [ (\"Binomial\", binomial, binomial_bins, 'dodgerblue', 'n = 100, p = 0.2'), (\"Geometric\", geometric, geometric_bins, 'g', 'p = 0.2'), (\"Negative binomial\", nbinomial, nbinomial_bins, 'r', 'n_success = 10, p = 0.4'), (\"Poisson\", poisson, poisson_bins, 'orange', '$\\lambda$ = 0.4'), (\"Hypergeometric\", hypergeometric, hypergeometric_bins, 'purple', 'n_target = 10, n_sample = 20, n_total = 100') ] for i,v in enumerate(distributions): name, the_dist, the_dist_bins, c, params = v sns.distplot(the_dist, ax = ax[i], kde = False, color = c, bins = the_dist_bins) ax[i].set_title(f\"{name} distribution\\n{params}\") plt.subplots_adjust(hspace = 0.5) sns.despine() fig.delaxes(ax[i+1]) fig.set_size_inches((10,8)) plt.savefig(\"discrete_distributions.png\", dpi = 300) Continuous random variables and probability distribution functions Well, what about random variables that are not countable / integers? Such as…\n The height of individuals Time elapsed between events (remember, you can have miliseconds, microseconds…) Batting averages of baseball players  As a rule of thumb, if a random variable can take a decimal value, it’s likely to be continuous.\nUnlike discrete random variables, we cannot calculate the probability that $$X$$ is going to an exact value $$x$$. This is because we cannot enumerate all the possible values of the random variable, and thus, the probability of $$X = x$$ is 0.\n Think about in practice: what is the probability that the temperature tomorrow will be precisely 23.000000 degrees Celsius (73.400000F for Americans)? Another example, what is the probability that someone will be precisely 174.714 centimeters tall (5'8)?\n Since a continuous random variable, by definition, is uncountable, we account for them using probability distribution functions (PDFs). While they might sound similar to PMFs, PDFs do not represent probabilities, but probability densities.\n Another way of thinking about the density is that the density represents a form of relative likelihood. The higher the density, the more likely that the random variable takes on that particular value.\n For PDFs, since the probability of an exact value is 0, we typically calculate it in intervals. e.g. the probability that $$X$$ is less than or equal to $$x$$ is represented by $$Pr(X \\leq x)$$. In other words, if a random variable has the probability distribution function $$f(x)$$, the probability $$Pr(X \\leq x)$$ is\n$$Pr(X \\leq x ) = \\int_{-\\infty}^{x} f(x) dx $$\n# Let's generate some random numbers np.random.seed(42) # Uniform distribution between 0,1  uniform = sp.uniform.rvs(0, 1 ,size=1000) uniform_bins = np.arange(0, 1.01, 0.01) # Beta distribution but with four different cases; a = b = 1; a  b; b  a; a beta_1 = sp.beta.rvs(a = 1, b = 1, size = 1000) beta_2 = sp.beta.rvs(a = 5, b = 1, size = 1000) beta_3 = sp.beta.rvs(a = 1, b = 5, size = 1000) beta_4 = sp.beta.rvs(a = 0.5, b = 0.5, size = 1000) beta_bins = uniform_bins.copy() # Still between 0 and 1 # How much time will elapse until the first success? Play with different scale values expon_1 = sp.expon.rvs(scale = 1, size = 1000) expon_2 = sp.expon.rvs(scale = 0.5, size = 1000) expon_3 = sp.expon.rvs(scale = 4, size = 1000) expon_bins = np.arange(0, 10.1, 0.01) # How much time until the ath event? Plot different cases; three scale values, two k values gamma_1 = sp.gamma.rvs(a = 1, scale = 1, size = 1000) gamma_2 = sp.gamma.rvs(a = 1, scale = 0.5, size = 1000) gamma_3 = sp.gamma.rvs(a = 1, scale = 4, size = 1000) gamma_4 = sp.gamma.rvs(a = 3, scale = 1, size = 1000) gamma_5 = sp.gamma.rvs(a = 3, scale = 0.5, size = 1000) gamma_6 = sp.gamma.rvs(a = 3, scale = 4, size = 1000) gamma_bins = expon_bins.copy() # Plot the good old' standard normal distribution, which is king! normal = sp.norm.rvs(size=1000) normal_bins = np.arange(-3, 3.01, 0.01) # Plot the circular normal, or von mises, distribution vm = sp.vonmises.rvs(kappa = 1, size=1000) vm_bins = np.arange(-np.pi, np.pi+0.01, 0.1) # t-distribution and chi-squared distributions with 5 degrees of freedom t = sp.t.rvs(df=5, size = 1000) t_bins = normal_bins.copy() chi = sp.chi2.rvs(df = 5, size = 1000) chi_bins = np.arange(0, int(max(chi))+1, 1) # Dirichlet distribution for 3-event space with concentration parameters of 1,1,1 dirichet = sp.dirichlet.rvs([1,1,1], size = 1000) distributions = [ (\"Uniform\", [uniform], uniform_bins, ['dodgerblue'], ['a = 0, b = 1']), (\"Beta\", [beta_1, beta_2, beta_3, beta_4], beta_bins, ['dodgerblue', 'red', 'yellow', 'green'], ['$\\\\alpha = 1, \\\\beta = 1$', '$\\\\alpha = 5, \\\\beta = 1$', '$\\\\alpha = 1, \\\\beta = 5$', '$\\\\alpha = 0.5, \\\\beta = 0.5$']), (\"Exponential\", [expon_1, expon_2, expon_3], expon_bins, ['dodgerblue', 'red', 'yellow'], ['$\\lambda = 1$', '$\\lambda = 1/0.5 = 2$', '$\\lambda = 1/4 = 0.25$']), (\"Gamma\", [gamma_1, gamma_2, gamma_3, gamma_4, gamma_5, gamma_6], gamma_bins, ['dodgerblue', 'red', 'yellow', 'green', 'purple', 'black', 'brown'], ['$\\\\alpha = 1, \\\\theta = 1$', '$\\\\alpha = 1, \\\\theta = 0.5$', '$\\\\alpha = 1, \\\\theta = 4$', '$\\\\alpha = 3, \\\\theta = 1$', '$\\\\alpha = 3, \\\\theta = 0.5$', '$\\\\alpha = 3, \\\\theta = 4$']), (\"Normal\", [normal], normal_bins, ['dodgerblue'], ['$\\mu = 0, \\sigma = 1$']), (\"von Mises\", [vm], vm_bins, ['red'], ['$\\mu = 0, \\kappa = 1$']), (\"t\", [t], t_bins, ['green'], ['df = 5']), (\"$\\chi^2$\", [chi], chi_bins, ['yellow'], ['df = 5']), ] fig, axes = plt.subplots(3,3) ax = axes.flatten() for i,v in enumerate(distributions): name, the_dist_list, the_dist_bins, c_list, params_list = v for dl, c, params in zip(the_dist_list, c_list, params_list): sns.distplot(dl, ax = ax[i], kde = True, color = c, label = params, bins = the_dist_bins) ax[i].set_title(f\"{name} distribution\") ax[i].legend(loc = 'upper right', ncol = 2) # Custom labelling / manip ax[2].set_xlim((0,10)) ax[3].set_xlim((0,10)) ax[5].set_xticks([-np.pi, -np.pi/2, 0, np.pi/2, np.pi]) ax[5].set_xticklabels(['$-\\pi$', '$-\\\\frac{\\pi}{2}$', '0', '$\\\\frac{\\pi}{2}$', '$\\pi$']) ax[6].set_xlim(ax[4].get_xlim()) plt.subplots_adjust(hspace = 0.5) sns.despine() # plotting a Dirichlet distribution is not straight forward when K  2 fig.delaxes(ax[8]) fig.set_size_inches((15,10)) plt.savefig(\"continuous_distributions.png\", dpi = 300) I hope this was a useful, short intro to some foundational statistics! :) Have fun.\n","wordCount":"2074","inLanguage":"en","datePublished":"2020-04-11T00:00:00Z","dateModified":"2020-04-11T00:00:00Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://ideasbyjin.github.io/post/2020-04-11-distributions/"},"publisher":{"@type":"Organization","name":"Read between the rows","logo":{"@type":"ImageObject","url":"https://ideasbyjin.github.io/favicon.ico"}}}</script></head><body id=top><script>if(localStorage.getItem("pref-theme")==="dark"){document.body.classList.add('dark');}</script><noscript><style type=text/css>.theme-toggle,.top-link{display:none}</style></noscript><header class=header><nav class=nav><div class=logo><a href=https://ideasbyjin.github.io/ accesskey=h title="Read between the rows (Alt + H)">Read between the rows</a>
-<span class=logo-switches><a id=theme-toggle accesskey=t title="(Alt + T)"><svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></a></span></div><ul id=menu onscroll=menu_on_scroll()><li><a href=https://ideasbyjin.github.io/search title="search (Alt + /)" accesskey=/><span>search</span></a></li><li><a href=https://ideasbyjin.github.io/archives title=archive><span>archive</span></a></li><li><a href=https://ideasbyjin.github.io/about title=about><span>about</span></a></li><li><a href=https://ideasbyjin.github.io/ title=home><span>home</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class=post-title>Distributions Cheat sheet</h1><div class=post-meta>April 11, 2020&nbsp;·&nbsp;10 min</div></header><div class=toc><details><summary accesskey=c title="(Alt + C)"><div class=details>Table of Contents</div></summary><div class=inner><ul><li><a href=#distributions-of-discrete-variables aria-label="Distributions of discrete variables">Distributions of discrete variables</a></li><li><a href=#distributions-of-continuous-variables aria-label="Distributions of continuous variables">Distributions of continuous variables</a><ul><li><a href=#discrete-random-variables-and-probability-mass-functions aria-label="Discrete random variables and probability mass functions">Discrete random variables and probability mass functions</a></li><li><a href=#continuous-random-variables-and-probability-distribution-functions aria-label="Continuous random variables and probability distribution functions">Continuous random variables and probability distribution functions</a></li></ul></li></ul></div></details></div><div class=post-content><p>In this post, I wanted to provide a primer / cheat-sheet on probability distributions to equip the community with a toolkit
-to tackle a wide range of data science problems &ndash; for example, the current ongoing COVID-19 crisis.</p><blockquote><p>Disclaimer: please <strong>do not</strong> assume that COVID-19 behaves as simply as the probability distributions below.</p></blockquote><p>If you have&mldr;</p><ul><li>30 seconds: a table of distributions and some use cases are shown below.</li><li>2 minutes:<ul><li>Random variables can be discrete or continuous.</li><li><strong>Probability mass functions</strong> are used to explain discrete random variables; examples include the poisson distribution, binomial distribution, and the hypergeometric distribution.</li><li><strong>Probability density functions</strong> are used to explain continuous random variables; examples include the uniform distribution, the normal distribution, and the beta distribution.</li></ul></li><li>7 minutes: go on.</li></ul><h2 id=distributions-of-discrete-variables>Distributions of discrete variables<a hidden class=anchor aria-hidden=true href=#distributions-of-discrete-variables>#</a></h2><p>We&rsquo;re going to draw 1000 samples from the following distributions.</p><table><thead><tr><th>Name</th><th>Used to&mldr;</th><th>Example use case</th><th>Parameters</th></tr></thead><tbody><tr><td>Binomial</td><td>Represent <em>number of successes</em> of $$n$$ trials</td><td>How many heads will I get from $$n$$ coin tosses?</td><td>$$p$$: probability of &ldquo;success&rdquo;; $$n$$: number of trials</td></tr><tr><td>Geometric</td><td>Represent <em>number of trials</em> until first success</td><td>How many tails will I see until the first head?</td><td>$$p$$: probability of success</td></tr><tr><td>Negative binomial</td><td>Represent <em>number of failures</em> before we see $$n$$ successful binary events</td><td>How many tails will I see before I see $$n$$ heads?</td><td>$$p$$: probability of success; $$n$$: number of successes</td></tr><tr><td>Poisson</td><td>Represent <em>number of successesful events</em> where we have infinite trials</td><td>How many red buses will I see at my bus stop today?</td><td>$$\lambda$$: rate of success</td></tr><tr><td>Hypergeometric</td><td>Represent <em>number of type $$I$$ objects</em> drawn from a sample of size $$n$$ without replacement from a population $$N$$</td><td>From a bag with 10 red balls and 90 blue balls, I will randomly sample 20 balls; how many of <em>these</em> are red?</td><td>$$K$$: total number of &ldquo;successful&rdquo; cases (i.e. type $$I$$ objects); $$n$$: sample size; $$N$$: total number of objects</td></tr></tbody></table><h2 id=distributions-of-continuous-variables>Distributions of continuous variables<a hidden class=anchor aria-hidden=true href=#distributions-of-continuous-variables>#</a></h2><p>We&rsquo;re going to draw 1000 samples from the following distributions.</p><table><thead><tr><th>Name</th><th>Used to&mldr;</th><th>Example use case</th><th>Parameters</th></tr></thead><tbody><tr><td>Uniform</td><td>Represent a random variable whose value occurs between $$a$$ and $$b$$</td><td>The hyper-parameter of a model, $$\theta$$, where $$\theta$$ can take any value between $$a$$ and $$b$$</td><td>$$a$$: minimum value; $$b$$: maximum value</td></tr><tr><td>Beta</td><td>Represent the distribution of a random variable whose value is between 0 and 1</td><td>Estimating the distribution of a probability (e.g. free throw percentage)</td><td>Shape parameters $$\alpha$$ and $$\beta$$. (*<em>NB</em>: A beta distribution with $$\alpha = \beta = 1$$ is the same as a uniform distribution with $$a = 0, b = 1$$.)</td></tr><tr><td>Exponential</td><td>Represent a random variable that decays exponentially</td><td>How long do I have to wait until the first success? (The &ldquo;continuous version&rdquo; of the geometric distribution)</td><td>$$\lambda$$: rate parameter</td></tr><tr><td>Gamma</td><td>Represent a random variable that decays exponentially</td><td>How long do I have to wait until the $$k$$th success?</td><td>$$k$$: shape parameter; $$\theta$$: scale parameter; OR $$\alpha$$: shape parameter (same as $$k$$); $$\beta$$: rate parameter where $$\beta = 1/\theta$$</td></tr><tr><td>Normal</td><td>Represent the behaviour of most continuous random variables (e.g. height, scores, protein mass, etc.)</td><td>Captures many types of continuous variables and is usually a good approximation for most use cases. Represent quantities that follow a &ldquo;bell curve&rdquo; distribution</td><td>$$\mu$$: expected value of the random variable; $$\sigma$$: standard deviation</td></tr><tr><td>von Mises distribution</td><td>Represent &ldquo;circular&rdquo; random variables</td><td>Sampling torsion angles of amino acids</td><td>$$\mu$$: central location (radians); $$\kappa$$: dispersion</td></tr><tr><td><em>t</em>-distribution</td><td>Represents the distribution of the sample means from a normally distributed random variable</td><td><em>t</em>-tests</td><td><em>df</em>: degrees of freedom</td></tr><tr><td>$$\chi^2$$ distribution</td><td>Represents the sum of the squares of $$k$$ normally-distributed random variables</td><td>Used for the a &ldquo;goodness of fit&rdquo; test or independence of categorical variables</td><td><em>df</em>: degrees of freedom</td></tr><tr><td>Dirichlet distribution</td><td>Represent the probability distribution space of $$K$$ events</td><td>If an event has $$K$$ possibilities, what would be its possible probability distributions?</td><td>$$\alpha$$: a $$K$$-sized vector of numbers</td></tr></tbody></table><p>Let&rsquo;s start by defining what a <em>random variable</em> is&mldr;</p><blockquote><p>A random variable is a real-valued function that maps probability events to measurable values.</p></blockquote><p>Random variables are also considered to either be <strong>discrete</strong> or <strong>continuous</strong>. We&rsquo;ll first start with the discrete case.</p><h3 id=discrete-random-variables-and-probability-mass-functions>Discrete random variables and probability mass functions<a hidden class=anchor aria-hidden=true href=#discrete-random-variables-and-probability-mass-functions>#</a></h3><p>The definition of a random variable can sound a bit vague; the oft-quoted &ldquo;coin toss&rdquo; provides a good way to understand random variables.</p><ul><li>The &ldquo;event space&rdquo; is whether a coin is heads or tails. A sequence of heads/tails is thus the sequence of events.</li><li>Thus, a &ldquo;random variable&rdquo; can be used to express the <em>number of heads</em> in that sequence.</li></ul><p>These types of random variables are known as <em>discrete</em> random variables. Other examples include:</p><ul><li>The sum of two dice that are rolled</li><li>The number of objects drawn from a bag</li><li>The number of days elapsed between visits to the grocery store</li></ul><p>As a rule of thumb, if you can count it / it&rsquo;s an integer, it&rsquo;s likely to be discrete.</p><p>Since discrete random variables can only take on a limited set of values, it is thus possible to calculate the probability space of that random variable.</p><blockquote><p>Consider a traditional six-sided die. We know that there are six <strong>and only six possible faces</strong>, so we can calculate the probability of landing on one of those six faces.</p></blockquote><p>Thus, the probability of the discrete random variable $$X$$ taking some value $$x$$, $$Pr(X = x)$$, can be calculated by a <strong>probability mass function</strong> (PMF). Different types of discrete random variables have different PMFs. We can also visualise the probability space of PMFs using histograms.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#75715e># Import stuff</span>
-<span style=color:#f92672>import</span> numpy <span style=color:#f92672>as</span> np
-<span style=color:#f92672>import</span> scipy.stats <span style=color:#f92672>as</span> sp
-<span style=color:#f92672>import</span> seaborn <span style=color:#f92672>as</span> sns
-<span style=color:#f92672>import</span> matplotlib.pyplot <span style=color:#f92672>as</span> plt
+<!DOCTYPE html>
+<html lang="en" dir="auto">
 
-sns<span style=color:#f92672>.</span>set_style(<span style=color:#e6db74>&#34;ticks&#34;</span>)
-sns<span style=color:#f92672>.</span>set_context(<span style=color:#e6db74>&#34;paper&#34;</span>)
-</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#75715e># Let&#39;s generate some random numbers</span>
-np<span style=color:#f92672>.</span>random<span style=color:#f92672>.</span>seed(<span style=color:#ae81ff>42</span>)
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Distributions Cheat sheet | Read between the rows</title>
 
-<span style=color:#75715e># 100 tosses; 20% chance of success. Do 1000 such trials.</span>
-binomial <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>binom<span style=color:#f92672>.</span>rvs(n <span style=color:#f92672>=</span> <span style=color:#ae81ff>100</span>, p <span style=color:#f92672>=</span> <span style=color:#ae81ff>0.2</span>, size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>)
-binomial_bins <span style=color:#f92672>=</span> np<span style=color:#f92672>.</span>arange(<span style=color:#ae81ff>10</span>, <span style=color:#ae81ff>41</span>, <span style=color:#ae81ff>5</span>)
+<meta name="keywords" content="" />
+<meta name="description" content="A cheat sheet for probability distributions.">
+<meta name="author" content="">
+<link rel="canonical" href="https://ideasbyjin.github.io/post/2020-04-11-distributions/" />
+<link href="/assets/css/stylesheet.min.54720d48c4fa0c4ebe8555f04b9fc5b856112ec49cafef19cb385e89661150b7.css" integrity="sha256-VHINSMT6DE6&#43;hVXwS5/FuFYRLsScr&#43;8ZyzheiWYRULc=" rel="preload stylesheet"
+    as="style">
 
-<span style=color:#75715e># How many trials will we need until we see the first success? 20% chance of success. Run this 1000 times.</span>
-geometric <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>geom<span style=color:#f92672>.</span>rvs(p<span style=color:#f92672>=</span><span style=color:#ae81ff>0.2</span>, size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>)
-geometric_bins <span style=color:#f92672>=</span> np<span style=color:#f92672>.</span>arange(<span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>31</span>, <span style=color:#ae81ff>5</span>)
+<link rel="icon" href="https://ideasbyjin.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://ideasbyjin.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://ideasbyjin.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://ideasbyjin.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://ideasbyjin.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<meta name="generator" content="Hugo 0.80.0" />
 
-<span style=color:#75715e># How many failures will we see before the 10th success? Success rate of 40%. Run this experiment 1000 times.</span>
-nbinomial <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>nbinom<span style=color:#f92672>.</span>rvs(n <span style=color:#f92672>=</span> <span style=color:#ae81ff>10</span>, p <span style=color:#f92672>=</span> <span style=color:#ae81ff>0.4</span>, size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>)
-nbinomial_bins <span style=color:#f92672>=</span> np<span style=color:#f92672>.</span>arange(<span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>11</span>, <span style=color:#ae81ff>1</span>)
 
-<span style=color:#75715e># How many red buses will we see over 1000 days if they come at a rate of 0.4?</span>
-<span style=color:#75715e># rate (mu) = n x p where n is infinite trials, and p is the probability of success.</span>
-poisson <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>poisson<span style=color:#f92672>.</span>rvs(mu <span style=color:#f92672>=</span> <span style=color:#ae81ff>0.4</span>, size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>)
-poisson_bins <span style=color:#f92672>=</span> np<span style=color:#f92672>.</span>arange(<span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>6</span>, <span style=color:#ae81ff>1</span>)
 
-<span style=color:#75715e># 10 red balls in a bag of 100. If I sample 20, how many red balls will I get? Run this experiment 1000 times.</span>
-<span style=color:#75715e># Scipy&#39;s notation is a bit confusing</span>
-hypergeometric <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>hypergeom<span style=color:#f92672>.</span>rvs(M <span style=color:#f92672>=</span> <span style=color:#ae81ff>100</span>, n <span style=color:#f92672>=</span> <span style=color:#ae81ff>10</span>, N <span style=color:#f92672>=</span> <span style=color:#ae81ff>20</span>, size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>)
-hypergeometric_bins <span style=color:#f92672>=</span> np<span style=color:#f92672>.</span>arange(<span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>11</span>, <span style=color:#ae81ff>1</span>)
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$','$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+  };
 
-</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>fig, axes <span style=color:#f92672>=</span> plt<span style=color:#f92672>.</span>subplots(<span style=color:#ae81ff>2</span>,<span style=color:#ae81ff>3</span>)
-ax <span style=color:#f92672>=</span> axes<span style=color:#f92672>.</span>flatten()
+  window.addEventListener('load', (event) => {
+      document.querySelectorAll("mjx-container").forEach(function(x){
+        x.parentElement.classList += 'has-jax'})
+    });
 
-distributions <span style=color:#f92672>=</span> [
-    (<span style=color:#e6db74>&#34;Binomial&#34;</span>, binomial, binomial_bins, <span style=color:#e6db74>&#39;dodgerblue&#39;</span>, <span style=color:#e6db74>&#39;n = 100, p = 0.2&#39;</span>),
-    (<span style=color:#e6db74>&#34;Geometric&#34;</span>, geometric, geometric_bins, <span style=color:#e6db74>&#39;g&#39;</span>, <span style=color:#e6db74>&#39;p = 0.2&#39;</span>), 
-    (<span style=color:#e6db74>&#34;Negative binomial&#34;</span>, nbinomial, nbinomial_bins, <span style=color:#e6db74>&#39;r&#39;</span>, <span style=color:#e6db74>&#39;n_success = 10, p = 0.4&#39;</span>), 
-    (<span style=color:#e6db74>&#34;Poisson&#34;</span>, poisson, poisson_bins, <span style=color:#e6db74>&#39;orange&#39;</span>, <span style=color:#e6db74>&#39;$\lambda$ = 0.4&#39;</span>), 
-    (<span style=color:#e6db74>&#34;Hypergeometric&#34;</span>, hypergeometric, hypergeometric_bins, <span style=color:#e6db74>&#39;purple&#39;</span>, <span style=color:#e6db74>&#39;n_target = 10, n_sample = 20, n_total = 100&#39;</span>)
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><meta property="og:title" content="Distributions Cheat sheet" />
+<meta property="og:description" content="A cheat sheet for probability distributions." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ideasbyjin.github.io/post/2020-04-11-distributions/" />
+<meta property="article:published_time" content="2020-04-11T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-04-11T00:00:00+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Distributions Cheat sheet"/>
+<meta name="twitter:description" content="A cheat sheet for probability distributions."/>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Distributions Cheat sheet",
+  "name": "Distributions Cheat sheet",
+  "description": "A cheat sheet for probability distributions.",
+  "keywords": [
+    
+  ],
+  "articleBody": "In this post, I wanted to provide a primer / cheat-sheet on probability distributions to equip the community with a toolkit to tackle a wide range of data science problems – for example, the current ongoing COVID-19 crisis.\n Disclaimer: please do not assume that COVID-19 behaves as simply as the probability distributions below.\n If you have…\n 30 seconds: a table of distributions and some use cases are shown below. 2 minutes:  Random variables can be discrete or continuous. Probability mass functions are used to explain discrete random variables; examples include the poisson distribution, binomial distribution, and the hypergeometric distribution. Probability density functions are used to explain continuous random variables; examples include the uniform distribution, the normal distribution, and the beta distribution.   7 minutes: go on.  Distributions of discrete variables We’re going to draw 1000 samples from the following distributions.\n   Name Used to… Example use case Parameters     Binomial Represent number of successes of $$n$$ trials How many heads will I get from $$n$$ coin tosses? $$p$$: probability of “success”; $$n$$: number of trials   Geometric Represent number of trials until first success How many tails will I see until the first head? $$p$$: probability of success   Negative binomial Represent number of failures before we see $$n$$ successful binary events How many tails will I see before I see $$n$$ heads? $$p$$: probability of success; $$n$$: number of successes   Poisson Represent number of successesful events where we have infinite trials How many red buses will I see at my bus stop today? $$\\lambda$$: rate of success   Hypergeometric Represent number of type $$I$$ objects drawn from a sample of size $$n$$ without replacement from a population $$N$$ From a bag with 10 red balls and 90 blue balls, I will randomly sample 20 balls; how many of these are red? $$K$$: total number of “successful” cases (i.e. type $$I$$ objects); $$n$$: sample size; $$N$$: total number of objects    Distributions of continuous variables We’re going to draw 1000 samples from the following distributions.\n   Name Used to… Example use case Parameters     Uniform Represent a random variable whose value occurs between $$a$$ and $$b$$ The hyper-parameter of a model, $$\\theta$$, where $$\\theta$$ can take any value between $$a$$ and $$b$$ $$a$$: minimum value; $$b$$: maximum value   Beta Represent the distribution of a random variable whose value is between 0 and 1 Estimating the distribution of a probability (e.g. free throw percentage) Shape parameters $$\\alpha$$ and $$\\beta$$. (*NB: A beta distribution with $$\\alpha = \\beta = 1$$ is the same as a uniform distribution with $$a = 0, b = 1$$.)   Exponential Represent a random variable that decays exponentially How long do I have to wait until the first success? (The “continuous version” of the geometric distribution) $$\\lambda$$: rate parameter   Gamma Represent a random variable that decays exponentially How long do I have to wait until the $$k$$th success? $$k$$: shape parameter; $$\\theta$$: scale parameter; OR $$\\alpha$$: shape parameter (same as $$k$$); $$\\beta$$: rate parameter where $$\\beta = 1/\\theta$$   Normal Represent the behaviour of most continuous random variables (e.g. height, scores, protein mass, etc.) Captures many types of continuous variables and is usually a good approximation for most use cases. Represent quantities that follow a “bell curve” distribution $$\\mu$$: expected value of the random variable; $$\\sigma$$: standard deviation   von Mises distribution Represent “circular” random variables Sampling torsion angles of amino acids $$\\mu$$: central location (radians); $$\\kappa$$: dispersion   t-distribution Represents the distribution of the sample means from a normally distributed random variable t-tests df: degrees of freedom   $$\\chi^2$$ distribution Represents the sum of the squares of $$k$$ normally-distributed random variables Used for the a “goodness of fit” test or independence of categorical variables df: degrees of freedom   Dirichlet distribution Represent the probability distribution space of $$K$$ events If an event has $$K$$ possibilities, what would be its possible probability distributions? $$\\alpha$$: a $$K$$-sized vector of numbers    Let’s start by defining what a random variable is…\n A random variable is a real-valued function that maps probability events to measurable values.\n Random variables are also considered to either be discrete or continuous. We’ll first start with the discrete case.\nDiscrete random variables and probability mass functions The definition of a random variable can sound a bit vague; the oft-quoted “coin toss” provides a good way to understand random variables.\n The “event space” is whether a coin is heads or tails. A sequence of heads/tails is thus the sequence of events. Thus, a “random variable” can be used to express the number of heads in that sequence.  These types of random variables are known as discrete random variables. Other examples include:\n The sum of two dice that are rolled The number of objects drawn from a bag The number of days elapsed between visits to the grocery store  As a rule of thumb, if you can count it / it’s an integer, it’s likely to be discrete.\nSince discrete random variables can only take on a limited set of values, it is thus possible to calculate the probability space of that random variable.\n Consider a traditional six-sided die. We know that there are six and only six possible faces, so we can calculate the probability of landing on one of those six faces.\n Thus, the probability of the discrete random variable $$X$$ taking some value $$x$$, $$Pr(X = x)$$, can be calculated by a probability mass function (PMF). Different types of discrete random variables have different PMFs. We can also visualise the probability space of PMFs using histograms.\n# Import stuff import numpy as np import scipy.stats as sp import seaborn as sns import matplotlib.pyplot as plt sns.set_style(\"ticks\") sns.set_context(\"paper\") # Let's generate some random numbers np.random.seed(42) # 100 tosses; 20% chance of success. Do 1000 such trials. binomial = sp.binom.rvs(n = 100, p = 0.2, size = 1000) binomial_bins = np.arange(10, 41, 5) # How many trials will we need until we see the first success? 20% chance of success. Run this 1000 times. geometric = sp.geom.rvs(p=0.2, size = 1000) geometric_bins = np.arange(0, 31, 5) # How many failures will we see before the 10th success? Success rate of 40%. Run this experiment 1000 times. nbinomial = sp.nbinom.rvs(n = 10, p = 0.4, size = 1000) nbinomial_bins = np.arange(0, 11, 1) # How many red buses will we see over 1000 days if they come at a rate of 0.4? # rate (mu) = n x p where n is infinite trials, and p is the probability of success. poisson = sp.poisson.rvs(mu = 0.4, size = 1000) poisson_bins = np.arange(0, 6, 1) # 10 red balls in a bag of 100. If I sample 20, how many red balls will I get? Run this experiment 1000 times. # Scipy's notation is a bit confusing hypergeometric = sp.hypergeom.rvs(M = 100, n = 10, N = 20, size = 1000) hypergeometric_bins = np.arange(0, 11, 1) fig, axes = plt.subplots(2,3) ax = axes.flatten() distributions = [ (\"Binomial\", binomial, binomial_bins, 'dodgerblue', 'n = 100, p = 0.2'), (\"Geometric\", geometric, geometric_bins, 'g', 'p = 0.2'), (\"Negative binomial\", nbinomial, nbinomial_bins, 'r', 'n_success = 10, p = 0.4'), (\"Poisson\", poisson, poisson_bins, 'orange', '$\\lambda$ = 0.4'), (\"Hypergeometric\", hypergeometric, hypergeometric_bins, 'purple', 'n_target = 10, n_sample = 20, n_total = 100') ] for i,v in enumerate(distributions): name, the_dist, the_dist_bins, c, params = v sns.distplot(the_dist, ax = ax[i], kde = False, color = c, bins = the_dist_bins) ax[i].set_title(f\"{name} distribution\\n{params}\") plt.subplots_adjust(hspace = 0.5) sns.despine() fig.delaxes(ax[i+1]) fig.set_size_inches((10,8)) plt.savefig(\"discrete_distributions.png\", dpi = 300) Continuous random variables and probability distribution functions Well, what about random variables that are not countable / integers? Such as…\n The height of individuals Time elapsed between events (remember, you can have miliseconds, microseconds…) Batting averages of baseball players  As a rule of thumb, if a random variable can take a decimal value, it’s likely to be continuous.\nUnlike discrete random variables, we cannot calculate the probability that $$X$$ is going to an exact value $$x$$. This is because we cannot enumerate all the possible values of the random variable, and thus, the probability of $$X = x$$ is 0.\n Think about in practice: what is the probability that the temperature tomorrow will be precisely 23.000000 degrees Celsius (73.400000F for Americans)? Another example, what is the probability that someone will be precisely 174.714 centimeters tall (5'8)?\n Since a continuous random variable, by definition, is uncountable, we account for them using probability distribution functions (PDFs). While they might sound similar to PMFs, PDFs do not represent probabilities, but probability densities.\n Another way of thinking about the density is that the density represents a form of relative likelihood. The higher the density, the more likely that the random variable takes on that particular value.\n For PDFs, since the probability of an exact value is 0, we typically calculate it in intervals. e.g. the probability that $$X$$ is less than or equal to $$x$$ is represented by $$Pr(X \\leq x)$$. In other words, if a random variable has the probability distribution function $$f(x)$$, the probability $$Pr(X \\leq x)$$ is\n$$Pr(X \\leq x ) = \\int_{-\\infty}^{x} f(x) dx $$\n# Let's generate some random numbers np.random.seed(42) # Uniform distribution between 0,1  uniform = sp.uniform.rvs(0, 1 ,size=1000) uniform_bins = np.arange(0, 1.01, 0.01) # Beta distribution but with four different cases; a = b = 1; a  b; b  a; a beta_1 = sp.beta.rvs(a = 1, b = 1, size = 1000) beta_2 = sp.beta.rvs(a = 5, b = 1, size = 1000) beta_3 = sp.beta.rvs(a = 1, b = 5, size = 1000) beta_4 = sp.beta.rvs(a = 0.5, b = 0.5, size = 1000) beta_bins = uniform_bins.copy() # Still between 0 and 1 # How much time will elapse until the first success? Play with different scale values expon_1 = sp.expon.rvs(scale = 1, size = 1000) expon_2 = sp.expon.rvs(scale = 0.5, size = 1000) expon_3 = sp.expon.rvs(scale = 4, size = 1000) expon_bins = np.arange(0, 10.1, 0.01) # How much time until the ath event? Plot different cases; three scale values, two k values gamma_1 = sp.gamma.rvs(a = 1, scale = 1, size = 1000) gamma_2 = sp.gamma.rvs(a = 1, scale = 0.5, size = 1000) gamma_3 = sp.gamma.rvs(a = 1, scale = 4, size = 1000) gamma_4 = sp.gamma.rvs(a = 3, scale = 1, size = 1000) gamma_5 = sp.gamma.rvs(a = 3, scale = 0.5, size = 1000) gamma_6 = sp.gamma.rvs(a = 3, scale = 4, size = 1000) gamma_bins = expon_bins.copy() # Plot the good old' standard normal distribution, which is king! normal = sp.norm.rvs(size=1000) normal_bins = np.arange(-3, 3.01, 0.01) # Plot the circular normal, or von mises, distribution vm = sp.vonmises.rvs(kappa = 1, size=1000) vm_bins = np.arange(-np.pi, np.pi+0.01, 0.1) # t-distribution and chi-squared distributions with 5 degrees of freedom t = sp.t.rvs(df=5, size = 1000) t_bins = normal_bins.copy() chi = sp.chi2.rvs(df = 5, size = 1000) chi_bins = np.arange(0, int(max(chi))+1, 1) # Dirichlet distribution for 3-event space with concentration parameters of 1,1,1 dirichet = sp.dirichlet.rvs([1,1,1], size = 1000) distributions = [ (\"Uniform\", [uniform], uniform_bins, ['dodgerblue'], ['a = 0, b = 1']), (\"Beta\", [beta_1, beta_2, beta_3, beta_4], beta_bins, ['dodgerblue', 'red', 'yellow', 'green'], ['$\\\\alpha = 1, \\\\beta = 1$', '$\\\\alpha = 5, \\\\beta = 1$', '$\\\\alpha = 1, \\\\beta = 5$', '$\\\\alpha = 0.5, \\\\beta = 0.5$']), (\"Exponential\", [expon_1, expon_2, expon_3], expon_bins, ['dodgerblue', 'red', 'yellow'], ['$\\lambda = 1$', '$\\lambda = 1/0.5 = 2$', '$\\lambda = 1/4 = 0.25$']), (\"Gamma\", [gamma_1, gamma_2, gamma_3, gamma_4, gamma_5, gamma_6], gamma_bins, ['dodgerblue', 'red', 'yellow', 'green', 'purple', 'black', 'brown'], ['$\\\\alpha = 1, \\\\theta = 1$', '$\\\\alpha = 1, \\\\theta = 0.5$', '$\\\\alpha = 1, \\\\theta = 4$', '$\\\\alpha = 3, \\\\theta = 1$', '$\\\\alpha = 3, \\\\theta = 0.5$', '$\\\\alpha = 3, \\\\theta = 4$']), (\"Normal\", [normal], normal_bins, ['dodgerblue'], ['$\\mu = 0, \\sigma = 1$']), (\"von Mises\", [vm], vm_bins, ['red'], ['$\\mu = 0, \\kappa = 1$']), (\"t\", [t], t_bins, ['green'], ['df = 5']), (\"$\\chi^2$\", [chi], chi_bins, ['yellow'], ['df = 5']), ] fig, axes = plt.subplots(3,3) ax = axes.flatten() for i,v in enumerate(distributions): name, the_dist_list, the_dist_bins, c_list, params_list = v for dl, c, params in zip(the_dist_list, c_list, params_list): sns.distplot(dl, ax = ax[i], kde = True, color = c, label = params, bins = the_dist_bins) ax[i].set_title(f\"{name} distribution\") ax[i].legend(loc = 'upper right', ncol = 2) # Custom labelling / manip ax[2].set_xlim((0,10)) ax[3].set_xlim((0,10)) ax[5].set_xticks([-np.pi, -np.pi/2, 0, np.pi/2, np.pi]) ax[5].set_xticklabels(['$-\\pi$', '$-\\\\frac{\\pi}{2}$', '0', '$\\\\frac{\\pi}{2}$', '$\\pi$']) ax[6].set_xlim(ax[4].get_xlim()) plt.subplots_adjust(hspace = 0.5) sns.despine() # plotting a Dirichlet distribution is not straight forward when K  2 fig.delaxes(ax[8]) fig.set_size_inches((15,10)) plt.savefig(\"continuous_distributions.png\", dpi = 300) I hope this was a useful, short intro to some foundational statistics! :) Have fun.\n",
+  "wordCount" : "2074",
+  "inLanguage": "en",
+  "datePublished": "2020-04-11T00:00:00Z",
+  "dateModified": "2020-04-11T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://ideasbyjin.github.io/post/2020-04-11-distributions/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Read between the rows",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://ideasbyjin.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+
+
+
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    }
+
+</script>
+<noscript>
+    <style type="text/css">
+        .theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://ideasbyjin.github.io/" accesskey="h" title="Read between the rows (Alt + H)">Read between the rows</a>
+            <span class="logo-switches">
+                <a id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </a>
+                
+                
+            </span>
+        </div>
+        <ul id="menu" onscroll="menu_on_scroll()">
+            <li>
+                <a href="https://ideasbyjin.github.io/search" title="search (Alt &#43; /)" accesskey=/>
+                    <span>search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://ideasbyjin.github.io/archives" title="archive">
+                    <span>archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://ideasbyjin.github.io/about" title="about">
+                    <span>about</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://ideasbyjin.github.io/" title="home">
+                    <span>home</span>
+                </a>
+            </li></ul>
+    </nav>
+</header>
+
+    <main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+
+    <h1 class="post-title">
+      Distributions Cheat sheet
+    </h1>
+    <div class="post-meta">April 11, 2020&nbsp;·&nbsp;10 min
+
+</div>
+  </header> 
+
+  <div class="toc">
+    <details >
+      <summary accesskey="c" title="(Alt + C)">
+        <div class="details">Table of Contents</div>
+      </summary>
+      <div class="inner"><ul><li>
+        <a href="#distributions-of-discrete-variables" aria-label="Distributions of discrete variables">Distributions of discrete variables</a></li><li>
+        <a href="#distributions-of-continuous-variables" aria-label="Distributions of continuous variables">Distributions of continuous variables</a><ul>
+            <li>
+        <a href="#discrete-random-variables-and-probability-mass-functions" aria-label="Discrete random variables and probability mass functions">Discrete random variables and probability mass functions</a></li><li>
+        <a href="#continuous-random-variables-and-probability-distribution-functions" aria-label="Continuous random variables and probability distribution functions">Continuous random variables and probability distribution functions</a></li></ul>
+</li></ul>
+      </div>
+    </details>
+  </div>
+  <div class="post-content">
+<p>In this post, I wanted to provide a primer / cheat-sheet on probability distributions to equip the community with a toolkit
+to tackle a wide range of data science problems &ndash; for example, the current ongoing COVID-19 crisis.</p>
+<blockquote>
+<p>Disclaimer: please <strong>do not</strong> assume that COVID-19 behaves as simply as the probability distributions below.</p>
+</blockquote>
+<p>If you have&hellip;</p>
+<ul>
+<li>30 seconds: a table of distributions and some use cases are shown below.</li>
+<li>2 minutes:
+<ul>
+<li>Random variables can be discrete or continuous.</li>
+<li><strong>Probability mass functions</strong> are used to explain discrete random variables; examples include the poisson distribution, binomial distribution, and the hypergeometric distribution.</li>
+<li><strong>Probability density functions</strong> are used to explain continuous random variables; examples include the uniform distribution, the normal distribution, and the beta distribution.</li>
+</ul>
+</li>
+<li>7 minutes: go on.</li>
+</ul>
+<h2 id="distributions-of-discrete-variables">Distributions of discrete variables<a hidden class="anchor" aria-hidden="true" href="#distributions-of-discrete-variables">#</a></h2>
+<p>We&rsquo;re going to draw 1000 samples from the following distributions.</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Used to&hellip;</th>
+<th>Example use case</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Binomial</td>
+<td>Represent <em>number of successes</em> of $$n$$ trials</td>
+<td>How many heads will I get from $$n$$ coin tosses?</td>
+<td>$$p$$: probability of &ldquo;success&rdquo;; $$n$$: number of trials</td>
+</tr>
+<tr>
+<td>Geometric</td>
+<td>Represent <em>number of trials</em> until first success</td>
+<td>How many tails will I see until the first head?</td>
+<td>$$p$$: probability of success</td>
+</tr>
+<tr>
+<td>Negative binomial</td>
+<td>Represent <em>number of failures</em> before we see $$n$$ successful binary events</td>
+<td>How many tails will I see before I see $$n$$ heads?</td>
+<td>$$p$$: probability of success; $$n$$: number of successes</td>
+</tr>
+<tr>
+<td>Poisson</td>
+<td>Represent <em>number of successesful events</em> where we have infinite trials</td>
+<td>How many red buses will I see at my bus stop today?</td>
+<td>$$\lambda$$: rate of success</td>
+</tr>
+<tr>
+<td>Hypergeometric</td>
+<td>Represent <em>number of type $$I$$ objects</em> drawn from a sample of size $$n$$ without replacement from a population $$N$$</td>
+<td>From a bag with 10 red balls and 90 blue balls, I will randomly sample 20 balls; how many of <em>these</em> are red?</td>
+<td>$$K$$: total number of &ldquo;successful&rdquo; cases (i.e. type $$I$$ objects); $$n$$: sample size; $$N$$: total number of objects</td>
+</tr>
+</tbody>
+</table>
+<!-- raw HTML omitted -->
+<h2 id="distributions-of-continuous-variables">Distributions of continuous variables<a hidden class="anchor" aria-hidden="true" href="#distributions-of-continuous-variables">#</a></h2>
+<p>We&rsquo;re going to draw 1000 samples from the following distributions.</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Used to&hellip;</th>
+<th>Example use case</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Uniform</td>
+<td>Represent a random variable whose value occurs between $$a$$ and $$b$$</td>
+<td>The hyper-parameter of a model, $$\theta$$, where $$\theta$$ can take any value between $$a$$ and $$b$$</td>
+<td>$$a$$: minimum value; $$b$$: maximum value</td>
+</tr>
+<tr>
+<td>Beta</td>
+<td>Represent the distribution of a random variable whose value is between 0 and 1</td>
+<td>Estimating the distribution of a probability (e.g. free throw percentage)</td>
+<td>Shape parameters $$\alpha$$ and $$\beta$$. (*<em>NB</em>: A beta distribution with $$\alpha = \beta = 1$$ is the same as a uniform distribution with $$a = 0, b = 1$$.)</td>
+</tr>
+<tr>
+<td>Exponential</td>
+<td>Represent a random variable that decays exponentially</td>
+<td>How long do I have to wait until the first success? (The &ldquo;continuous version&rdquo; of the geometric distribution)</td>
+<td>$$\lambda$$: rate parameter</td>
+</tr>
+<tr>
+<td>Gamma</td>
+<td>Represent a random variable that decays exponentially</td>
+<td>How long do I have to wait until the $$k$$th success?</td>
+<td>$$k$$: shape parameter; $$\theta$$: scale parameter; OR $$\alpha$$: shape parameter (same as $$k$$); $$\beta$$: rate parameter where $$\beta = 1/\theta$$</td>
+</tr>
+<tr>
+<td>Normal</td>
+<td>Represent the behaviour of most continuous random variables (e.g. height, scores, protein mass, etc.)</td>
+<td>Captures many types of continuous variables and is usually a good approximation for most use cases. Represent quantities that follow a &ldquo;bell curve&rdquo; distribution</td>
+<td>$$\mu$$: expected value of the random variable; $$\sigma$$: standard deviation</td>
+</tr>
+<tr>
+<td>von Mises distribution</td>
+<td>Represent &ldquo;circular&rdquo; random variables</td>
+<td>Sampling torsion angles of amino acids</td>
+<td>$$\mu$$: central location (radians); $$\kappa$$: dispersion</td>
+</tr>
+<tr>
+<td><em>t</em>-distribution</td>
+<td>Represents the distribution of the sample means from a normally distributed random variable</td>
+<td><em>t</em>-tests</td>
+<td><em>df</em>: degrees of freedom</td>
+</tr>
+<tr>
+<td>$$\chi^2$$ distribution</td>
+<td>Represents the sum of the squares of $$k$$ normally-distributed random variables</td>
+<td>Used for the a &ldquo;goodness of fit&rdquo; test or independence of categorical variables</td>
+<td><em>df</em>: degrees of freedom</td>
+</tr>
+<tr>
+<td>Dirichlet distribution</td>
+<td>Represent the probability distribution space of $$K$$ events</td>
+<td>If an event has $$K$$ possibilities, what would be its possible probability distributions?</td>
+<td>$$\alpha$$: a $$K$$-sized vector of numbers</td>
+</tr>
+</tbody>
+</table>
+<!-- raw HTML omitted -->
+<p>Let&rsquo;s start by defining what a <em>random variable</em> is&hellip;</p>
+<blockquote>
+<p>A random variable is a real-valued function that maps probability events to measurable values.</p>
+</blockquote>
+<p>Random variables are also considered to either be <strong>discrete</strong> or <strong>continuous</strong>. We&rsquo;ll first start with the discrete case.</p>
+<h3 id="discrete-random-variables-and-probability-mass-functions">Discrete random variables and probability mass functions<a hidden class="anchor" aria-hidden="true" href="#discrete-random-variables-and-probability-mass-functions">#</a></h3>
+<p>The definition of a random variable can sound a bit vague; the oft-quoted &ldquo;coin toss&rdquo; provides a good way to understand random variables.</p>
+<ul>
+<li>The &ldquo;event space&rdquo; is whether a coin is heads or tails. A sequence of heads/tails is thus the sequence of events.</li>
+<li>Thus, a &ldquo;random variable&rdquo; can be used to express the <em>number of heads</em> in that sequence.</li>
+</ul>
+<p>These types of random variables are known as <em>discrete</em> random variables. Other examples include:</p>
+<ul>
+<li>The sum of two dice that are rolled</li>
+<li>The number of objects drawn from a bag</li>
+<li>The number of days elapsed between visits to the grocery store</li>
+</ul>
+<p>As a rule of thumb, if you can count it / it&rsquo;s an integer, it&rsquo;s likely to be discrete.</p>
+<p>Since discrete random variables can only take on a limited set of values, it is thus possible to calculate the probability space of that random variable.</p>
+<blockquote>
+<p>Consider a traditional six-sided die. We know that there are six <strong>and only six possible faces</strong>, so we can calculate the probability of landing on one of those six faces.</p>
+</blockquote>
+<p>Thus, the probability of the discrete random variable $$X$$ taking some value $$x$$, $$Pr(X = x)$$, can be calculated by a <strong>probability mass function</strong> (PMF). Different types of discrete random variables have different PMFs. We can also visualise the probability space of PMFs using histograms.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Import stuff</span>
+<span style="color:#f92672">import</span> numpy <span style="color:#f92672">as</span> np
+<span style="color:#f92672">import</span> scipy.stats <span style="color:#f92672">as</span> sp
+<span style="color:#f92672">import</span> seaborn <span style="color:#f92672">as</span> sns
+<span style="color:#f92672">import</span> matplotlib.pyplot <span style="color:#f92672">as</span> plt
+
+sns<span style="color:#f92672">.</span>set_style(<span style="color:#e6db74">&#34;ticks&#34;</span>)
+sns<span style="color:#f92672">.</span>set_context(<span style="color:#e6db74">&#34;paper&#34;</span>)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Let&#39;s generate some random numbers</span>
+np<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>seed(<span style="color:#ae81ff">42</span>)
+
+<span style="color:#75715e"># 100 tosses; 20% chance of success. Do 1000 such trials.</span>
+binomial <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>binom<span style="color:#f92672">.</span>rvs(n <span style="color:#f92672">=</span> <span style="color:#ae81ff">100</span>, p <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.2</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
+binomial_bins <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">41</span>, <span style="color:#ae81ff">5</span>)
+
+<span style="color:#75715e"># How many trials will we need until we see the first success? 20% chance of success. Run this 1000 times.</span>
+geometric <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>geom<span style="color:#f92672">.</span>rvs(p<span style="color:#f92672">=</span><span style="color:#ae81ff">0.2</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
+geometric_bins <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">5</span>)
+
+<span style="color:#75715e"># How many failures will we see before the 10th success? Success rate of 40%. Run this experiment 1000 times.</span>
+nbinomial <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>nbinom<span style="color:#f92672">.</span>rvs(n <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>, p <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.4</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
+nbinomial_bins <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">11</span>, <span style="color:#ae81ff">1</span>)
+
+<span style="color:#75715e"># How many red buses will we see over 1000 days if they come at a rate of 0.4?</span>
+<span style="color:#75715e"># rate (mu) = n x p where n is infinite trials, and p is the probability of success.</span>
+poisson <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>poisson<span style="color:#f92672">.</span>rvs(mu <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.4</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
+poisson_bins <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">1</span>)
+
+<span style="color:#75715e"># 10 red balls in a bag of 100. If I sample 20, how many red balls will I get? Run this experiment 1000 times.</span>
+<span style="color:#75715e"># Scipy&#39;s notation is a bit confusing</span>
+hypergeometric <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>hypergeom<span style="color:#f92672">.</span>rvs(M <span style="color:#f92672">=</span> <span style="color:#ae81ff">100</span>, n <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>, N <span style="color:#f92672">=</span> <span style="color:#ae81ff">20</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
+hypergeometric_bins <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">11</span>, <span style="color:#ae81ff">1</span>)
+
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">fig, axes <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>subplots(<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>)
+ax <span style="color:#f92672">=</span> axes<span style="color:#f92672">.</span>flatten()
+
+distributions <span style="color:#f92672">=</span> [
+    (<span style="color:#e6db74">&#34;Binomial&#34;</span>, binomial, binomial_bins, <span style="color:#e6db74">&#39;dodgerblue&#39;</span>, <span style="color:#e6db74">&#39;n = 100, p = 0.2&#39;</span>),
+    (<span style="color:#e6db74">&#34;Geometric&#34;</span>, geometric, geometric_bins, <span style="color:#e6db74">&#39;g&#39;</span>, <span style="color:#e6db74">&#39;p = 0.2&#39;</span>), 
+    (<span style="color:#e6db74">&#34;Negative binomial&#34;</span>, nbinomial, nbinomial_bins, <span style="color:#e6db74">&#39;r&#39;</span>, <span style="color:#e6db74">&#39;n_success = 10, p = 0.4&#39;</span>), 
+    (<span style="color:#e6db74">&#34;Poisson&#34;</span>, poisson, poisson_bins, <span style="color:#e6db74">&#39;orange&#39;</span>, <span style="color:#e6db74">&#39;$\lambda$ = 0.4&#39;</span>), 
+    (<span style="color:#e6db74">&#34;Hypergeometric&#34;</span>, hypergeometric, hypergeometric_bins, <span style="color:#e6db74">&#39;purple&#39;</span>, <span style="color:#e6db74">&#39;n_target = 10, n_sample = 20, n_total = 100&#39;</span>)
 ]
 
-<span style=color:#66d9ef>for</span> i,v <span style=color:#f92672>in</span> enumerate(distributions):
-    name, the_dist, the_dist_bins, c, params <span style=color:#f92672>=</span> v
-    sns<span style=color:#f92672>.</span>distplot(the_dist, ax <span style=color:#f92672>=</span> ax[i], kde <span style=color:#f92672>=</span> False, color <span style=color:#f92672>=</span> c, bins <span style=color:#f92672>=</span> the_dist_bins)
-    ax[i]<span style=color:#f92672>.</span>set_title(f<span style=color:#e6db74>&#34;{name} distribution</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>{params}&#34;</span>)
+<span style="color:#66d9ef">for</span> i,v <span style="color:#f92672">in</span> enumerate(distributions):
+    name, the_dist, the_dist_bins, c, params <span style="color:#f92672">=</span> v
+    sns<span style="color:#f92672">.</span>distplot(the_dist, ax <span style="color:#f92672">=</span> ax[i], kde <span style="color:#f92672">=</span> False, color <span style="color:#f92672">=</span> c, bins <span style="color:#f92672">=</span> the_dist_bins)
+    ax[i]<span style="color:#f92672">.</span>set_title(f<span style="color:#e6db74">&#34;{name} distribution</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">{params}&#34;</span>)
 
-plt<span style=color:#f92672>.</span>subplots_adjust(hspace <span style=color:#f92672>=</span> <span style=color:#ae81ff>0.5</span>)
-sns<span style=color:#f92672>.</span>despine()
-fig<span style=color:#f92672>.</span>delaxes(ax[i<span style=color:#f92672>+</span><span style=color:#ae81ff>1</span>])
+plt<span style="color:#f92672">.</span>subplots_adjust(hspace <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.5</span>)
+sns<span style="color:#f92672">.</span>despine()
+fig<span style="color:#f92672">.</span>delaxes(ax[i<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>])
 
-fig<span style=color:#f92672>.</span>set_size_inches((<span style=color:#ae81ff>10</span>,<span style=color:#ae81ff>8</span>))
+fig<span style="color:#f92672">.</span>set_size_inches((<span style="color:#ae81ff">10</span>,<span style="color:#ae81ff">8</span>))
 
-plt<span style=color:#f92672>.</span>savefig(<span style=color:#e6db74>&#34;discrete_distributions.png&#34;</span>, dpi <span style=color:#f92672>=</span> <span style=color:#ae81ff>300</span>)
-</code></pre></div><h3 id=continuous-random-variables-and-probability-distribution-functions>Continuous random variables and probability distribution functions<a hidden class=anchor aria-hidden=true href=#continuous-random-variables-and-probability-distribution-functions>#</a></h3><p>Well, what about random variables that are not countable / integers? Such as&mldr;</p><ul><li>The height of individuals</li><li>Time elapsed between events (remember, you can have miliseconds, microseconds&mldr;)</li><li>Batting averages of baseball players</li></ul><p>As a rule of thumb, if a random variable can take a decimal value, it&rsquo;s likely to be continuous.</p><p>Unlike discrete random variables, we cannot calculate the probability that $$X$$ is going to an <em>exact</em> value $$x$$. This is because we cannot enumerate all the possible values of the random variable,
-and thus, the probability of $$X = x$$ is 0.</p><blockquote><p>Think about in practice: what is the probability that the temperature tomorrow will be <em>precisely</em> 23.000000 degrees Celsius (73.400000F for Americans)? Another example, what is the probability that someone will be <em>precisely</em> 174.714 centimeters tall (5'8)?</p></blockquote><p>Since a continuous random variable, by definition, is uncountable, we account for them using <strong>probability distribution functions</strong> (PDFs). While they might sound similar to PMFs, PDFs <em>do not</em> represent probabilities, but probability <em>densities</em>.</p><blockquote><p>Another way of thinking about the density is that the density represents a form of relative likelihood. The higher the density, the more likely that the random variable takes on that particular value.</p></blockquote><p>For PDFs, since the probability of an exact value is 0, we typically calculate it in intervals. e.g. the probability that $$X$$ is <em>less than or equal to</em> $$x$$ is represented by $$Pr(X \leq x)$$.
+plt<span style="color:#f92672">.</span>savefig(<span style="color:#e6db74">&#34;discrete_distributions.png&#34;</span>, dpi <span style="color:#f92672">=</span> <span style="color:#ae81ff">300</span>)
+</code></pre></div><!-- raw HTML omitted -->
+<h3 id="continuous-random-variables-and-probability-distribution-functions">Continuous random variables and probability distribution functions<a hidden class="anchor" aria-hidden="true" href="#continuous-random-variables-and-probability-distribution-functions">#</a></h3>
+<p>Well, what about random variables that are not countable / integers? Such as&hellip;</p>
+<ul>
+<li>The height of individuals</li>
+<li>Time elapsed between events (remember, you can have miliseconds, microseconds&hellip;)</li>
+<li>Batting averages of baseball players</li>
+</ul>
+<p>As a rule of thumb, if a random variable can take a decimal value, it&rsquo;s likely to be continuous.</p>
+<p>Unlike discrete random variables, we cannot calculate the probability that $$X$$ is going to an <em>exact</em> value $$x$$. This is because we cannot enumerate all the possible values of the random variable,
+and thus, the probability of $$X = x$$ is 0.</p>
+<blockquote>
+<p>Think about in practice: what is the probability that the temperature tomorrow will be <em>precisely</em> 23.000000 degrees Celsius (73.400000F for Americans)? Another example, what is the probability that someone will be <em>precisely</em> 174.714 centimeters tall (5'8)?</p>
+</blockquote>
+<p>Since a continuous random variable, by definition, is uncountable, we account for them using <strong>probability distribution functions</strong> (PDFs). While they might sound similar to PMFs, PDFs <em>do not</em> represent probabilities, but probability <em>densities</em>.</p>
+<blockquote>
+<p>Another way of thinking about the density is that the density represents a form of relative likelihood. The higher the density, the more likely that the random variable takes on that particular value.</p>
+</blockquote>
+<p>For PDFs, since the probability of an exact value is 0, we typically calculate it in intervals. e.g. the probability that $$X$$ is <em>less than or equal to</em> $$x$$ is represented by $$Pr(X \leq x)$$.
 In other words, if a random variable has the probability distribution function $$f(x)$$, the probability $$Pr(X \leq x)$$
-is</p><p>$$Pr(X \leq x ) = \int_{-\infty}^{x} f(x) dx $$</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#75715e># Let&#39;s generate some random numbers</span>
-np<span style=color:#f92672>.</span>random<span style=color:#f92672>.</span>seed(<span style=color:#ae81ff>42</span>)
+is</p>
+<p>$$Pr(X \leq x ) = \int_{-\infty}^{x} f(x) dx $$</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Let&#39;s generate some random numbers</span>
+np<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>seed(<span style="color:#ae81ff">42</span>)
 
-<span style=color:#75715e># Uniform distribution between 0,1 </span>
-uniform <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>uniform<span style=color:#f92672>.</span>rvs(<span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1</span> ,size<span style=color:#f92672>=</span><span style=color:#ae81ff>1000</span>)
-uniform_bins <span style=color:#f92672>=</span> np<span style=color:#f92672>.</span>arange(<span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>1.01</span>, <span style=color:#ae81ff>0.01</span>)
+<span style="color:#75715e"># Uniform distribution between 0,1 </span>
+uniform <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>uniform<span style="color:#f92672">.</span>rvs(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span> ,size<span style="color:#f92672">=</span><span style="color:#ae81ff">1000</span>)
+uniform_bins <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1.01</span>, <span style="color:#ae81ff">0.01</span>)
 
-<span style=color:#75715e># Beta distribution but with four different cases; a = b = 1; a &gt; b; b &gt; a; a &lt; 1, b &lt; 1, a = b; </span>
-beta_1 <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>beta<span style=color:#f92672>.</span>rvs(a <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>, b <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>, size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>)
-beta_2 <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>beta<span style=color:#f92672>.</span>rvs(a <span style=color:#f92672>=</span> <span style=color:#ae81ff>5</span>, b <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>, size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>)
-beta_3 <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>beta<span style=color:#f92672>.</span>rvs(a <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>, b <span style=color:#f92672>=</span> <span style=color:#ae81ff>5</span>, size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>)
-beta_4 <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>beta<span style=color:#f92672>.</span>rvs(a <span style=color:#f92672>=</span> <span style=color:#ae81ff>0.5</span>, b <span style=color:#f92672>=</span> <span style=color:#ae81ff>0.5</span>, size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>)
-beta_bins <span style=color:#f92672>=</span> uniform_bins<span style=color:#f92672>.</span>copy() <span style=color:#75715e># Still between 0 and 1</span>
+<span style="color:#75715e"># Beta distribution but with four different cases; a = b = 1; a &gt; b; b &gt; a; a &lt; 1, b &lt; 1, a = b; </span>
+beta_1 <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>beta<span style="color:#f92672">.</span>rvs(a <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>, b <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
+beta_2 <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>beta<span style="color:#f92672">.</span>rvs(a <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>, b <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
+beta_3 <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>beta<span style="color:#f92672">.</span>rvs(a <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>, b <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
+beta_4 <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>beta<span style="color:#f92672">.</span>rvs(a <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.5</span>, b <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.5</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
+beta_bins <span style="color:#f92672">=</span> uniform_bins<span style="color:#f92672">.</span>copy() <span style="color:#75715e"># Still between 0 and 1</span>
 
-<span style=color:#75715e># How much time will elapse until the first success? Play with different scale values</span>
-expon_1 <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>expon<span style=color:#f92672>.</span>rvs(scale <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>, size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>)
-expon_2 <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>expon<span style=color:#f92672>.</span>rvs(scale <span style=color:#f92672>=</span> <span style=color:#ae81ff>0.5</span>, size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>)
-expon_3 <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>expon<span style=color:#f92672>.</span>rvs(scale <span style=color:#f92672>=</span> <span style=color:#ae81ff>4</span>, size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>)
-expon_bins <span style=color:#f92672>=</span> np<span style=color:#f92672>.</span>arange(<span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>10.1</span>, <span style=color:#ae81ff>0.01</span>)
+<span style="color:#75715e"># How much time will elapse until the first success? Play with different scale values</span>
+expon_1 <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>expon<span style="color:#f92672">.</span>rvs(scale <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
+expon_2 <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>expon<span style="color:#f92672">.</span>rvs(scale <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.5</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
+expon_3 <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>expon<span style="color:#f92672">.</span>rvs(scale <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
+expon_bins <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">10.1</span>, <span style="color:#ae81ff">0.01</span>)
 
-<span style=color:#75715e># How much time until the ath event? Plot different cases; three scale values, two k values</span>
-gamma_1 <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>gamma<span style=color:#f92672>.</span>rvs(a <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>, scale <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>, size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>)
-gamma_2 <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>gamma<span style=color:#f92672>.</span>rvs(a <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>, scale <span style=color:#f92672>=</span> <span style=color:#ae81ff>0.5</span>, size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>)
-gamma_3 <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>gamma<span style=color:#f92672>.</span>rvs(a <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>, scale <span style=color:#f92672>=</span> <span style=color:#ae81ff>4</span>, size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>)
+<span style="color:#75715e"># How much time until the ath event? Plot different cases; three scale values, two k values</span>
+gamma_1 <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>gamma<span style="color:#f92672">.</span>rvs(a <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>, scale <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
+gamma_2 <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>gamma<span style="color:#f92672">.</span>rvs(a <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>, scale <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.5</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
+gamma_3 <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>gamma<span style="color:#f92672">.</span>rvs(a <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>, scale <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
 
-gamma_4 <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>gamma<span style=color:#f92672>.</span>rvs(a <span style=color:#f92672>=</span> <span style=color:#ae81ff>3</span>, scale <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>, size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>)
-gamma_5 <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>gamma<span style=color:#f92672>.</span>rvs(a <span style=color:#f92672>=</span> <span style=color:#ae81ff>3</span>, scale <span style=color:#f92672>=</span> <span style=color:#ae81ff>0.5</span>, size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>)
-gamma_6 <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>gamma<span style=color:#f92672>.</span>rvs(a <span style=color:#f92672>=</span> <span style=color:#ae81ff>3</span>, scale <span style=color:#f92672>=</span> <span style=color:#ae81ff>4</span>, size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>)
-gamma_bins <span style=color:#f92672>=</span> expon_bins<span style=color:#f92672>.</span>copy()
+gamma_4 <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>gamma<span style="color:#f92672">.</span>rvs(a <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>, scale <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
+gamma_5 <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>gamma<span style="color:#f92672">.</span>rvs(a <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>, scale <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.5</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
+gamma_6 <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>gamma<span style="color:#f92672">.</span>rvs(a <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>, scale <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
+gamma_bins <span style="color:#f92672">=</span> expon_bins<span style="color:#f92672">.</span>copy()
 
-<span style=color:#75715e># Plot the good old&#39; standard normal distribution, which is king!</span>
-normal <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>norm<span style=color:#f92672>.</span>rvs(size<span style=color:#f92672>=</span><span style=color:#ae81ff>1000</span>)
-normal_bins <span style=color:#f92672>=</span> np<span style=color:#f92672>.</span>arange(<span style=color:#f92672>-</span><span style=color:#ae81ff>3</span>, <span style=color:#ae81ff>3.01</span>, <span style=color:#ae81ff>0.01</span>)
+<span style="color:#75715e"># Plot the good old&#39; standard normal distribution, which is king!</span>
+normal <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>norm<span style="color:#f92672">.</span>rvs(size<span style="color:#f92672">=</span><span style="color:#ae81ff">1000</span>)
+normal_bins <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>arange(<span style="color:#f92672">-</span><span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">3.01</span>, <span style="color:#ae81ff">0.01</span>)
 
-<span style=color:#75715e># Plot the circular normal, or von mises, distribution</span>
-vm <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>vonmises<span style=color:#f92672>.</span>rvs(kappa <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>, size<span style=color:#f92672>=</span><span style=color:#ae81ff>1000</span>)
-vm_bins <span style=color:#f92672>=</span> np<span style=color:#f92672>.</span>arange(<span style=color:#f92672>-</span>np<span style=color:#f92672>.</span>pi, np<span style=color:#f92672>.</span>pi<span style=color:#f92672>+</span><span style=color:#ae81ff>0.01</span>, <span style=color:#ae81ff>0.1</span>)
+<span style="color:#75715e"># Plot the circular normal, or von mises, distribution</span>
+vm <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>vonmises<span style="color:#f92672">.</span>rvs(kappa <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>, size<span style="color:#f92672">=</span><span style="color:#ae81ff">1000</span>)
+vm_bins <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>arange(<span style="color:#f92672">-</span>np<span style="color:#f92672">.</span>pi, np<span style="color:#f92672">.</span>pi<span style="color:#f92672">+</span><span style="color:#ae81ff">0.01</span>, <span style="color:#ae81ff">0.1</span>)
 
-<span style=color:#75715e># t-distribution and chi-squared distributions with 5 degrees of freedom</span>
-t <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>t<span style=color:#f92672>.</span>rvs(df<span style=color:#f92672>=</span><span style=color:#ae81ff>5</span>, size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>)
-t_bins <span style=color:#f92672>=</span> normal_bins<span style=color:#f92672>.</span>copy()
+<span style="color:#75715e"># t-distribution and chi-squared distributions with 5 degrees of freedom</span>
+t <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>t<span style="color:#f92672">.</span>rvs(df<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
+t_bins <span style="color:#f92672">=</span> normal_bins<span style="color:#f92672">.</span>copy()
 
-chi <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>chi2<span style=color:#f92672>.</span>rvs(df <span style=color:#f92672>=</span> <span style=color:#ae81ff>5</span>, size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>)
-chi_bins <span style=color:#f92672>=</span> np<span style=color:#f92672>.</span>arange(<span style=color:#ae81ff>0</span>, int(max(chi))<span style=color:#f92672>+</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>)
+chi <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>chi2<span style="color:#f92672">.</span>rvs(df <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
+chi_bins <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, int(max(chi))<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>)
 
-<span style=color:#75715e># Dirichlet distribution for 3-event space with concentration parameters of 1,1,1</span>
-dirichet <span style=color:#f92672>=</span> sp<span style=color:#f92672>.</span>dirichlet<span style=color:#f92672>.</span>rvs([<span style=color:#ae81ff>1</span>,<span style=color:#ae81ff>1</span>,<span style=color:#ae81ff>1</span>], size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>)
-</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>distributions <span style=color:#f92672>=</span> [
-    (<span style=color:#e6db74>&#34;Uniform&#34;</span>, [uniform], uniform_bins, [<span style=color:#e6db74>&#39;dodgerblue&#39;</span>], [<span style=color:#e6db74>&#39;a = 0, b = 1&#39;</span>]),
-    (<span style=color:#e6db74>&#34;Beta&#34;</span>, [beta_1, beta_2, beta_3, beta_4], beta_bins, 
-             [<span style=color:#e6db74>&#39;dodgerblue&#39;</span>, <span style=color:#e6db74>&#39;red&#39;</span>, <span style=color:#e6db74>&#39;yellow&#39;</span>, <span style=color:#e6db74>&#39;green&#39;</span>], 
-             [<span style=color:#e6db74>&#39;$</span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>alpha = 1, </span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>beta = 1$&#39;</span>, <span style=color:#e6db74>&#39;$</span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>alpha = 5, </span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>beta = 1$&#39;</span>,
-              <span style=color:#e6db74>&#39;$</span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>alpha = 1, </span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>beta = 5$&#39;</span>, <span style=color:#e6db74>&#39;$</span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>alpha = 0.5, </span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>beta = 0.5$&#39;</span>]),
-    (<span style=color:#e6db74>&#34;Exponential&#34;</span>, [expon_1, expon_2, expon_3], expon_bins, 
-             [<span style=color:#e6db74>&#39;dodgerblue&#39;</span>, <span style=color:#e6db74>&#39;red&#39;</span>, <span style=color:#e6db74>&#39;yellow&#39;</span>], 
-             [<span style=color:#e6db74>&#39;$\lambda = 1$&#39;</span>, <span style=color:#e6db74>&#39;$\lambda = 1/0.5 = 2$&#39;</span>,
-              <span style=color:#e6db74>&#39;$\lambda = 1/4 = 0.25$&#39;</span>]),
-    (<span style=color:#e6db74>&#34;Gamma&#34;</span>, [gamma_1, gamma_2, gamma_3, gamma_4, gamma_5, gamma_6], gamma_bins, 
-             [<span style=color:#e6db74>&#39;dodgerblue&#39;</span>, <span style=color:#e6db74>&#39;red&#39;</span>, <span style=color:#e6db74>&#39;yellow&#39;</span>, <span style=color:#e6db74>&#39;green&#39;</span>, <span style=color:#e6db74>&#39;purple&#39;</span>, <span style=color:#e6db74>&#39;black&#39;</span>, <span style=color:#e6db74>&#39;brown&#39;</span>], 
-             [<span style=color:#e6db74>&#39;$</span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>alpha = 1, </span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>theta = 1$&#39;</span>, <span style=color:#e6db74>&#39;$</span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>alpha = 1, </span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>theta = 0.5$&#39;</span>, <span style=color:#e6db74>&#39;$</span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>alpha = 1, </span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>theta = 4$&#39;</span>,
-              <span style=color:#e6db74>&#39;$</span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>alpha = 3, </span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>theta = 1$&#39;</span>, <span style=color:#e6db74>&#39;$</span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>alpha = 3, </span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>theta = 0.5$&#39;</span>, <span style=color:#e6db74>&#39;$</span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>alpha = 3, </span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>theta = 4$&#39;</span>]),
+<span style="color:#75715e"># Dirichlet distribution for 3-event space with concentration parameters of 1,1,1</span>
+dirichet <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>dirichlet<span style="color:#f92672">.</span>rvs([<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>], size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">distributions <span style="color:#f92672">=</span> [
+    (<span style="color:#e6db74">&#34;Uniform&#34;</span>, [uniform], uniform_bins, [<span style="color:#e6db74">&#39;dodgerblue&#39;</span>], [<span style="color:#e6db74">&#39;a = 0, b = 1&#39;</span>]),
+    (<span style="color:#e6db74">&#34;Beta&#34;</span>, [beta_1, beta_2, beta_3, beta_4], beta_bins, 
+             [<span style="color:#e6db74">&#39;dodgerblue&#39;</span>, <span style="color:#e6db74">&#39;red&#39;</span>, <span style="color:#e6db74">&#39;yellow&#39;</span>, <span style="color:#e6db74">&#39;green&#39;</span>], 
+             [<span style="color:#e6db74">&#39;$</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">alpha = 1, </span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">beta = 1$&#39;</span>, <span style="color:#e6db74">&#39;$</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">alpha = 5, </span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">beta = 1$&#39;</span>,
+              <span style="color:#e6db74">&#39;$</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">alpha = 1, </span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">beta = 5$&#39;</span>, <span style="color:#e6db74">&#39;$</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">alpha = 0.5, </span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">beta = 0.5$&#39;</span>]),
+    (<span style="color:#e6db74">&#34;Exponential&#34;</span>, [expon_1, expon_2, expon_3], expon_bins, 
+             [<span style="color:#e6db74">&#39;dodgerblue&#39;</span>, <span style="color:#e6db74">&#39;red&#39;</span>, <span style="color:#e6db74">&#39;yellow&#39;</span>], 
+             [<span style="color:#e6db74">&#39;$\lambda = 1$&#39;</span>, <span style="color:#e6db74">&#39;$\lambda = 1/0.5 = 2$&#39;</span>,
+              <span style="color:#e6db74">&#39;$\lambda = 1/4 = 0.25$&#39;</span>]),
+    (<span style="color:#e6db74">&#34;Gamma&#34;</span>, [gamma_1, gamma_2, gamma_3, gamma_4, gamma_5, gamma_6], gamma_bins, 
+             [<span style="color:#e6db74">&#39;dodgerblue&#39;</span>, <span style="color:#e6db74">&#39;red&#39;</span>, <span style="color:#e6db74">&#39;yellow&#39;</span>, <span style="color:#e6db74">&#39;green&#39;</span>, <span style="color:#e6db74">&#39;purple&#39;</span>, <span style="color:#e6db74">&#39;black&#39;</span>, <span style="color:#e6db74">&#39;brown&#39;</span>], 
+             [<span style="color:#e6db74">&#39;$</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">alpha = 1, </span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">theta = 1$&#39;</span>, <span style="color:#e6db74">&#39;$</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">alpha = 1, </span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">theta = 0.5$&#39;</span>, <span style="color:#e6db74">&#39;$</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">alpha = 1, </span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">theta = 4$&#39;</span>,
+              <span style="color:#e6db74">&#39;$</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">alpha = 3, </span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">theta = 1$&#39;</span>, <span style="color:#e6db74">&#39;$</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">alpha = 3, </span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">theta = 0.5$&#39;</span>, <span style="color:#e6db74">&#39;$</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">alpha = 3, </span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">theta = 4$&#39;</span>]),
     
-    (<span style=color:#e6db74>&#34;Normal&#34;</span>, [normal], normal_bins, [<span style=color:#e6db74>&#39;dodgerblue&#39;</span>], [<span style=color:#e6db74>&#39;$\mu = 0, \sigma = 1$&#39;</span>]),
-    (<span style=color:#e6db74>&#34;von Mises&#34;</span>, [vm], vm_bins, [<span style=color:#e6db74>&#39;red&#39;</span>], [<span style=color:#e6db74>&#39;$\mu = 0, \kappa = 1$&#39;</span>]),
+    (<span style="color:#e6db74">&#34;Normal&#34;</span>, [normal], normal_bins, [<span style="color:#e6db74">&#39;dodgerblue&#39;</span>], [<span style="color:#e6db74">&#39;$\mu = 0, \sigma = 1$&#39;</span>]),
+    (<span style="color:#e6db74">&#34;von Mises&#34;</span>, [vm], vm_bins, [<span style="color:#e6db74">&#39;red&#39;</span>], [<span style="color:#e6db74">&#39;$\mu = 0, \kappa = 1$&#39;</span>]),
     
-    (<span style=color:#e6db74>&#34;t&#34;</span>, [t], t_bins, [<span style=color:#e6db74>&#39;green&#39;</span>], [<span style=color:#e6db74>&#39;df = 5&#39;</span>]),
-    (<span style=color:#e6db74>&#34;$\chi^2$&#34;</span>, [chi], chi_bins, [<span style=color:#e6db74>&#39;yellow&#39;</span>], [<span style=color:#e6db74>&#39;df = 5&#39;</span>]),
+    (<span style="color:#e6db74">&#34;t&#34;</span>, [t], t_bins, [<span style="color:#e6db74">&#39;green&#39;</span>], [<span style="color:#e6db74">&#39;df = 5&#39;</span>]),
+    (<span style="color:#e6db74">&#34;$\chi^2$&#34;</span>, [chi], chi_bins, [<span style="color:#e6db74">&#39;yellow&#39;</span>], [<span style="color:#e6db74">&#39;df = 5&#39;</span>]),
 ]
 
-fig, axes <span style=color:#f92672>=</span> plt<span style=color:#f92672>.</span>subplots(<span style=color:#ae81ff>3</span>,<span style=color:#ae81ff>3</span>)
-ax <span style=color:#f92672>=</span> axes<span style=color:#f92672>.</span>flatten()
+fig, axes <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>subplots(<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">3</span>)
+ax <span style="color:#f92672">=</span> axes<span style="color:#f92672">.</span>flatten()
 
-<span style=color:#66d9ef>for</span> i,v <span style=color:#f92672>in</span> enumerate(distributions):
-    name, the_dist_list, the_dist_bins, c_list, params_list <span style=color:#f92672>=</span> v
+<span style="color:#66d9ef">for</span> i,v <span style="color:#f92672">in</span> enumerate(distributions):
+    name, the_dist_list, the_dist_bins, c_list, params_list <span style="color:#f92672">=</span> v
     
-    <span style=color:#66d9ef>for</span> dl, c, params <span style=color:#f92672>in</span> zip(the_dist_list, c_list, params_list):
-        sns<span style=color:#f92672>.</span>distplot(dl, ax <span style=color:#f92672>=</span> ax[i], kde <span style=color:#f92672>=</span> True, color <span style=color:#f92672>=</span> c, label <span style=color:#f92672>=</span> params, bins <span style=color:#f92672>=</span> the_dist_bins)
+    <span style="color:#66d9ef">for</span> dl, c, params <span style="color:#f92672">in</span> zip(the_dist_list, c_list, params_list):
+        sns<span style="color:#f92672">.</span>distplot(dl, ax <span style="color:#f92672">=</span> ax[i], kde <span style="color:#f92672">=</span> True, color <span style="color:#f92672">=</span> c, label <span style="color:#f92672">=</span> params, bins <span style="color:#f92672">=</span> the_dist_bins)
         
-    ax[i]<span style=color:#f92672>.</span>set_title(f<span style=color:#e6db74>&#34;{name} distribution&#34;</span>)
-    ax[i]<span style=color:#f92672>.</span>legend(loc <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;upper right&#39;</span>, ncol <span style=color:#f92672>=</span> <span style=color:#ae81ff>2</span>)
+    ax[i]<span style="color:#f92672">.</span>set_title(f<span style="color:#e6db74">&#34;{name} distribution&#34;</span>)
+    ax[i]<span style="color:#f92672">.</span>legend(loc <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;upper right&#39;</span>, ncol <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>)
     
-<span style=color:#75715e># Custom labelling / manip</span>
-ax[<span style=color:#ae81ff>2</span>]<span style=color:#f92672>.</span>set_xlim((<span style=color:#ae81ff>0</span>,<span style=color:#ae81ff>10</span>))
-ax[<span style=color:#ae81ff>3</span>]<span style=color:#f92672>.</span>set_xlim((<span style=color:#ae81ff>0</span>,<span style=color:#ae81ff>10</span>))
+<span style="color:#75715e"># Custom labelling / manip</span>
+ax[<span style="color:#ae81ff">2</span>]<span style="color:#f92672">.</span>set_xlim((<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">10</span>))
+ax[<span style="color:#ae81ff">3</span>]<span style="color:#f92672">.</span>set_xlim((<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">10</span>))
 
-ax[<span style=color:#ae81ff>5</span>]<span style=color:#f92672>.</span>set_xticks([<span style=color:#f92672>-</span>np<span style=color:#f92672>.</span>pi, <span style=color:#f92672>-</span>np<span style=color:#f92672>.</span>pi<span style=color:#f92672>/</span><span style=color:#ae81ff>2</span>, <span style=color:#ae81ff>0</span>, np<span style=color:#f92672>.</span>pi<span style=color:#f92672>/</span><span style=color:#ae81ff>2</span>, np<span style=color:#f92672>.</span>pi])
-ax[<span style=color:#ae81ff>5</span>]<span style=color:#f92672>.</span>set_xticklabels([<span style=color:#e6db74>&#39;$-\pi$&#39;</span>, <span style=color:#e6db74>&#39;$-</span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>frac{\pi}{2}$&#39;</span>, <span style=color:#e6db74>&#39;0&#39;</span>, <span style=color:#e6db74>&#39;$</span><span style=color:#ae81ff>\\</span><span style=color:#e6db74>frac{\pi}{2}$&#39;</span>, <span style=color:#e6db74>&#39;$\pi$&#39;</span>])
-ax[<span style=color:#ae81ff>6</span>]<span style=color:#f92672>.</span>set_xlim(ax[<span style=color:#ae81ff>4</span>]<span style=color:#f92672>.</span>get_xlim())
+ax[<span style="color:#ae81ff">5</span>]<span style="color:#f92672">.</span>set_xticks([<span style="color:#f92672">-</span>np<span style="color:#f92672">.</span>pi, <span style="color:#f92672">-</span>np<span style="color:#f92672">.</span>pi<span style="color:#f92672">/</span><span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">0</span>, np<span style="color:#f92672">.</span>pi<span style="color:#f92672">/</span><span style="color:#ae81ff">2</span>, np<span style="color:#f92672">.</span>pi])
+ax[<span style="color:#ae81ff">5</span>]<span style="color:#f92672">.</span>set_xticklabels([<span style="color:#e6db74">&#39;$-\pi$&#39;</span>, <span style="color:#e6db74">&#39;$-</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">frac{\pi}{2}$&#39;</span>, <span style="color:#e6db74">&#39;0&#39;</span>, <span style="color:#e6db74">&#39;$</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">frac{\pi}{2}$&#39;</span>, <span style="color:#e6db74">&#39;$\pi$&#39;</span>])
+ax[<span style="color:#ae81ff">6</span>]<span style="color:#f92672">.</span>set_xlim(ax[<span style="color:#ae81ff">4</span>]<span style="color:#f92672">.</span>get_xlim())
     
-plt<span style=color:#f92672>.</span>subplots_adjust(hspace <span style=color:#f92672>=</span> <span style=color:#ae81ff>0.5</span>)
-sns<span style=color:#f92672>.</span>despine()
+plt<span style="color:#f92672">.</span>subplots_adjust(hspace <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.5</span>)
+sns<span style="color:#f92672">.</span>despine()
 
-<span style=color:#75715e># plotting a Dirichlet distribution is not straight forward when K &gt; 2</span>
-fig<span style=color:#f92672>.</span>delaxes(ax[<span style=color:#ae81ff>8</span>])
-fig<span style=color:#f92672>.</span>set_size_inches((<span style=color:#ae81ff>15</span>,<span style=color:#ae81ff>10</span>))
+<span style="color:#75715e"># plotting a Dirichlet distribution is not straight forward when K &gt; 2</span>
+fig<span style="color:#f92672">.</span>delaxes(ax[<span style="color:#ae81ff">8</span>])
+fig<span style="color:#f92672">.</span>set_size_inches((<span style="color:#ae81ff">15</span>,<span style="color:#ae81ff">10</span>))
 
-plt<span style=color:#f92672>.</span>savefig(<span style=color:#e6db74>&#34;continuous_distributions.png&#34;</span>, dpi <span style=color:#f92672>=</span> <span style=color:#ae81ff>300</span>)
-</code></pre></div><p>I hope this was a useful, short intro to some foundational statistics! :) Have fun.</p></div><footer class=post-footer></footer></article></main><footer class=footer><span>&copy; 2021 <a href=https://ideasbyjin.github.io/>Read between the rows</a></span>
-<span>&#183;</span>
-<span>Powered by <a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a></span>
-<span>&#183;</span>
-<span>Theme <a href=https://git.io/hugopapermod rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)"><button class=top-link id=top-link type=button accesskey=g><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg></button></a>
-<script defer src=/assets/js/highlight.min.27cd435cc9ed6abb4b496581b151804f79f366c412620272bb94e2f5f598ebcc.js integrity="sha256-J81DXMntartLSWWBsVGAT3nzZsQSYgJyu5Ti9fWY68w=" onload=hljs.initHighlightingOnLoad();></script><script>window.onload=function(){if(localStorage.getItem("menu-scroll-position")){document.getElementById('menu').scrollLeft=localStorage.getItem("menu-scroll-position");}}
-document.querySelectorAll('a[href^="#"]').forEach(anchor=>{anchor.addEventListener("click",function(e){e.preventDefault();var id=this.getAttribute("href").substr(1);if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({behavior:"smooth"});}else{document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();}
-if(id==="top"){history.replaceState(null,null," ");}else{history.pushState(null,null,`#${id}`);}});});var mybutton=document.getElementById("top-link");window.onscroll=function(){if(document.body.scrollTop>800||document.documentElement.scrollTop>800){mybutton.style.visibility="visible";mybutton.style.opacity="1";}else{mybutton.style.visibility="hidden";mybutton.style.opacity="0";}};function menu_on_scroll(){localStorage.setItem("menu-scroll-position",document.getElementById('menu').scrollLeft);}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{if(document.body.className.includes("dark")){document.body.classList.remove('dark');localStorage.setItem("pref-theme",'light');}else{document.body.classList.add('dark');localStorage.setItem("pref-theme",'dark');}})</script></body></html>
+plt<span style="color:#f92672">.</span>savefig(<span style="color:#e6db74">&#34;continuous_distributions.png&#34;</span>, dpi <span style="color:#f92672">=</span> <span style="color:#ae81ff">300</span>)
+</code></pre></div><!-- raw HTML omitted -->
+<p>I hope this was a useful, short intro to some foundational statistics! :) Have fun.</p>
+
+</div>
+  <footer class="post-footer">
+  </footer>
+</article>
+    </main><footer class="footer">
+    <span>&copy; 2021 <a href="https://ideasbyjin.github.io/">Read between the rows</a></span>
+    <span>&middot;</span>
+    <span>Powered by <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a></span>
+    <span>&middot;</span>
+    <span>Theme <a href="https://git.io/hugopapermod" rel="noopener" target="_blank">PaperMod</a></span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)">
+    <button class="top-link" id="top-link" type="button" accesskey="g">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+            <path d="M12 6H0l6-6z" />
+        </svg>
+    </button>
+</a>
+
+
+
+<script defer src="/assets/js/highlight.min.27cd435cc9ed6abb4b496581b151804f79f366c412620272bb94e2f5f598ebcc.js" integrity="sha256-J81DXMntartLSWWBsVGAT3nzZsQSYgJyu5Ti9fWY68w="
+    onload="hljs.initHighlightingOnLoad();"></script>
+<script>
+    window.onload = function () {
+        if (localStorage.getItem("menu-scroll-position")) {
+            document.getElementById('menu').scrollLeft = localStorage.getItem("menu-scroll-position");
+        }
+    }
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+    function menu_on_scroll() {
+        localStorage.setItem("menu-scroll-position", document.getElementById('menu').scrollLeft);
+    }
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+
+</body>
+
+</html>

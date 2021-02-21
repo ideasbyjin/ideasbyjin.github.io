@@ -1,1 +1,20 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>code on Read between the rows</title><link>https://ideasbyjin.github.io/categories/code/</link><description>Recent content in code on Read between the rows</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 28 Jan 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://ideasbyjin.github.io/categories/code/index.xml" rel="self" type="application/rss+xml"/><item><title>Building Python modules using C++</title><link>https://ideasbyjin.github.io/post/2019-01-28-mesh-cpp-python/</link><pubDate>Mon, 28 Jan 2019 00:00:00 +0000</pubDate><guid>https://ideasbyjin.github.io/post/2019-01-28-mesh-cpp-python/</guid><description>Python is an amazing programming language for lots of applications, particularly for bioinformatics. One of the potential downsides to using Python (apart from whitespace, non-static typing) is its speed. It&amp;rsquo;s certainly faster than languages such as R, but it&amp;rsquo;s nowhere near the level of C/C++. In fact, many Python modules are already written in C/C++ (such as NumPy) but it might be practical to have your own C/C++ code to interface with your Python objects.</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>code on Read between the rows</title>
+    <link>https://ideasbyjin.github.io/categories/code/</link>
+    <description>Recent content in code on Read between the rows</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 28 Jan 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://ideasbyjin.github.io/categories/code/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Building Python modules using C&#43;&#43;</title>
+      <link>https://ideasbyjin.github.io/post/2019-01-28-mesh-cpp-python/</link>
+      <pubDate>Mon, 28 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/post/2019-01-28-mesh-cpp-python/</guid>
+      <description>Python is an amazing programming language for lots of applications, particularly for bioinformatics. One of the potential downsides to using Python (apart from whitespace, non-static typing) is its speed. It&amp;rsquo;s certainly faster than languages such as R, but it&amp;rsquo;s nowhere near the level of C/C++. In fact, many Python modules are already written in C/C++ (such as NumPy) but it might be practical to have your own C/C++ code to interface with your Python objects.</description>
+    </item>
+    
+  </channel>
+</rss>
