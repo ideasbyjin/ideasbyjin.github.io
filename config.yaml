@@ -1,6 +1,6 @@
-baseURL: ""
+baseURL: "https://ideasbyjin.github.io/"
 disablePathToLower: true
-languageCode: en-gb
+languageCode: en
 title: Read between the rows
 theme: PaperMod
 
