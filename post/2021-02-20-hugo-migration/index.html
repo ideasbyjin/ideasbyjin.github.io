@@ -62,12 +62,12 @@
   "@type": "BlogPosting",
   "headline": "Hugo Migration",
   "name": "Hugo Migration",
-  "description": "I\u0026amp;rsquo;ve recently migrated my blog to Hugo instead of Jekyll. It\u0026amp;rsquo;s an ongoing process and there might be some broken elements (e.g. images) but will get to updating these …",
+  "description": "Hugo migration I\u0026amp;rsquo;ve recently migrated my blog to Hugo instead of Jekyll. It\u0026amp;rsquo;s an ongoing process and there might be some broken elements (e.g. images) but will get to …",
   "keywords": [
     
   ],
-  "articleBody": "I’ve recently migrated my blog to Hugo instead of Jekyll. It’s an ongoing process and there might be some broken elements (e.g. images) but will get to updating these soon. In the meantime, enjoy the new format.\nI’ll do a post at some stage about how I’ve done this. Long story short, I was a bit tired of Jekyll’s dependency on Ruby which required a lot of tinkering on my Mac (with the Big Sur update). In fact, I’m still not sure how the Ruby version permutations had ended up working out for me, but I decided to go for something more modern and sleek. Not to mention searchability, an archive format, and reading time estimates were huge wins for me.\nEnjoy!\n",
-  "wordCount" : "122",
+  "articleBody": "Hugo migration I’ve recently migrated my blog to Hugo instead of Jekyll. It’s an ongoing process and there might be some broken elements (e.g. images) but will get to updating these soon. In the meantime, enjoy the new format. Here are some things I’ve had to learn the hard way, and it’s a bit painful as I feel the documentation is still a little scattered, but I’m absolutely loving it so far.\nOptional: migration from Jekyll This is for you if you have a pre-existing website built in Jekyll;\nhugo import src_site dest_site This was super quick as Hugo has a built-in mechanism to import your old posts into Hugo’s format. I’ve found it generally worked well, though some static files and assets moved around a bit more than I would have expected. Alas, not a dealbreaker.\nSetting up a Hugo theme I’ve personally opted for this excellent looking PaperMod theme. The exampleSite demo was where I found things to be most helpful because I found the demo’s config.yaml to work out what goes where, and then fill in bits and pieces as I wanted to. This isn’t a trivial step though, and requires a bit of attention to detail to make sure the front matter and menus look and function as expected. There’s been a bit of a mix in people using submodules (which seems to be more common?) than directly cloning the contents of the PaperMod theme to your repo; I went for the latter as I needed to integrate some changes to enable MathJax. I found Geoff’s post really helpful for this.\nSetting up search functionality This is an example case where I thought the documentation wasn’t clear from Hugo, but once enabled, it is absolutely wicked. In your config.yaml, if your theme allows searching (as is the case for PaperMod) then you would need these in your config.yaml: outputs: home: - HTML - JSON\nShortcodes, shortcodes Shortcodes from Hugo are brilliant. It allows really nice figure integration without you having to define separate div elements (I used to do this with Jekyll’s minima theme…) and other bits and pieces such as code highlight ({{ highlight }}) are super easy to read. I’m still figuring this out though so far it’s been straight forward.\nTest then deploy This was the step that took me a good 2 hours, only to figure out I should have read peaceiris' Github actions a little more carefully with regards to using GITHUB_TOKENs. Long story short is, if you are using Github to deploy your blog like me, then you just need to point Github to deploy from the gh-pages branch via your actions (and Hugo has a minimal template for a Github action workflow!) then you’re good to go.\n",
+  "wordCount" : "458",
   "inLanguage": "en",
   "datePublished": "2021-02-20T23:09:46Z",
   "dateModified": "2021-02-20T23:09:46Z",
@@ -170,7 +170,7 @@
     <div class="post-description">
       Hugo migration update
     </div>
-    <div class="post-meta">February 20, 2021&nbsp;·&nbsp;1 min
+    <div class="post-meta">February 20, 2021&nbsp;·&nbsp;3 min
 
 </div>
   </header> 
@@ -180,20 +180,58 @@
       <summary accesskey="c" title="(Alt + C)">
         <div class="details">Table of Contents</div>
       </summary>
-      <div class="inner">
+      <div class="inner"><ul><li>
+        <a href="#hugo-migration" aria-label="Hugo migration">Hugo migration</a><ul>
+            <li>
+        <a href="#optional-migration-from-jekyll" aria-label="Optional: migration from Jekyll">Optional: migration from Jekyll</a></li></ul>
+    </li><li>
+        <a href="#setting-up-a-hugo-theme" aria-label="Setting up a Hugo theme">Setting up a Hugo theme</a></li><li>
+        <a href="#setting-up-search-functionality" aria-label="Setting up search functionality">Setting up search functionality</a></li><li>
+        <a href="#shortcodes-shortcodes" aria-label="Shortcodes, shortcodes">Shortcodes, shortcodes</a></li><li>
+        <a href="#test-then-deploy" aria-label="Test then deploy">Test then deploy</a></li></ul>
       </div>
     </details>
   </div>
   <div class="post-content">
+<h2 id="hugo-migration">Hugo migration<a hidden class="anchor" aria-hidden="true" href="#hugo-migration">#</a></h2>
 <p>I&rsquo;ve recently migrated my blog to Hugo instead of Jekyll. It&rsquo;s an ongoing process and there might
 be some broken  elements (e.g. images) but will get to updating these soon. In the meantime,
-enjoy the new format.</p>
-<p>I&rsquo;ll do a post at some stage about how I&rsquo;ve done this. Long story short, I was a bit tired of
-Jekyll&rsquo;s dependency on Ruby which required a lot of tinkering on my Mac (with the Big Sur update).
-In fact, I&rsquo;m still not sure how the Ruby version permutations had ended up working out for me,
-but I decided to go for something more modern and sleek. Not to mention searchability, an archive
-format, and reading time estimates were huge wins for me.</p>
-<p>Enjoy!</p>
+enjoy the new format. Here are some things I&rsquo;ve had to learn the hard way, and it&rsquo;s a bit painful
+as I feel the documentation is still a little scattered, but I&rsquo;m absolutely loving it so far.</p>
+<h3 id="optional-migration-from-jekyll">Optional: migration from Jekyll<a hidden class="anchor" aria-hidden="true" href="#optional-migration-from-jekyll">#</a></h3>
+<p>This is for you if you have a pre-existing website built in Jekyll;</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">hugo import src_site dest_site</code></pre></div>
+<p>This was super quick as Hugo has a built-in mechanism to import your old posts into Hugo&rsquo;s
+format. I&rsquo;ve found it generally worked well, though some <code>static</code> files and <code>assets</code> moved around
+a bit more than I would have expected. Alas, not a dealbreaker.</p>
+<h2 id="setting-up-a-hugo-theme">Setting up a Hugo theme<a hidden class="anchor" aria-hidden="true" href="#setting-up-a-hugo-theme">#</a></h2>
+<p>I&rsquo;ve personally opted for this excellent looking <a href="https://github.com/adityatelange/hugo-PaperMod">PaperMod theme</a>.
+The <code>exampleSite</code> demo was where I found things to be most helpful because I found the demo&rsquo;s
+<code>config.yaml</code> to work out what goes where, and then fill in bits and pieces as I wanted to. This
+isn&rsquo;t a trivial step though, and requires a bit of attention to detail to make sure the front
+matter and menus look and function as expected. There&rsquo;s been a bit of a mix in people using
+submodules (which seems to be more common?) than directly cloning the contents of the PaperMod
+theme to your repo; I went for the latter as I needed to integrate some changes to enable MathJax.
+I found <a href="https://geoffruddock.com/math-typesetting-in-hugo/">Geoff&rsquo;s post</a> really helpful for this.</p>
+<h2 id="setting-up-search-functionality">Setting up search functionality<a hidden class="anchor" aria-hidden="true" href="#setting-up-search-functionality">#</a></h2>
+<p>This is an example case where I thought the documentation wasn&rsquo;t clear from Hugo, but once enabled,
+it is absolutely wicked. In your <code>config.yaml</code>, if your theme allows searching (as is the case
+for PaperMod) then you would need these in your <code>config.yaml</code>:
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">outputs</span>:
+  <span style="color:#f92672">home</span>:
+  - <span style="color:#ae81ff">HTML</span>
+  - <span style="color:#ae81ff">JSON</span></code></pre></div></p>
+<h2 id="shortcodes-shortcodes">Shortcodes, shortcodes<a hidden class="anchor" aria-hidden="true" href="#shortcodes-shortcodes">#</a></h2>
+<p>Shortcodes from Hugo are brilliant. It allows really nice figure integration without you having
+to define separate <code>div</code> elements (I used to do this with Jekyll&rsquo;s minima theme&hellip;) and other
+bits and pieces such as code highlight (<code>{{ highlight }}</code>) are super easy to read. I&rsquo;m still
+figuring this out though so far it&rsquo;s been straight forward.</p>
+<h2 id="test-then-deploy">Test then deploy<a hidden class="anchor" aria-hidden="true" href="#test-then-deploy">#</a></h2>
+<p>This was the step that took me a good 2 hours, only to figure out I should have read <code>peaceiris</code>'
+Github actions a little more carefully with regards to using <code>GITHUB_TOKEN</code>s. Long story short is,
+if you are using Github to deploy your blog like me, then you just need to point Github to deploy
+from the <code>gh-pages</code> branch via your actions (and Hugo has a minimal template for a Github action
+workflow!) then you&rsquo;re good to go.</p>
 
 </div>
   <footer class="post-footer">

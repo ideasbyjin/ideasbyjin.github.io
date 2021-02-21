@@ -13,8 +13,7 @@
       <pubDate>Sat, 20 Feb 2021 23:09:46 +0000</pubDate>
       
       <guid>https://ideasbyjin.github.io/post/2021-02-20-hugo-migration/</guid>
-      <description>I&amp;rsquo;ve recently migrated my blog to Hugo instead of Jekyll. It&amp;rsquo;s an ongoing process and there might be some broken elements (e.g. images) but will get to updating these soon. In the meantime, enjoy the new format.
-I&amp;rsquo;ll do a post at some stage about how I&amp;rsquo;ve done this. Long story short, I was a bit tired of Jekyll&amp;rsquo;s dependency on Ruby which required a lot of tinkering on my Mac (with the Big Sur update).</description>
+      <description>Hugo migration I&amp;rsquo;ve recently migrated my blog to Hugo instead of Jekyll. It&amp;rsquo;s an ongoing process and there might be some broken elements (e.g. images) but will get to updating these soon. In the meantime, enjoy the new format. Here are some things I&amp;rsquo;ve had to learn the hard way, and it&amp;rsquo;s a bit painful as I feel the documentation is still a little scattered, but I&amp;rsquo;m absolutely loving it so far.</description>
     </item>
     
     <item>
