@@ -2,6 +2,7 @@
 title: "Hugo Migration"
 date: 2021-02-20T23:09:46Z
 description: Hugo migration update
+image: https://d33wubrfki0l68.cloudfront.net/c38c7334cc3f23585738e40334284fddcaf03d5e/2e17c/images/hugo-logo-wide.svg
 ---
 
 ## Hugo migration
