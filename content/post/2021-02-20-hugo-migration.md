@@ -2,8 +2,6 @@
 title: "Hugo Migration"
 date: 2021-02-20T23:09:46Z
 description: Hugo migration update
-twitter:
-  - image: https://university.tenten.co/uploads/default/original/1X/281f95ea246dfa7509bd6f9e17d63331eb8b5fdc.jpg
 ---
 
 ## Hugo migration
