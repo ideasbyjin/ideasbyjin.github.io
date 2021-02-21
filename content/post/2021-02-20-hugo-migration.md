@@ -1,5 +1,5 @@
 ---
-title: "2021 02 20 Hugo Migration"
+title: "Hugo Migration"
 date: 2021-02-20T23:09:46Z
 description: Hugo migration update
 ---
