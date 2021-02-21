@@ -4,6 +4,8 @@ languageCode: en
 title: Read between the rows
 theme: PaperMod
 
+publishDir: docs
+
 enableRobotsTXT: true
 enableInlineShortCodes: true
 
