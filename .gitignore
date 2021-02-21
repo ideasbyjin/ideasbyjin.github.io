@@ -1,34 +1,3 @@
-_site
-*DS_Store
-.sass-cache
-.jekyll-cache
-.jekyll-metadata
-*.ipynb
-*.xml
-*.iml
-vendor
-Gemfile
-Gemfile.lock
-/assets/notebooks/gene_exp/E-MTAB-2706-query-results.fpkms.tsv
-/assets/notebooks/gene_exp/E-MTAB-2706-query-results.tpms.tsv
-/assets/notebooks/gene_exp/E-MTAB-5214-query-results.fpkms.tsv
-/assets/notebooks/gene_exp/E-MTAB-5214-query-results.tpms.tsv
-/assets/data/hockey/game_goalie_stats.csv
-/assets/data/hockey/game_skater_stats.csv
-/assets/data/hockey/game_teams_stats.csv
-/assets/data/hockey/player_info.csv
-/assets/notebooks/hockey/SupervisedML.zip
-/assets/notebooks/gene_exp/GTEX + DBSCAN.md
-/assets/notebooks/gene_exp/GTEX + DBSCAN.zip
-/assets/notebooks/santa_bayes/Santa Bayes.md
-/assets/notebooks/santa_bayes/Santa Bayes.zip
-/assets/notebooks/neural-networks/ANNs.md
-/assets/notebooks/neural-networks/ANNs.zip
-/assets/notebooks/distributions/Distributions-cheat-sheet.md
-/assets/notebooks/distributions/output_8_0.png
-/assets/notebooks/distributions/output_11_0.png
-/assets/notebooks/distributions/Distributions-applications.zip
-/assets/notebooks/distributions/output_3_0.png
-/assets/notebooks/distributions/output_5_1.png
-/assets/notebooks/distributions/output_8_1.png
-/assets/notebooks/distributions/output_11_1.png
+*.idea/*
+.DS_Store
+public/*

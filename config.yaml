@@ -1,0 +1,57 @@
+baseURL: "https://ideasbyjin.github.io/"
+disablePathToLower: true
+languageCode: en
+title: Read between the rows
+theme: PaperMod
+
+enableRobotsTXT: true
+enableInlineShortCodes: true
+
+outputs:
+  home:
+    - HTML
+    - JSON
+
+params:
+    env: production
+    defaultTheme: light
+    ShowReadingTime: true
+    ShowShareButtons: false
+    showtoc: true
+    comments: false
+
+    profileMode:
+        enabled: false
+    homeInfoParams:
+        Title: "Hey there! 👋🏼"
+        Content: "I'm Jin. I'm the Data Science Lead at [Alchemab Therapeutics](http://alchemab.com/). Data science,
+        sports, and bio/medtech are my jam, and I'll try to post pieces on these themes regularly. All views and work
+        expressed here are my own. It would be great to keep in touch via LinkedIn, or follow each other on Twitter."
+
+    socialIcons:
+        - name: Twitter
+          url: http://twitter.com/ideasbyjin
+        - name: LinkedIn
+          url: https://www.linkedin.com/in/jleem/
+
+staticDir:
+  - static/
+
+menu:
+    main:
+        - identifier: about
+          name: about
+          url: /about
+          weight: 20
+        - identifier: archive
+          name: archive
+          url: /archives
+          weight: 10
+        - identifier: home
+          name: home
+          url: /
+          weight: 0
+        - identifier: search
+          name: search
+          url: /search
+          weight: 5
