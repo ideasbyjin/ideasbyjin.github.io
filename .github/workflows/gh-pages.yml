@@ -26,5 +26,9 @@ jobs:
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.TOKEN }}
+          external_repository: ideasbyjin/ideasbyjin.github.io
           publish_dir: ./public
+          username: ideasbyjin
+          user_email: jinwoo.leem@gmail.com
+          publish_branch: master
