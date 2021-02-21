@@ -4,6 +4,14 @@ languageCode: en-gb
 title: Read between the rows
 theme: PaperMod
 
+enableRobotsTXT: true
+enableInlineShortCodes: true
+
+outputs:
+  home:
+    - HTML
+    - JSON
+
 params:
     env: production
     defaultTheme: light
@@ -26,9 +34,24 @@ params:
         - name: LinkedIn
           url: https://www.linkedin.com/in/jleem/
 
+staticDir:
+  - static/
+
 menu:
     main:
         - identifier: about
           name: about
           url: /about
+          weight: 20
+        - identifier: archive
+          name: archive
+          url: /archives
           weight: 10
+        - identifier: home
+          name: home
+          url: /
+          weight: 0
+        - identifier: search
+          name: search
+          url: /search
+          weight: 5

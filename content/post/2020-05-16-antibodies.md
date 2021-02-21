@@ -1,6 +1,4 @@
 ---
-categories:
-- bioinf
 date: "2020-05-16T00:00:00Z"
 image: https://ideasbyjin.github.io/assets/antibody-structure.png
 mathjax: true
@@ -33,9 +31,7 @@ your immune system helping to clear out that foreign molecule.
 
 Antibodies are proteins. In humans, they look like the letter Y, as shown below:
 
-<div style="text-align: center">
-    <img src="/assets/antibody-structure.png" width = "50%">
-</div>
+![antibody-structure](/assets/antibody-structure.png)
 
 The antibody molecule has two pairs of two protein chains:
 
