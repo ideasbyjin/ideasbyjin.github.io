@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>A primer to Clustering - Hierarchical clustering | Read between the rows</title>
+
+<meta name="keywords" content="" />
+<meta name="description" content="Context From the last blog post, we saw that data can come with many features. When data gets very complex (at least, more complex than the Starbucks data from the last post), we can rely on machine learning methods to &ldquo;learn&rdquo; patterns in the data. For example, suppose you have 1000 photos, of which 500 are cats, and the other 500 are dogs. Machine learning methods can, for instance, read the RGB channels of the images&#39; pixels, then use that information to distinguish which combinations of pixels are associated with cat images, and which combinations are linked to dogs.">
+<meta name="author" content="">
+<link rel="canonical" href="https://ideasbyjin.github.io/post/2019-09-23-clustering-1/" />
+<link href="/assets/css/stylesheet.min.54720d48c4fa0c4ebe8555f04b9fc5b856112ec49cafef19cb385e89661150b7.css" integrity="sha256-VHINSMT6DE6&#43;hVXwS5/FuFYRLsScr&#43;8ZyzheiWYRULc=" rel="preload stylesheet"
+    as="style">
+
+<link rel="icon" href="https://ideasbyjin.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://ideasbyjin.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://ideasbyjin.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://ideasbyjin.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://ideasbyjin.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<meta name="generator" content="Hugo 0.80.0" />
+
+
+
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$','$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+  };
+
+  window.addEventListener('load', (event) => {
+      document.querySelectorAll("mjx-container").forEach(function(x){
+        x.parentElement.classList += 'has-jax'})
+    });
+
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><meta property="og:title" content="A primer to Clustering - Hierarchical clustering" />
+<meta property="og:description" content="Context From the last blog post, we saw that data can come with many features. When data gets very complex (at least, more complex than the Starbucks data from the last post), we can rely on machine learning methods to &ldquo;learn&rdquo; patterns in the data. For example, suppose you have 1000 photos, of which 500 are cats, and the other 500 are dogs. Machine learning methods can, for instance, read the RGB channels of the images&#39; pixels, then use that information to distinguish which combinations of pixels are associated with cat images, and which combinations are linked to dogs." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ideasbyjin.github.io/post/2019-09-23-clustering-1/" />
+<meta property="article:published_time" content="2019-09-23T00:00:00+00:00" />
+<meta property="article:modified_time" content="2019-09-23T00:00:00+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="A primer to Clustering - Hierarchical clustering"/>
+<meta name="twitter:description" content="Context From the last blog post, we saw that data can come with many features. When data gets very complex (at least, more complex than the Starbucks data from the last post), we can rely on machine learning methods to &ldquo;learn&rdquo; patterns in the data. For example, suppose you have 1000 photos, of which 500 are cats, and the other 500 are dogs. Machine learning methods can, for instance, read the RGB channels of the images&#39; pixels, then use that information to distinguish which combinations of pixels are associated with cat images, and which combinations are linked to dogs."/>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "A primer to Clustering - Hierarchical clustering",
+  "name": "A primer to Clustering - Hierarchical clustering",
+  "description": "Context From the last blog post, we saw that data can come with many features. When data gets very complex (at least, more complex than the Starbucks data from the last post), we …",
+  "keywords": [
+    
+  ],
+  "articleBody": "Context From the last blog post, we saw that data can come with many features. When data gets very complex (at least, more complex than the Starbucks data from the last post), we can rely on machine learning methods to “learn” patterns in the data. For example, suppose you have 1000 photos, of which 500 are cats, and the other 500 are dogs. Machine learning methods can, for instance, read the RGB channels of the images' pixels, then use that information to distinguish which combinations of pixels are associated with cat images, and which combinations are linked to dogs.\nTypically, machine learning methods are used for classification - that is, given some data features, such as image pixels, can we say if a photo contains a cat or a dog? Machine learning can also perform regression; for example, given Steph Curry’s scoring record for the past n games, how many points will he score this coming season? Anyway, for the purposes of this post let’s stick to classification.\nEven within classification, machine learning methods can be classified as:\n Supervised - that is, we tell our algorithm the “true” labels of our images, or Unsupervised - that is, we do not tell our algorithm what the labels are (because sometimes, we don’t know!)  The next series of posts will focus on clustering methods, which are unsupervised methods. This post will be on hierarchical clustering.\nProvisional use case I have data with lots of features, what groups do they belong to?\nExecutive summary  30 seconds: Hierarchical clustering is an unsupervised machine learning method. Users must…  Define a way to quantify the distance between data points (e.g. Euclidean distance), and How those distances are leveraged for grouping data, aka the linkage criterion (e.g. use the average distance or maximum distance between hypothetical clusters)   10 minutes or more: Read down below.  Walkthrough # as always, import all the good stuff import pandas as pd import matplotlib.pyplot as plt import numpy as np from scipy.spatial.distance import pdist # pairwise distances from scipy.cluster.hierarchy import linkage, dendrogram Let’s get the data, do any cleaning necessary beforehand. We’ll do the McDonald’s food menu, courtesy of Kaggle.\ndf = pd.read_csv(\"../../data/mcdonalds-menu/menu.csv\") df.head() .dataframe tbody tr th { vertical-align: top; } .dataframe thead th { text-align: right; }  What is very nice about this dataset (aside from making people hungry) is that the food categories are pre-defined for us. This gives us a nice validation of our clustering methods later on. There are some things we can see here:\n Some columns are redundant (e.g. Saturated Fat + Saturated Fat % daily value) Calories are effectively redundant (e.g. calories = sum of nutrients; total fat is related to sat. and trans. fat) Some columns are in strings and not numeric (e.g. Serving size) Some columns only have % daily value (e.g. Vitamin A) or don’t have any (e.g. Sugars) Serving sizes of drinks are mixed in with serving size of solid food  For simplicity, let’s…\n  Only use the following columns for clustering:\n Serving size with grams only Saturated Fat, Trans Fat, Cholesterol, Sodium, Carbohydrates, Dietary Fiber, Sugars, Protein Vitamin A (% Daily Value), Vitamin C (% Daily Value), Calcium (% Daily Value), Iron (% Daily Value)    For serving size, use a regex to search out for weight in grams.\n  We’ll keep Category and Food Item to check what our food items are.\n  # Define some regex stuff import re gramSearch = re.compile('(\\d+ g)') integerSearch = re.compile('\\d+') def regex(string, regexCompiler): if not string: return None match = regexCompiler.findall(string) # We could print an error message # if we detect more than 1 or 0 patterns. # This is a bit limited if we have a decimal; e.g. 161.1g - ['161', '1'] # but let's stick to this for now. if not match or len(match)  1: return None else: return match[0] # Not clean, but does the job for a one-time implementation. servingSize = df['Serving Size'].apply(lambda x: regex(x, gramSearch)).copy() servingSize = servingSize.apply(lambda x: regex(x, integerSearch)) df['Serving Size'] = servingSize food = df[~pd.isnull(df['Serving Size'])].copy() food = food[['Category', 'Item', 'Serving Size', 'Saturated Fat', 'Trans Fat', 'Cholesterol', 'Sodium', 'Carbohydrates', 'Dietary Fiber', 'Sugars', 'Protein', 'Vitamin A (% Daily Value)', 'Vitamin C (% Daily Value)', 'Calcium (% Daily Value)', 'Iron (% Daily Value)']] food['Serving Size'] = food['Serving Size'].astype(float) food.index = list(range(food.shape[0])) # reset the index for convenience food_names = dict(zip(food.index, food['Item'])) cat_names = dict(zip(food.index, food['Category'])) How far is an Egg McMuffin from a Sausage McMuffin? In any clustering algorithm, we need to define a distance metric, i.e., how far apart is an Egg McMuffin from a Sausage McMuffin? One of the most common ways to measure the distance between data points is Euclidean distance, also known as the $$l_2$$ norm. For two points a and b from q-dimensional data, the Euclidean distance is\n$$d = \\sqrt{\\sum_{i=1}^{q} (a_i - b_i) }$$\nWe can calculate the Euclidean distance between the food items based on the serving size and nutrition values. I chose Euclidean distance because it is the most common distance metric that’s used, but others exist (e.g. cosine distance, Manhattan distance… etc. Wikipedia is good for this!)\n# Calculate the pairwise distances between items using Euclidean distance food_values = food[food.columns[2:]].values distance_matrix = pdist(food_values, metric = 'euclidean') Just a heads-up that the distance matrix calculated by SciPy is a “condensed” matrix. The distance between two points in Euclidean space is the same whether you measure it $$a \\rightarrow b$$ or $$b \\rightarrow a$$, so we only calculate this in one direction. Furthermore, the distance of a point to itself is 0.\nOnce we have this matrix, then we can apply clustering! Now, we’ll use the scipy implementation because it natively allows us to visualise dendrograms, and it also doesn’t require us to define how many clusters we expect.\nHow do we merge points? - Linkage criteria. From the distance matrix, there are several types of “linkage” criteria we can use. The linkage criteria essentially asks,\n If there are two hypothetical clusters $$c_1$$ and $$c_2$$ of sizes $$n$$ and $$m$$, do we use the minimum, maximum, or average distances between the points in $$c_1$$ and $$c_2$$?\n The cluster with the lowest minimum/maximum/average distance is then merged to the current cluster.\n The Wikipedia page on Complete clustering explains the algorithm well.\n Note that the choice of the distance metric and linkage criteria can affect the results substantially. For this exercise, I will only use Euclidean distance, but will cycle through the different linkage criteria.\nAt first instance, we can apply the average linkage criterion, also known as UPGMA (unweighted pair group method with arithmetic mean).\nUPGMA toy example with distance matrix  Feel free to skip this section if you know how UPGMA works “under the hood”\n For a pairwise distance matrix like this:\n    a b c d e     a 0 17 21 31 23   b 17 0 30 34 21   c 21 30 0 28 39   d 31 34 28 0 43   e 23 21 39 43 0     Merge points a and b as they have the lowest distance among all possible pairs. Compute the distances between the new cluster, (a,b), with respect to c, d, e.   Thus, we have the following distances: $$d_{(a,b)\\rightarrow c}, d_{(a,b)\\rightarrow d}, d_{(a,b)\\rightarrow e}$$\n  $$d_{(a,b)\\rightarrow c} = \\dfrac{\\left(d_{a\\rightarrow c} + d_{b\\rightarrow c}\\right)}{2}$$,\n  $$d_{(a,b)\\rightarrow d} = \\dfrac{\\left(d_{a\\rightarrow d} + d_{b\\rightarrow d}\\right)}{2}$$,\n  etc.\n   This creates a new distance matrix,      a,b c d e     a,b 0 25.5 32.5 22   c 25.5 0 28 39   d 32.5 28 0 43   e 22 39 43 0    Merge e to (a, b) as it has the lowest average distance (22). Compute the distances between the new cluster (a,b,e) to c and d:  Thus, $$d_{(a,b,e)\\rightarrow c} = \\dfrac{\\left(d_{a,b\\rightarrow c} + d_{a,b\\rightarrow c} + d_{e\\rightarrow c}\\right)}{3}$$, and $$d_{(a,b,e)\\rightarrow d} = \\dfrac{\\left(d_{a,b\\rightarrow d} + d_{a,b\\rightarrow d} + d_{e\\rightarrow d}\\right)}{3}$$   Which then leads to…      a,b,e c d     a,b,e 0 30 36   c 30 0 28   d 36 28 0    and repeat!\nUPGMA in code # this is just to make the dendrograms a bit prettier from scipy.cluster import hierarchy hierarchy.set_link_color_palette(['#f58426', '#e8291c', '#ffc0cb']) # UPGMA, or average linkage UPGMA = linkage(distance_matrix, 'average') Done! You’ve now run a UPGMA on the distance matrix. We can see the results of the clustering in a tree-like visualisation called a dendrogram:\ndend_upgma = dendrogram(UPGMA, p = 7, truncate_mode='level') fig = plt.gcf() ax = plt.gca() # Plot the dendrogram based on the name of the food item new_ticklabels = [ t.get_text() if \"(\" in t.get_text() else food_names[int(t.get_text())] for t in ax.get_xticklabels() ] ax.set_xticklabels(new_ticklabels, rotation = 90) fig.set_size_inches((8,4)) For the dendrogram, to avoid having too many labels that are too small to read, I’ve only plotted the top 7 levels. Anything in brackets is essentially saying that there are, say, 20 items in that branch.\nThe dendrogram shows how objects are grouped together, and whether there are any singletons. The height of the dendrogram corresponds to the distance between objects.\nWe can already see patterns; for instance, premium salads with chicken group together, while those without chicken go elsewhere. Likewise, the breakfast items are also grouping together. We can run clustering again with a different linkage criteria, such as complete linkage:\nsingle = linkage(distance_matrix, method='single') dend = dendrogram(single, p = 10, truncate_mode='level') fig = plt.gcf() ax = plt.gca() # Plot the dendrogram based on the name of the food item new_ticklabels = [ t.get_text() if \"(\" in t.get_text() else food_names[int(t.get_text())] for t in ax.get_xticklabels() ] ax.set_xticklabels(new_ticklabels, rotation = 90) fig.set_size_inches((8,4)) Now with Ward clustering:\nward = linkage(distance_matrix, method='ward') dend = dendrogram(ward, p = 5, truncate_mode='level') fig = plt.gcf() ax = plt.gca() # Plot the dendrogram based on the name of the food item new_ticklabels = [ t.get_text() if \"(\" in t.get_text() else food_names[int(t.get_text())] for t in ax.get_xticklabels() ] ax.set_xticklabels(new_ticklabels, rotation = 90) fig.set_size_inches((8,4)) So while we have some common patterns, it’s clear that different linkage criteria affect the clustering results, leading to the different dendrograms. None of these are necessarily better than the other; they are just alternative ways to cluster your data. In fact, the linkage criterion that you end up choosing should largely depend on your data distribution; see here for an example.\nBonus visualisation As an additional visualisation, we can also apply principal component analysis (PCA) on the data, then colour the points according to their cluster membership.\nfrom scipy.spatial.distance import squareform from sklearn.decomposition import PCA from sklearn.cluster import AgglomerativeClustering pca = PCA(n_components = 2) coords = pca.fit_transform(food_values - food_values.mean()) # remember to scale the data # Let's use the actual categories from McDonald's as a \"true\" set of labels categories = food['Category'] cat_to_int = dict([ (label,i) for i, label in enumerate(set(categories)) ]) # Here, we can choose an arbitrary number of clusters to visualise. # Since we have the categories from McDonald's, we can use this for # visualisation purposes. num_clust = len(set(categories)) # Let's use Ward clustering, because, why not. ac = AgglomerativeClustering(n_clusters = num_clust, linkage= 'ward') ac.fit(food[food.columns[2:]].values) # map labels to colour palette - choose something that's discrete to allow easier colour disambiguation. cm = plt.get_cmap(\"Set1\") # Here, we first get a numpy array of evenly-spaced values between 0 and 1 # Then we map each float to an RGB value using the ColorMap above. # The RGBA values are then mapped to integers, as sklearn's labels are integers. # i.e. this will look like  # {0: (r,g,b,a), 1: (r1, g1, b1, a1)... etc.} mapped = dict([ (i, cm(v)) for i,v in enumerate(np.arange(0, 1.01, 1./num_clust)) ]) # plot the PCA and colour with our predicted cluster, and the categories from the McDonald's menu as a comparison fig, ax = plt.subplots(1,2) ax[0].scatter(coords[:,0], coords[:,1], color = [ mapped[label] for label in ac.labels_ ]) ax[1].scatter(coords[:,0], coords[:,1], color = [ mapped[cat_to_int[name]] for name in food['Category'] ]) fig.set_size_inches((10,5)) ax[0].set_title(\"Predicted categories\") ax[1].set_title(\"True categories\") Interpreting this plot may be difficult, but essentially, it would be ideal to have the same set of points in both the left-hand and right-hand plots to share a colour. In other words, the points that are red in the left-hand plot don’t necessarily have to be red in the right-hand plot per se. However, those same points should hopefully share one colour, whether it’s blue, pink, or whatever.\nWe see that this isn’t the case - so what then? This means that we’d have to do a more careful look into what categories the food items belong to, and question more carefully on what the “true” categories are here. Essentially, the true categories are only designating whether a food item is something you have for breakfast, or it contains fish, etc. However, we’ve clustered the data on the basis of their nutrition. In hindsight, what we used for clustering does not necessarily align with the true known information about a food item’s category. In other words, nutrition profiles aren’t exactly related to an item being a “breakfast” item.\nEarlier, we saw in the dendrograms that individually similar food items did cluster together (e.g. the different flavours of salads), so we know that there is some information of use here. However, grouping food items into larger categories may not be as intuitive.\nNonetheless, I hope this was a useful session on what clustering can offer you.\n",
+  "wordCount" : "2185",
+  "inLanguage": "en",
+  "datePublished": "2019-09-23T00:00:00Z",
+  "dateModified": "2019-09-23T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://ideasbyjin.github.io/post/2019-09-23-clustering-1/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Read between the rows",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://ideasbyjin.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+
+
+
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    }
+
+</script>
+<noscript>
+    <style type="text/css">
+        .theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://ideasbyjin.github.io/" accesskey="h" title="Read between the rows (Alt + H)">Read between the rows</a>
+            <span class="logo-switches">
+                <a id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </a>
+                
+                
+            </span>
+        </div>
+        <ul id="menu" onscroll="menu_on_scroll()">
+            <li>
+                <a href="https://ideasbyjin.github.io/search" title="search (Alt &#43; /)" accesskey=/>
+                    <span>search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://ideasbyjin.github.io/archives" title="archive">
+                    <span>archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://ideasbyjin.github.io/about" title="about">
+                    <span>about</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://ideasbyjin.github.io/" title="home">
+                    <span>home</span>
+                </a>
+            </li></ul>
+    </nav>
+</header>
+
+    <main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+
+    <h1 class="post-title">
+      A primer to Clustering - Hierarchical clustering
+    </h1>
+    <div class="post-meta">September 23, 2019&nbsp;·&nbsp;11 min
+
+</div>
+  </header> 
+
+  <div class="toc">
+    <details >
+      <summary accesskey="c" title="(Alt + C)">
+        <div class="details">Table of Contents</div>
+      </summary>
+      <div class="inner"><ul><li>
+        <a href="#context" aria-label="Context">Context</a></li><li>
+        <a href="#provisional-use-case" aria-label="Provisional use case">Provisional use case</a></li><li>
+        <a href="#executive-summary" aria-label="Executive summary">Executive summary</a></li><li>
+        <a href="#walkthrough" aria-label="Walkthrough">Walkthrough</a></li><li>
+        <a href="#how-far-is-an-egg-mcmuffin-from-a-sausage-mcmuffin" aria-label="How far is an Egg McMuffin from a Sausage McMuffin?">How far is an Egg McMuffin from a Sausage McMuffin?</a></li><li>
+        <a href="#how-do-we-merge-points---linkage-criteria" aria-label="How do we merge points? - Linkage criteria.">How do we merge points? - Linkage criteria.</a></li><li>
+        <a href="#upgma-toy-example-with-distance-matrix" aria-label="UPGMA toy example with distance matrix">UPGMA toy example with distance matrix</a></li><li>
+        <a href="#upgma-in-code" aria-label="UPGMA in code">UPGMA in code</a></li><li>
+        <a href="#bonus-visualisation" aria-label="Bonus visualisation">Bonus visualisation</a></li></ul>
+      </div>
+    </details>
+  </div>
+  <div class="post-content">
+<h3 id="context">Context<a hidden class="anchor" aria-hidden="true" href="#context">#</a></h3>
+<p>From the <a href="../17/pca.html">last blog post</a>, we saw that data can come with many features. When data gets very complex (at least, more complex than the Starbucks data from the last post), we can rely on machine learning methods to &ldquo;learn&rdquo; patterns in the data. For example, suppose you have 1000 photos, of which 500 are cats, and the other 500 are dogs. Machine learning methods can, for instance, read the RGB channels of the images' pixels, then use that information to distinguish which combinations of pixels are associated with cat images, and which combinations are linked to dogs.</p>
+<p>Typically, machine learning methods are used for <em>classification</em> - that is, given some data features, such as image pixels, can we say if a photo contains a cat or a dog? Machine learning can also perform <em>regression</em>; for example, given Steph Curry&rsquo;s scoring record for the past <em>n</em> games, how many points will he score this coming season? Anyway, for the purposes of this post let&rsquo;s stick to classification.</p>
+<p>Even within classification, machine learning methods can be classified as:</p>
+<ul>
+<li><em>Supervised</em> - that is, we tell our algorithm the &ldquo;true&rdquo; labels of our images, or</li>
+<li><em>Unsupervised</em> - that is, we do not tell our algorithm what the labels are (because sometimes, we don&rsquo;t know!)</li>
+</ul>
+<p>The next series of posts will focus on <strong>clustering methods</strong>, which are <em>unsupervised</em> methods. This post will be on <strong>hierarchical clustering</strong>.</p>
+<h3 id="provisional-use-case">Provisional use case<a hidden class="anchor" aria-hidden="true" href="#provisional-use-case">#</a></h3>
+<p>I have data with lots of features, what groups do they belong to?</p>
+<h3 id="executive-summary">Executive summary<a hidden class="anchor" aria-hidden="true" href="#executive-summary">#</a></h3>
+<ul>
+<li><strong>30 seconds</strong>: Hierarchical clustering is an unsupervised machine learning method. Users must&hellip;
+<ul>
+<li>Define a way to quantify the distance between data points (e.g. Euclidean distance), and</li>
+<li>How those distances are leveraged for grouping data, aka the linkage criterion (e.g. use the average distance or maximum distance between hypothetical clusters)</li>
+</ul>
+</li>
+<li><strong>10 minutes or more</strong>: Read down below.</li>
+</ul>
+<h3 id="walkthrough">Walkthrough<a hidden class="anchor" aria-hidden="true" href="#walkthrough">#</a></h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># as always, import all the good stuff</span>
+<span style="color:#f92672">import</span> pandas <span style="color:#f92672">as</span> pd
+<span style="color:#f92672">import</span> matplotlib.pyplot <span style="color:#f92672">as</span> plt
+<span style="color:#f92672">import</span> numpy <span style="color:#f92672">as</span> np
+<span style="color:#f92672">from</span> scipy.spatial.distance <span style="color:#f92672">import</span> pdist     <span style="color:#75715e"># pairwise distances</span>
+<span style="color:#f92672">from</span> scipy.cluster.hierarchy <span style="color:#f92672">import</span> linkage, dendrogram
+</code></pre></div><p>Let&rsquo;s get the data, do any cleaning necessary beforehand. We&rsquo;ll do the McDonald&rsquo;s food menu, courtesy of Kaggle.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">df <span style="color:#f92672">=</span> pd<span style="color:#f92672">.</span>read_csv(<span style="color:#e6db74">&#34;../../data/mcdonalds-menu/menu.csv&#34;</span>)
+df<span style="color:#f92672">.</span>head()
+</code></pre></div><!-- raw HTML omitted -->
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p><!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<p>What is very nice about this dataset (aside from making people hungry) is that the food categories are pre-defined for us. This gives us a nice validation of our clustering methods later on. There are some things we can see here:</p>
+<ul>
+<li>Some columns are redundant (e.g. Saturated Fat + Saturated Fat % daily value)</li>
+<li>Calories are effectively redundant (e.g. calories = sum of nutrients; total fat is related to sat. and trans. fat)</li>
+<li>Some columns are in strings and not numeric (e.g. Serving size)</li>
+<li>Some columns <em>only</em> have % daily value (e.g. Vitamin A) or don&rsquo;t have any (e.g. Sugars)</li>
+<li>Serving sizes of drinks are mixed in with serving size of solid food</li>
+</ul>
+<p>For simplicity, let&rsquo;s&hellip;</p>
+<ul>
+<li>
+<p>Only use the following columns for clustering:</p>
+<ul>
+<li>Serving size with grams only</li>
+<li>Saturated Fat, Trans Fat, Cholesterol, Sodium, Carbohydrates, Dietary Fiber, Sugars, Protein</li>
+<li>Vitamin A (% Daily Value), Vitamin C (% Daily Value), Calcium (% Daily Value), Iron (% Daily Value)</li>
+</ul>
+</li>
+<li>
+<p>For serving size, use a regex to search out for weight in grams.</p>
+</li>
+<li>
+<p>We&rsquo;ll keep Category and Food Item to check what our food items are.</p>
+</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Define some regex stuff</span>
+<span style="color:#f92672">import</span> re
+gramSearch <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>compile(<span style="color:#e6db74">&#39;(\d+ g)&#39;</span>)
+integerSearch <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>compile(<span style="color:#e6db74">&#39;\d+&#39;</span>)
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">regex</span>(string, regexCompiler):
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> string:
+        <span style="color:#66d9ef">return</span> None
+    
+    match <span style="color:#f92672">=</span> regexCompiler<span style="color:#f92672">.</span>findall(string)
+    
+    <span style="color:#75715e"># We could print an error message</span>
+    <span style="color:#75715e"># if we detect more than 1 or 0 patterns.</span>
+    <span style="color:#75715e"># This is a bit limited if we have a decimal; e.g. 161.1g -&gt; [&#39;161&#39;, &#39;1&#39;]</span>
+    <span style="color:#75715e"># but let&#39;s stick to this for now.</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> match <span style="color:#f92672">or</span> len(match) <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">1</span>:
+        <span style="color:#66d9ef">return</span> None
+    <span style="color:#66d9ef">else</span>:
+        <span style="color:#66d9ef">return</span> match[<span style="color:#ae81ff">0</span>]
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Not clean, but does the job for a one-time implementation.</span>
+servingSize <span style="color:#f92672">=</span> df[<span style="color:#e6db74">&#39;Serving Size&#39;</span>]<span style="color:#f92672">.</span>apply(<span style="color:#66d9ef">lambda</span> x: regex(x, gramSearch))<span style="color:#f92672">.</span>copy()
+servingSize <span style="color:#f92672">=</span> servingSize<span style="color:#f92672">.</span>apply(<span style="color:#66d9ef">lambda</span> x: regex(x, integerSearch))
+df[<span style="color:#e6db74">&#39;Serving Size&#39;</span>] <span style="color:#f92672">=</span> servingSize
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">food <span style="color:#f92672">=</span> df[<span style="color:#f92672">~</span>pd<span style="color:#f92672">.</span>isnull(df[<span style="color:#e6db74">&#39;Serving Size&#39;</span>])]<span style="color:#f92672">.</span>copy()
+food <span style="color:#f92672">=</span> food[[<span style="color:#e6db74">&#39;Category&#39;</span>, <span style="color:#e6db74">&#39;Item&#39;</span>, 
+       <span style="color:#e6db74">&#39;Serving Size&#39;</span>, <span style="color:#e6db74">&#39;Saturated Fat&#39;</span>, <span style="color:#e6db74">&#39;Trans Fat&#39;</span>, <span style="color:#e6db74">&#39;Cholesterol&#39;</span>, <span style="color:#e6db74">&#39;Sodium&#39;</span>,
+       <span style="color:#e6db74">&#39;Carbohydrates&#39;</span>, <span style="color:#e6db74">&#39;Dietary Fiber&#39;</span>, <span style="color:#e6db74">&#39;Sugars&#39;</span>, <span style="color:#e6db74">&#39;Protein&#39;</span>,
+       <span style="color:#e6db74">&#39;Vitamin A (% Daily Value)&#39;</span>, <span style="color:#e6db74">&#39;Vitamin C (% Daily Value)&#39;</span>,
+       <span style="color:#e6db74">&#39;Calcium (% Daily Value)&#39;</span>, <span style="color:#e6db74">&#39;Iron (% Daily Value)&#39;</span>]]
+
+food[<span style="color:#e6db74">&#39;Serving Size&#39;</span>] <span style="color:#f92672">=</span> food[<span style="color:#e6db74">&#39;Serving Size&#39;</span>]<span style="color:#f92672">.</span>astype(float)
+food<span style="color:#f92672">.</span>index <span style="color:#f92672">=</span> list(range(food<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">0</span>])) <span style="color:#75715e"># reset the index for convenience</span>
+
+food_names <span style="color:#f92672">=</span> dict(zip(food<span style="color:#f92672">.</span>index, food[<span style="color:#e6db74">&#39;Item&#39;</span>]))
+cat_names <span style="color:#f92672">=</span> dict(zip(food<span style="color:#f92672">.</span>index, food[<span style="color:#e6db74">&#39;Category&#39;</span>]))
+</code></pre></div><h3 id="how-far-is-an-egg-mcmuffin-from-a-sausage-mcmuffin">How far is an Egg McMuffin from a Sausage McMuffin?<a hidden class="anchor" aria-hidden="true" href="#how-far-is-an-egg-mcmuffin-from-a-sausage-mcmuffin">#</a></h3>
+<p>In any clustering algorithm, we need to define a distance metric, i.e., how far apart is an <code>Egg McMuffin</code> from a <code>Sausage McMuffin</code>? One of the most common ways to measure the distance between data points is Euclidean distance, also known as the $$l_2$$ norm. For two points <em>a</em> and <em>b</em> from <em>q</em>-dimensional data, the Euclidean distance is</p>
+<p>$$d = \sqrt{\sum_{i=1}^{q} (a_i - b_i) }$$</p>
+<p>We can calculate the Euclidean distance between the food items based on the serving size and nutrition values. I chose Euclidean distance because it is the most common distance metric that&rsquo;s used, but others exist (e.g. cosine distance, Manhattan distance&hellip; etc. Wikipedia is good for this!)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Calculate the pairwise distances between items using Euclidean distance</span>
+food_values <span style="color:#f92672">=</span> food[food<span style="color:#f92672">.</span>columns[<span style="color:#ae81ff">2</span>:]]<span style="color:#f92672">.</span>values 
+distance_matrix <span style="color:#f92672">=</span> pdist(food_values, metric <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;euclidean&#39;</span>)
+</code></pre></div><p>Just a heads-up that the distance matrix calculated by SciPy is a &ldquo;condensed&rdquo; matrix. The distance between two points in Euclidean space is the same whether you measure it $$a \rightarrow b$$ or $$b \rightarrow a$$, so we only calculate this in one direction. Furthermore, the distance of a point to itself is 0.</p>
+<p>Once we have this matrix, then we can apply clustering! Now, we&rsquo;ll use the <code>scipy</code> implementation because it natively allows us to visualise dendrograms, and it also doesn&rsquo;t require us to define how many clusters we expect.</p>
+<h3 id="how-do-we-merge-points---linkage-criteria">How do we merge points? - Linkage criteria.<a hidden class="anchor" aria-hidden="true" href="#how-do-we-merge-points---linkage-criteria">#</a></h3>
+<p>From the distance matrix, there are several types of &ldquo;linkage&rdquo; criteria we can use.
+The linkage criteria essentially asks,</p>
+<blockquote>
+<p>If there are two hypothetical clusters $$c_1$$ and $$c_2$$ of sizes $$n$$ and $$m$$,
+do we use the minimum, maximum, or average distances between the points in $$c_1$$ and $$c_2$$?</p>
+</blockquote>
+<p>The cluster with the <strong>lowest</strong> minimum/maximum/average distance is then merged to the current cluster.</p>
+<blockquote>
+<p>The Wikipedia page on <a href="https://en.wikipedia.org/wiki/Complete-linkage_clustering#First_step">Complete clustering</a> explains the algorithm well.</p>
+</blockquote>
+<p>Note that the choice of the distance metric and linkage criteria can affect the results substantially. For this exercise, I will only use Euclidean distance, but will cycle through the different linkage criteria.</p>
+<p>At first instance, we can apply the average linkage criterion, also known as UPGMA (unweighted pair group method with
+arithmetic mean).</p>
+<h3 id="upgma-toy-example-with-distance-matrix">UPGMA toy example with distance matrix<a hidden class="anchor" aria-hidden="true" href="#upgma-toy-example-with-distance-matrix">#</a></h3>
+<blockquote>
+<p>Feel free to skip this section if you know how UPGMA works &ldquo;under the hood&rdquo;</p>
+</blockquote>
+<p>For a pairwise distance matrix like this:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>a</th>
+<th>b</th>
+<th>c</th>
+<th>d</th>
+<th>e</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>a</td>
+<td>0</td>
+<td>17</td>
+<td>21</td>
+<td>31</td>
+<td>23</td>
+</tr>
+<tr>
+<td>b</td>
+<td>17</td>
+<td>0</td>
+<td>30</td>
+<td>34</td>
+<td>21</td>
+</tr>
+<tr>
+<td>c</td>
+<td>21</td>
+<td>30</td>
+<td>0</td>
+<td>28</td>
+<td>39</td>
+</tr>
+<tr>
+<td>d</td>
+<td>31</td>
+<td>34</td>
+<td>28</td>
+<td>0</td>
+<td>43</td>
+</tr>
+<tr>
+<td>e</td>
+<td>23</td>
+<td>21</td>
+<td>39</td>
+<td>43</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>Merge points <em>a</em> and <em>b</em> as they have the lowest distance among all possible pairs.</li>
+<li>Compute the distances between the new cluster, (<em>a</em>,<em>b</em>), with respect to <em>c</em>, <em>d</em>, <em>e</em>.
+<ul>
+<li>
+<p>Thus, we have the following distances: $$d_{(a,b)\rightarrow c}, d_{(a,b)\rightarrow d}, d_{(a,b)\rightarrow e}$$</p>
+</li>
+<li>
+<p>$$d_{(a,b)\rightarrow c} = \dfrac{\left(d_{a\rightarrow c} + d_{b\rightarrow c}\right)}{2}$$,</p>
+</li>
+<li>
+<p>$$d_{(a,b)\rightarrow d} = \dfrac{\left(d_{a\rightarrow d} + d_{b\rightarrow d}\right)}{2}$$,</p>
+</li>
+<li>
+<p>etc.</p>
+</li>
+</ul>
+</li>
+<li>This creates a new distance matrix,</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>a,b</th>
+<th>c</th>
+<th>d</th>
+<th>e</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>a,b</td>
+<td>0</td>
+<td>25.5</td>
+<td>32.5</td>
+<td>22</td>
+</tr>
+<tr>
+<td>c</td>
+<td>25.5</td>
+<td>0</td>
+<td>28</td>
+<td>39</td>
+</tr>
+<tr>
+<td>d</td>
+<td>32.5</td>
+<td>28</td>
+<td>0</td>
+<td>43</td>
+</tr>
+<tr>
+<td>e</td>
+<td>22</td>
+<td>39</td>
+<td>43</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<ol start="4">
+<li>Merge <em>e</em> to (<em>a</em>, <em>b</em>) as it has the lowest average distance (22).</li>
+<li>Compute the distances between the new cluster (<em>a</em>,<em>b</em>,<em>e</em>) to <em>c</em> and <em>d</em>:
+<ul>
+<li>Thus, $$d_{(a,b,e)\rightarrow c} = \dfrac{\left(d_{a,b\rightarrow c} + d_{a,b\rightarrow c} + d_{e\rightarrow c}\right)}{3}$$,</li>
+<li>and $$d_{(a,b,e)\rightarrow d} = \dfrac{\left(d_{a,b\rightarrow d} + d_{a,b\rightarrow d} + d_{e\rightarrow d}\right)}{3}$$</li>
+</ul>
+</li>
+<li>Which then leads to&hellip;</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>a,b,e</th>
+<th>c</th>
+<th>d</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>a,b,e</td>
+<td>0</td>
+<td>30</td>
+<td>36</td>
+</tr>
+<tr>
+<td>c</td>
+<td>30</td>
+<td>0</td>
+<td>28</td>
+</tr>
+<tr>
+<td>d</td>
+<td>36</td>
+<td>28</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>and repeat!</p>
+<h3 id="upgma-in-code">UPGMA in code<a hidden class="anchor" aria-hidden="true" href="#upgma-in-code">#</a></h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># this is just to make the dendrograms a bit prettier</span>
+<span style="color:#f92672">from</span> scipy.cluster <span style="color:#f92672">import</span> hierarchy
+hierarchy<span style="color:#f92672">.</span>set_link_color_palette([<span style="color:#e6db74">&#39;#f58426&#39;</span>, <span style="color:#e6db74">&#39;#e8291c&#39;</span>, <span style="color:#e6db74">&#39;#ffc0cb&#39;</span>])
+
+<span style="color:#75715e"># UPGMA, or average linkage</span>
+UPGMA <span style="color:#f92672">=</span> linkage(distance_matrix, <span style="color:#e6db74">&#39;average&#39;</span>)
+</code></pre></div><p>Done! You&rsquo;ve now run a UPGMA on the distance matrix. We can see the results of the clustering in a tree-like visualisation called a dendrogram:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">dend_upgma <span style="color:#f92672">=</span> dendrogram(UPGMA, p <span style="color:#f92672">=</span> <span style="color:#ae81ff">7</span>, truncate_mode<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;level&#39;</span>)
+fig <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>gcf()
+ax <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>gca()
+
+<span style="color:#75715e"># Plot the dendrogram based on the name of the food item</span>
+new_ticklabels <span style="color:#f92672">=</span> [ t<span style="color:#f92672">.</span>get_text() <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#34;(&#34;</span> <span style="color:#f92672">in</span> t<span style="color:#f92672">.</span>get_text() <span style="color:#66d9ef">else</span> food_names[int(t<span style="color:#f92672">.</span>get_text())] <span style="color:#66d9ef">for</span> t <span style="color:#f92672">in</span> ax<span style="color:#f92672">.</span>get_xticklabels() ]
+ax<span style="color:#f92672">.</span>set_xticklabels(new_ticklabels, rotation <span style="color:#f92672">=</span> <span style="color:#ae81ff">90</span>)
+
+fig<span style="color:#f92672">.</span>set_size_inches((<span style="color:#ae81ff">8</span>,<span style="color:#ae81ff">4</span>))
+</code></pre></div><p><img src="/assets/notebooks/hclust/output_18_0.png" alt="png"></p>
+<p>For the dendrogram, to avoid having too many labels that are too small to read, I&rsquo;ve only plotted the top 7 levels. Anything in brackets is essentially saying that there are, say, 20 items in that branch.</p>
+<p>The dendrogram shows how objects are grouped together, and whether there are any singletons. The height of the dendrogram corresponds to the distance between objects.</p>
+<p>We can already see patterns; for instance, premium salads with chicken group together, while those without chicken go elsewhere. Likewise, the breakfast items are also grouping together. We can run clustering again with a different linkage criteria, such as complete linkage:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">single <span style="color:#f92672">=</span> linkage(distance_matrix, method<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;single&#39;</span>)
+dend <span style="color:#f92672">=</span> dendrogram(single, p <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>, truncate_mode<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;level&#39;</span>)
+fig <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>gcf()
+ax <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>gca()
+
+<span style="color:#75715e"># Plot the dendrogram based on the name of the food item</span>
+new_ticklabels <span style="color:#f92672">=</span> [ t<span style="color:#f92672">.</span>get_text() <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#34;(&#34;</span> <span style="color:#f92672">in</span> t<span style="color:#f92672">.</span>get_text() <span style="color:#66d9ef">else</span> food_names[int(t<span style="color:#f92672">.</span>get_text())] <span style="color:#66d9ef">for</span> t <span style="color:#f92672">in</span> ax<span style="color:#f92672">.</span>get_xticklabels() ]
+ax<span style="color:#f92672">.</span>set_xticklabels(new_ticklabels, rotation <span style="color:#f92672">=</span> <span style="color:#ae81ff">90</span>)
+
+fig<span style="color:#f92672">.</span>set_size_inches((<span style="color:#ae81ff">8</span>,<span style="color:#ae81ff">4</span>))
+</code></pre></div><p><img src="/assets/notebooks/hclust/output_20_0.png" alt="png"></p>
+<p>Now with Ward clustering:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">ward <span style="color:#f92672">=</span> linkage(distance_matrix, method<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;ward&#39;</span>)
+dend <span style="color:#f92672">=</span> dendrogram(ward, p <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>, truncate_mode<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;level&#39;</span>)
+fig <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>gcf()
+ax <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>gca()
+
+<span style="color:#75715e"># Plot the dendrogram based on the name of the food item</span>
+new_ticklabels <span style="color:#f92672">=</span> [ t<span style="color:#f92672">.</span>get_text() <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#34;(&#34;</span> <span style="color:#f92672">in</span> t<span style="color:#f92672">.</span>get_text() <span style="color:#66d9ef">else</span> food_names[int(t<span style="color:#f92672">.</span>get_text())] <span style="color:#66d9ef">for</span> t <span style="color:#f92672">in</span> ax<span style="color:#f92672">.</span>get_xticklabels() ]
+ax<span style="color:#f92672">.</span>set_xticklabels(new_ticklabels, rotation <span style="color:#f92672">=</span> <span style="color:#ae81ff">90</span>)
+
+fig<span style="color:#f92672">.</span>set_size_inches((<span style="color:#ae81ff">8</span>,<span style="color:#ae81ff">4</span>))
+</code></pre></div><p><img src="/assets/notebooks/hclust/output_22_0.png" alt="png"></p>
+<p>So while we have some common patterns, it&rsquo;s clear that different linkage criteria affect the clustering results, leading to the different dendrograms. None of these are necessarily better than the other; they are just alternative ways to cluster your data. In fact, the linkage criterion that you end up choosing should largely depend on your data distribution; see <a href="https://scikit-learn.org/stable/auto_examples/cluster/plot_linkage_comparison.html">here</a> for an example.</p>
+<h3 id="bonus-visualisation">Bonus visualisation<a hidden class="anchor" aria-hidden="true" href="#bonus-visualisation">#</a></h3>
+<p>As an additional visualisation, we can also apply principal component analysis (PCA) on the data, then colour the points according to their cluster membership.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">from</span> scipy.spatial.distance <span style="color:#f92672">import</span> squareform
+<span style="color:#f92672">from</span> sklearn.decomposition <span style="color:#f92672">import</span> PCA
+<span style="color:#f92672">from</span> sklearn.cluster <span style="color:#f92672">import</span> AgglomerativeClustering
+
+pca <span style="color:#f92672">=</span> PCA(n_components <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>)
+coords <span style="color:#f92672">=</span> pca<span style="color:#f92672">.</span>fit_transform(food_values <span style="color:#f92672">-</span> food_values<span style="color:#f92672">.</span>mean()) <span style="color:#75715e"># remember to scale the data</span>
+
+<span style="color:#75715e"># Let&#39;s use the actual categories from McDonald&#39;s as a &#34;true&#34; set of labels</span>
+categories <span style="color:#f92672">=</span> food[<span style="color:#e6db74">&#39;Category&#39;</span>]
+cat_to_int <span style="color:#f92672">=</span> dict([ (label,i) <span style="color:#66d9ef">for</span> i, label <span style="color:#f92672">in</span> enumerate(set(categories)) ])
+
+<span style="color:#75715e"># Here, we can choose an arbitrary number of clusters to visualise.</span>
+<span style="color:#75715e"># Since we have the categories from McDonald&#39;s, we can use this for</span>
+<span style="color:#75715e"># visualisation purposes.</span>
+num_clust <span style="color:#f92672">=</span> len(set(categories))
+
+<span style="color:#75715e"># Let&#39;s use Ward clustering, because, why not.</span>
+ac <span style="color:#f92672">=</span> AgglomerativeClustering(n_clusters <span style="color:#f92672">=</span> num_clust, linkage<span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;ward&#39;</span>)
+ac<span style="color:#f92672">.</span>fit(food[food<span style="color:#f92672">.</span>columns[<span style="color:#ae81ff">2</span>:]]<span style="color:#f92672">.</span>values)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># map labels to colour palette - choose something that&#39;s discrete to allow easier colour disambiguation.</span>
+cm <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>get_cmap(<span style="color:#e6db74">&#34;Set1&#34;</span>)
+
+<span style="color:#75715e"># Here, we first get a numpy array of evenly-spaced values between 0 and 1</span>
+<span style="color:#75715e"># Then we map each float to an RGB value using the ColorMap above.</span>
+<span style="color:#75715e"># The RGBA values are then mapped to integers, as sklearn&#39;s labels are integers.</span>
+<span style="color:#75715e"># i.e. this will look like </span>
+<span style="color:#75715e"># {0: (r,g,b,a), 1: (r1, g1, b1, a1)... etc.}</span>
+
+mapped <span style="color:#f92672">=</span> dict([ (i, cm(v)) <span style="color:#66d9ef">for</span> i,v <span style="color:#f92672">in</span> enumerate(np<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1.01</span>, <span style="color:#ae81ff">1.</span><span style="color:#f92672">/</span>num_clust)) ])
+
+
+<span style="color:#75715e"># plot the PCA and colour with our predicted cluster, and the categories from the McDonald&#39;s menu as a comparison</span>
+fig, ax <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>subplots(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>)
+ax[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>scatter(coords[:,<span style="color:#ae81ff">0</span>], coords[:,<span style="color:#ae81ff">1</span>],
+           color <span style="color:#f92672">=</span> [ mapped[label] <span style="color:#66d9ef">for</span> label <span style="color:#f92672">in</span> ac<span style="color:#f92672">.</span>labels_ ])
+
+ax[<span style="color:#ae81ff">1</span>]<span style="color:#f92672">.</span>scatter(coords[:,<span style="color:#ae81ff">0</span>], coords[:,<span style="color:#ae81ff">1</span>],
+           color <span style="color:#f92672">=</span> [ mapped[cat_to_int[name]] <span style="color:#66d9ef">for</span> name <span style="color:#f92672">in</span> food[<span style="color:#e6db74">&#39;Category&#39;</span>] ])
+
+fig<span style="color:#f92672">.</span>set_size_inches((<span style="color:#ae81ff">10</span>,<span style="color:#ae81ff">5</span>))
+ax[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>set_title(<span style="color:#e6db74">&#34;Predicted categories&#34;</span>)
+ax[<span style="color:#ae81ff">1</span>]<span style="color:#f92672">.</span>set_title(<span style="color:#e6db74">&#34;True categories&#34;</span>)
+</code></pre></div><p><img src="/assets/notebooks/hclust/output_26_1.png" alt="png"></p>
+<p>Interpreting this plot may be difficult, but essentially, it would be ideal to have the same set of points in both the left-hand and right-hand plots to share a colour. In other words, the points that are red in the left-hand plot don&rsquo;t necessarily have to be red in the right-hand plot <em>per se</em>.
+However, those same points should hopefully share one colour, whether it&rsquo;s blue, pink, or whatever.</p>
+<p>We see that this isn&rsquo;t the case - so what then? This means that we&rsquo;d have to do a more careful look into what categories the food items belong to, and question more carefully on what the &ldquo;true&rdquo; categories are here.
+Essentially, the true categories are only designating whether a food item is something you have for breakfast, or it contains fish, etc.
+However, we&rsquo;ve clustered the data on the basis of their nutrition. In hindsight, what we used for clustering does not necessarily align
+with the true known information about a food item&rsquo;s category. In other words, nutrition profiles aren&rsquo;t exactly related to
+an item being a &ldquo;breakfast&rdquo; item.</p>
+<p>Earlier, we saw in the dendrograms that individually similar food items <em>did</em> cluster together (e.g. the different flavours of salads), so we know that there is some information of use here. However, grouping food items into larger categories may not be as intuitive.</p>
+<p>Nonetheless, I hope this was a useful session on what clustering can offer you.</p>
+
+</div>
+  <footer class="post-footer">
+  </footer>
+</article>
+    </main><footer class="footer">
+    <span>&copy; 2021 <a href="https://ideasbyjin.github.io/">Read between the rows</a></span>
+    <span>&middot;</span>
+    <span>Powered by <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a></span>
+    <span>&middot;</span>
+    <span>Theme <a href="https://git.io/hugopapermod" rel="noopener" target="_blank">PaperMod</a></span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)">
+    <button class="top-link" id="top-link" type="button" accesskey="g">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+            <path d="M12 6H0l6-6z" />
+        </svg>
+    </button>
+</a>
+
+
+
+<script defer src="/assets/js/highlight.min.27cd435cc9ed6abb4b496581b151804f79f366c412620272bb94e2f5f598ebcc.js" integrity="sha256-J81DXMntartLSWWBsVGAT3nzZsQSYgJyu5Ti9fWY68w="
+    onload="hljs.initHighlightingOnLoad();"></script>
+<script>
+    window.onload = function () {
+        if (localStorage.getItem("menu-scroll-position")) {
+            document.getElementById('menu').scrollLeft = localStorage.getItem("menu-scroll-position");
+        }
+    }
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+    function menu_on_scroll() {
+        localStorage.setItem("menu-scroll-position", document.getElementById('menu').scrollLeft);
+    }
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+
+</body>
+
+</html>

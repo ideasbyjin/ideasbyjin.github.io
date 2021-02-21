@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>bioinf on Read between the rows</title>
+    <link>https://ideasbyjin.github.io/categories/bioinf/</link>
+    <description>Recent content in bioinf on Read between the rows</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Sat, 23 May 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://ideasbyjin.github.io/categories/bioinf/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Docker Cheat Sheet</title>
+      <link>https://ideasbyjin.github.io/post/2020-05-23-docker/</link>
+      <pubDate>Sat, 23 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/post/2020-05-23-docker/</guid>
+      <description>A list of essential commands and examples to use Docker</description>
+    </item>
+    
+    <item>
+      <title>RMSD using SVD</title>
+      <link>https://ideasbyjin.github.io/post/2019-10-06-rmsd/</link>
+      <pubDate>Sun, 06 Oct 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/post/2019-10-06-rmsd/</guid>
+      <description>During my PhD and postdoc, my main day-to-day was driven by one question:
+ How do we make the best model protein structures?
+ To answer that question, this is often done by calculating the root-mean square deviation (RMSD) between the predicted structure vs. the known &amp;lsquo;true&amp;rsquo; protein structure. There are other measures (e.g. TM-score, GDT_TS), but RMSD is still the most intuitive, and (unfortunately?) the accepted standard metric for goodness-of-fit.</description>
+    </item>
+    
+  </channel>
+</rss>

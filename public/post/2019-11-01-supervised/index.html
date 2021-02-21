@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Supervised learning demo: what position do I play? | Read between the rows</title>
+
+<meta name="keywords" content="" />
+<meta name="description" content="Last time I covered a section on clustering, a group of unsupervised learning methods – so called because they are not given the class memberships of the data$$^\dagger$$. Don&rsquo;t worry, I will do more posts on clustering soon. For now I wanted to give a quick overview of what supervised methods look like. For that, let&rsquo;s look at the statistics of hockey players!
+$$\dagger$$: this is a gross generalisation. More formally, for some dataset $$\mathbf{X}$$, if we are trying to predict an output variable $$\mathbf{Y}$$, we use supervised learning methods, otherwise unsupervised learning methods.">
+<meta name="author" content="">
+<link rel="canonical" href="https://ideasbyjin.github.io/post/2019-11-01-supervised/" />
+<link href="/assets/css/stylesheet.min.54720d48c4fa0c4ebe8555f04b9fc5b856112ec49cafef19cb385e89661150b7.css" integrity="sha256-VHINSMT6DE6&#43;hVXwS5/FuFYRLsScr&#43;8ZyzheiWYRULc=" rel="preload stylesheet"
+    as="style">
+
+<link rel="icon" href="https://ideasbyjin.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://ideasbyjin.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://ideasbyjin.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://ideasbyjin.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://ideasbyjin.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<meta name="generator" content="Hugo 0.80.0" />
+
+
+
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$','$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+  };
+
+  window.addEventListener('load', (event) => {
+      document.querySelectorAll("mjx-container").forEach(function(x){
+        x.parentElement.classList += 'has-jax'})
+    });
+
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><meta property="og:title" content="Supervised learning demo: what position do I play?" />
+<meta property="og:description" content="Last time I covered a section on clustering, a group of unsupervised learning methods – so called because they are not given the class memberships of the data$$^\dagger$$. Don&rsquo;t worry, I will do more posts on clustering soon. For now I wanted to give a quick overview of what supervised methods look like. For that, let&rsquo;s look at the statistics of hockey players!
+$$\dagger$$: this is a gross generalisation. More formally, for some dataset $$\mathbf{X}$$, if we are trying to predict an output variable $$\mathbf{Y}$$, we use supervised learning methods, otherwise unsupervised learning methods." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ideasbyjin.github.io/post/2019-11-01-supervised/" />
+<meta property="article:published_time" content="2019-11-01T00:00:00+00:00" />
+<meta property="article:modified_time" content="2019-11-01T00:00:00+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Supervised learning demo: what position do I play?"/>
+<meta name="twitter:description" content="Last time I covered a section on clustering, a group of unsupervised learning methods – so called because they are not given the class memberships of the data$$^\dagger$$. Don&rsquo;t worry, I will do more posts on clustering soon. For now I wanted to give a quick overview of what supervised methods look like. For that, let&rsquo;s look at the statistics of hockey players!
+$$\dagger$$: this is a gross generalisation. More formally, for some dataset $$\mathbf{X}$$, if we are trying to predict an output variable $$\mathbf{Y}$$, we use supervised learning methods, otherwise unsupervised learning methods."/>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Supervised learning demo: what position do I play?",
+  "name": "Supervised learning demo: what position do I play?",
+  "description": "Last time I covered a section on clustering, a group of unsupervised learning methods – so called because they are not given the class memberships of the data$$^\\dagger$$. …",
+  "keywords": [
+    
+  ],
+  "articleBody": "Last time I covered a section on clustering, a group of unsupervised learning methods – so called because they are not given the class memberships of the data$$^\\dagger$$. Don’t worry, I will do more posts on clustering soon. For now I wanted to give a quick overview of what supervised methods look like. For that, let’s look at the statistics of hockey players!\n$$\\dagger$$: this is a gross generalisation. More formally, for some dataset $$\\mathbf{X}$$, if we are trying to predict an output variable $$\\mathbf{Y}$$, we use supervised learning methods, otherwise unsupervised learning methods.\nHockey (on ice, obviously!) is a game where we have 5 skaters and 1 goalie per rotation. The 5 skaters can be divided into three$$^\\ddagger$$ subclasses:\n The wingers (LW, RW) The centre (C) Defensemen (D)  $$\\ddagger$$: the centre and wingers can also be bundled up as forwards.\nTypically, each skater’s actions are recorded, which include:\n Goal(s) scored, assist(s) made [i.e. did the player make a pass leading up to the goal?] Penalties in minutes (infringements typically lead to 2 minute bans from the game) Ice time in 5-on-5 or ‘penalty kill’ situations Shots blocked etc.  Usually by looking at these statistics, one can have an approximate idea of the position a given hockey player plays. To many, this might seem like a pretty easy problem. Surely forwards are supposed to score goals! Defensemen are supposed to block shots!\nWait, so why do you want to know a player’s position? Predicting a player’s position is perhaps not the first classification that comes to mind. However, it’s useful for something like fantasy sports leagues. In fantasy sports, you typically have roster slots for n centres, m defensemen, and q wingers. Using those constraints, you want to (usually) maximise every statistical category.\nFor example, if a fantasy team has a bunch of goal-scoring centremen, which position player do we pick out next to max out the penalties in minutes category? Simultaneously, which position also happens to maximise the number of assists? Do we pick up a defenseman, or a gritty right wing?\nHockey is slightly more complex than meets the eye. Typically, being a defenseman or forward can largely constrain your statistical profile; there are some defensemen that are very talented on offense (e.g. Morgan Reilly), and some forwards who are tougher, and deployed on a “checking” line to provide strength.\n(This is Morgan Reilly.)\nSo, how can we predict positions using stats? Let’s find out.\nIf you have 30 seconds…\n This post is really a demo of various supervised learning methods. See table below for a quick overview. The algorithm of choice is often dependent on use case, and you should consider questions like:  What is the distribution of your output? How can we interpret the model?    If you have 10 minutes…\n Read on. I’ve tried to section this entry based on what bits you might be interested in. This post is very much intended to be a whirlwind tour of the various supervised learning methods, rather than a deep-dive.  import pandas as pd import matplotlib.pyplot as plt import numpy as np Data cleanup # Read in the data from Kaggle df = pd.read_csv(\"game_skater_stats.csv\") # We'll use this later. pinfo = pd.read_csv(\"player_info.csv\") df.head(3) .dataframe tbody tr th { vertical-align: top; } .dataframe thead th { text-align: right; }  The skater stats are given per player (player_id), and per game (game_id) that they have played. We know from some good documentation that:\n The first four digits represent the season (e.g. 2010-2011 season) The next two digits represent whether the game was held in the regular season or playoffs, etc.  What we will do is some clever pandas magic to:\n Only use regular season games Aggregate the statistics per player  # Filter for regular season and annotate season ID # https://github.com/dword4/nhlapi#game-ids df['game_id'] = df['game_id'].astype(str) reg_season = df[df['game_id'].apply(lambda x: x[4:6] == \"02\")].copy() reg_season['Season'] = reg_season['game_id'].apply(lambda x: x[:4]) reg_season.head(3) .dataframe tbody tr th { vertical-align: top; } .dataframe thead th { text-align: right; }  # aggregate stats and use average for time; otherwise totals # We could do this by season but we'll stick to overall totals for simplification. aggregated_stats = reg_season.groupby('player_id').agg( { \"game_id\": len, # use this as an aggregating function to get number of games played \"timeOnIce\": \"mean\", \"goals\": \"sum\", \"assists\": \"sum\", \"shots\": \"sum\", \"hits\": \"sum\", \"powerPlayGoals\":\"sum\", \"powerPlayAssists\": \"sum\", \"penaltyMinutes\": \"sum\", \"faceOffWins\": \"sum\", \"faceoffTaken\": \"sum\", \"takeaways\": \"sum\", \"giveaways\": \"sum\", \"shortHandedGoals\": \"sum\", \"shortHandedAssists\": \"sum\", \"blocked\": \"sum\", \"plusMinus\": \"sum\", \"evenTimeOnIce\": \"mean\", \"shortHandedTimeOnIce\": \"mean\", } ) aggregated_stats.columns = ['games_played'] + list(aggregated_stats.columns[1:]) aggregated_stats.head(3) .dataframe tbody tr th { vertical-align: top; } .dataframe thead th { text-align: right; }  Let’s do some more feature engineering to make our lives easier…\n# Powerplay and shorthanded goals/assists are typically much lower than regular goals/assists, so it's convenient to take the sum. # Faceoffs are typically reported in percentages, anyway. aggregated_stats['powerPlayPoints'] = aggregated_stats['powerPlayGoals'] + aggregated_stats['powerPlayAssists'] aggregated_stats['shortHandedPoints'] = aggregated_stats['shortHandedGoals'] + aggregated_stats['shortHandedAssists'] # Since some players never take faceOffs, just stick to 0 to avoid zero division errors percentage = (aggregated_stats['faceOffWins'] / aggregated_stats['faceoffTaken'])*100 percentage = [ _ if not np.isnan(_) else 0 for _ in percentage ] aggregated_stats['faceOffPercentage'] = percentage aggregated_stats.drop(columns=['powerPlayGoals', 'powerPlayAssists', 'shortHandedGoals', 'shortHandedAssists', 'faceOffWins', 'faceoffTaken']).head(3) .dataframe tbody tr th { vertical-align: top; } .dataframe thead th { text-align: right; }  Finally, for each player, if they have played fewer than 41 games, let’s remove them. I chose the number 41 because there are 82 games in a season. I want to know that a player has played at least half a season’s worth of games, otherwise we would have very little data to work with.\nsufficient_games = [] for n,g in aggregated_stats.groupby('player_id'): if g['games_played'].sum() = 41: sufficient_games.append(n) final_stats = aggregated_stats[aggregated_stats.index.get_level_values(\"player_id\").isin(sufficient_games)].copy() final_stats_players = final_stats.index.get_level_values('player_id') final_stats.head(3) .dataframe tbody tr th { vertical-align: top; } .dataframe thead th { text-align: right; }  Train, validate, test In machine learning, training, validating, and testing your model is a fundamental piece of the puzzle. Without proper splits of your data, there is a potential to overfit your model to the training set. Furthermore, the split datasets should have similar distributions of classes so that you avoid overfitting/over-penalisation, too. For the sake of this blog, I will only split by training and testing, and make one split. There are other split strategies like $$k$$-fold cross-validation but… we won’t talk about that for now. Back to topic!\nSplitting is best done using sklearn’s builtin train-test splitter:\nfrom sklearn.model_selection import train_test_split # Get skater data from pinfo skaters = pinfo[pinfo['primaryPosition'] != \"G\"][['player_id', 'firstName', 'lastName', 'primaryPosition']].copy() skaters = skaters[skaters['player_id'].isin(final_stats_players)] # the stratify argument makes sure we split our dataset # so that even though the test set is 1/3 the size of the training set # it has a similar distribution of wingers, defensemen... etc. # let's use a seed of 0. training_ids, test_ids = train_test_split(skaters['player_id'], random_state = 0, test_size = 0.25, stratify = skaters['primaryPosition']) # get the training set of data. # Since aggregated_stats is aggregated on both player id and season, # we have a multi-index object. this is a way to search on one column of that index. playerIdIndex = aggregated_stats.index.get_level_values(\"player_id\") # Get the training set and test set of data. training_set = aggregated_stats[playerIdIndex.isin(training_ids)].copy() test_set = aggregated_stats[playerIdIndex.isin(test_ids)].copy() training_set.head(3) .dataframe tbody tr th { vertical-align: top; } .dataframe thead th { text-align: right; }  Normally for machine learning methods, we can do some form of feature selection to use the most relevant variables. I am going to do the slightly naive approach of using every possible variable for prediction. This is something that may be done in practice, though it’s not the most clever idea; variables can be correlated. Here I’m going to do what’s called a “pairplot”:\ndef pairplot(columns, names): n_col = columns.shape[1] fig, ax = plt.subplots(n_col, n_col) short_names = { 'timeOnIce': \"time\", 'goals': \"goals\", 'assists': \"assists\", 'shots': \"shots\", 'hits': \"hits\", 'penaltyMinutes': \"PIM\", 'powerPlayPoints': \"PPP\", 'shortHandedPoints': \"SHP\" } # Upper-triangular matrix shows correlation between variables for i in range(0, n_col-1): for j in range(i+1, n_col): ax[i,j].scatter(columns[:,i], columns[:,j]) if j - i  0: ax[i,j].get_yaxis().set_ticklabels([]) ax[i,j].get_xaxis().set_ticklabels([]) if i == 0: ax[i,j].set_title(\"{}\".format(short_names[names[j]])) if j == n_col-1: ax[i,j].yaxis.set_label_position(\"right\") ax[i,j].set_ylabel(\"{}\".format(short_names[names[i]])) # Diagonal contains histograms for i in range(0, n_col): for j in range(0, n_col): if i != j: continue ax[i,j].hist(columns[:,i], color = '#ffd700') if i == 0: ax[i,j].set_title(\"{}\".format(short_names[names[j]])) elif j == (n_col-1): ax[i,j].set_xlabel(\"{}\".format(short_names[names[j]])) # Lower-triangular matrix is hidden for i in range(1, n_col): for j in range(0, i): ax[i,j].axis(\"off\") return fig, ax columns = ['timeOnIce', 'goals', 'assists', 'shots', 'hits', 'penaltyMinutes', 'powerPlayPoints', 'shortHandedPoints'] fig, ax = pairplot(training_set[columns].values, columns) fig.set_size_inches((10,10)) # Get the names of the players train_skaters = skaters[skaters['player_id'].isin(training_ids)].copy() test_skaters = skaters[skaters['player_id'].isin(test_ids)].copy() # Create a dictionary of player IDs to positions, this makes label creation easier train_position = dict(train_skaters[['player_id','primaryPosition']].values) test_position = dict(test_skaters[['player_id','primaryPosition']].values) # Get \"labels\" which are the hockey players' positions. train_labels = [train_position[pid] for pid in training_set.index.get_level_values('player_id')] test_labels = [test_position[pid] for pid in test_set.index.get_level_values('player_id')] The “ML bit” For this exercise, I am going to use the following supervised learning methods; below is a summary along with some pros and cons of each method. I’ve also tried to write equations where appropriate.\n Logistic Regression – Applies the logistic (binary classes) or softmax (multiple) function to a linear combination of weighted variables to predict the probability of class membership.  Pros: Model is fairly simple to interpret, with flexibility for regularisation$$\\dagger$$. Cons: Assumes a linear relationship between features (after logistic transformation) to class membership $$Pr(Y = c) = \\dfrac{ e^{z_c}}{\\sum_{i=1}^C e^{z_i} } ~~\\mathrm{where}~~ z_i = w_iX+b_i.$$   Naive Bayes Classifier – applies “Bayes' rule” to estimate the probability of belonging to a class.  Pros: Typically shows good performance and is inexpensive to run. Cons: Assumes that each feature is independent of another $$Pr(Y = c|x_1, x_2… x_n) \\propto P(c) \\prod_{i=1}^{C} Pr(x_i|c)$$   Random Forest Classifier – bootstraps$\\ddagger$ the dataset to create a series of decision trees (the “forest”). New data is then predicted according to all the decision trees, and we take the average prediction. In the case of classification, we take the majority vote.  Pros: Possible to trace the importance of specific features using the Gini index; very stable performance. Cons: Difficult to trace how the decision trees were made. For regression, $$\\hat{f} = \\dfrac{1}{T} \\sum_{i=1}^{T} f_i(X_{test})$$   Support Vector machines – finds a hyperplane that best separates classes in a dataset.  Pros: coupled with a kernel function, can be applicable for non-linear datasets Cons: sometimes a “soft” margin is required    $$\\dagger$$: “regularisation” is a technique where the weights of some terms are shrunk; examples include Lasso and Ridge.\n$$\\ddagger$$: “bootstrap” here refers to statistical bootstrapping where we sample with replacement.\n# Let's get some classifiers from sklearn.linear_model import LogisticRegression from sklearn.naive_bayes import GaussianNB # assumes that P(x_i |y) is a Gaussian distribution from sklearn.svm import LinearSVC, SVC from sklearn.ensemble import RandomForestClassifier For any classification, we need some mechanism of calculating the performance of our models. There are many measures one can use, but for this exercise, we will simply calculate the accuracy, which is likely the easiest to interpret in this type of whistle-tour blog post. For a pretty visualisation, I will plot the predictions in what’s called a “confusion matrix”, which shows the distribution of predictions vs. the true answers.\nfrom sklearn.metrics import confusion_matrix from matplotlib import cm def accuracy(true, pred): assert pred.shape == true.shape, \"Shape of pred and true arrays should be the same!\" return (pred == true).sum() / pred.shape[0] def get_confusion_matrix(true,pred): label_list = list(set(pred) | set(true)) return confusion_matrix(pred,true,labels=label_list), label_list def plot_confusion_matrix(cmat, labels, cmap = cm.Greens): \"\"\" Plot a heatmap \"\"\" fig, ax = plt.subplots() ax.imshow(cmat, cmap = cmap) n_labels = len(labels) ticklocs = np.arange(n_labels) ax.set_xticks(ticklocs) ax.set_yticks(ticklocs) ax.set_xticklabels(labels) ax.set_yticklabels(labels) ax.set_xlim(min(ticklocs)-0.5, max(ticklocs)+0.5) ax.set_ylim(min(ticklocs)-0.5, max(ticklocs)+0.5) ax.set_xlabel(\"Predicted\") ax.set_ylabel(\"True\") color_threshold = np.max(cmat) * 0.75 for i in range(cmat.shape[0]): for j in range(cmat.shape[1]): value = cmat[i,j] if value = color_threshold: ax.text(j, i, cmat[i,j], color = 'white', ha = 'center', va = 'center') else: ax.text(j, i, cmat[i,j], ha = 'center', va = 'center') return fig, ax Logistic Regression For the purpose of this exercise I am going to use the (default) logistic regression with the $$l_2$$ penalty (also known as Ridge regression). I won’t go into too many of the mathematical details here but an important hyper-parameter of the method is the regularisation strength, $$\\lambda$$. The higher the value of $$\\lambda$$, this ultimately shrinks the weights closer to 0.\nlm = LogisticRegression(solver='lbfgs',multi_class='multinomial', C = 0.1) lm.fit(training_set.values, train_labels) LogisticRegression(C=0.1, class_weight=None, dual=False, fit_intercept=True, intercept_scaling=1, l1_ratio=None, max_iter=100, multi_class='multinomial', n_jobs=None, penalty='l2', random_state=None, solver='lbfgs', tol=0.0001, verbose=0, warm_start=False)  pred = lm.predict(test_set.values) print(\"Accuracy of logistic regression is: {}\".format(accuracy(np.array(pred), np.array(test_labels)))) Accuracy of logistic regression is: 0.7105263157894737  # plot the confusion matrix cmat, label_list = get_confusion_matrix(test_labels,pred) fig, ax = plot_confusion_matrix(cmat, label_list) plt.show() # Plot pred vs. true in a PCA plot from sklearn.decomposition import PCA def pca_plot(pred, method): # scale the data tv = (test_set - test_set.mean()) / test_set.std() pca = PCA() new_data = pca.fit_transform(tv) colors = { \"RW\": \"#ffd700\", \"D\": \"#1348ae\", \"C\": \"#90ee90\", \"LW\": \"#e8291c\" } true_labels_to_colors = [ colors[pos] for pos in test_labels ] pred_labels_to_colors = np.array([ colors[pos] for pos in pred ]) fig, ax = plt.subplots(1,2, sharey=True) ax[0].scatter(new_data[:,0], new_data[:,1], alpha = 0.5, color = true_labels_to_colors) #  for lab in set(pred): pos_idx = np.argwhere(pred == lab).flatten() ax[1].scatter(new_data[pos_idx,0], new_data[pos_idx,1], color = pred_labels_to_colors[pos_idx], alpha = 0.5, label = lab) ax[0].set_title(\"True labels\") ax[1].set_title(\"Predicted labels\") ax[1].legend(loc = 'upper left', ncol = 2) fig.suptitle(method) fig.set_size_inches((10,5)) return fig, ax fig, ax = pca_plot(pred, \"Logistic Regression\") Random Foest As before, I will just use the default implementation.\n# let's train a \"simple\" random forest rf = RandomForestClassifier() rf.fit(training_set.values, train_labels) RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini', max_depth=None, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, min_samples_leaf=1, min_samples_split=2, min_weight_fraction_leaf=0.0, n_estimators=10, n_jobs=None, oob_score=False, random_state=None, verbose=0, warm_start=False)  pred = rf.predict(test_set.values) print(\"Accuracy of random forest is: {}\".format(accuracy(np.array(pred), np.array(test_labels)))) Accuracy of random forest is: 0.6929824561403509  cmat, label_list = get_confusion_matrix(test_labels, pred) fig, ax = plot_confusion_matrix(cmat, label_list) fig, ax = pca_plot(pred, \"Random Forest\") Naive Bayes Classifier For the NBC, I will again use the default implementation but assume that every variable has a Gaussian distribution. This is not ideal by any means, but is easiest to code and gives you a flavour of what it does.\n# let's train a \"simple\" naive bayes classifier nbc = GaussianNB() nbc.fit(training_set.values, train_labels) GaussianNB(priors=None, var_smoothing=1e-09)  pred = nbc.predict(test_set.values) print(\"Accuracy of Naive Bayes classifier is: {}\".format(accuracy(np.array(pred), np.array(test_labels)))) Accuracy of Naive Bayes classifier is: 0.5847953216374269  fig, ax = pca_plot(pred, \"NBC\") Support Vector Machines Here I will use the LinearSVC class; essentially we are applying a linear kernel to the data. What this means is that essentially we are assuming that no transformation is needed to draw a hyperplane that will separate the data.\nsvc = LinearSVC(max_iter=2000) svc.fit(training_set.values, train_labels) LinearSVC(C=1.0, class_weight=None, dual=True, fit_intercept=True, intercept_scaling=1, loss='squared_hinge', max_iter=2000, multi_class='ovr', penalty='l2', random_state=None, tol=0.0001, verbose=0)  pred = svc.predict(test_set.values) print(\"Accuracy of SVC is: {}\".format(accuracy(np.array(pred), np.array(test_labels)))) Accuracy of SVC is: 0.7017543859649122  cmat, label_list = get_confusion_matrix(test_labels, pred) fig, ax = plot_confusion_matrix(cmat, label_list) plt.show() fig, ax = pca_plot(pred, \"SVM\") Revision No method was a true outstanding performer. While the random forest classifier did have the highest level of accuracy, it was only marginally better than logistic regression.\nIt would be worth seeing why certain methods failed to classify a player into the correct primary position. We could go more in-depth and ask,\n Is this a case where we over-penalise ourselves (e.g. left-wing vs. right-wing players are not that different)? Is this a case where a player has out-of-position behaviours (e.g. a defenseman with some high goals/assists? a forward who is a defensive specialist?) Is there not enough game data?  Going further, we can ask…\n Are there fundamental aspects of the ML methods tested here that make it unsuitable for this problem? Can we do feature selection of some sort? What other information can we get to improve prediction? For example, does stick handed-ness have any bearing on position?  from scipy.stats import gaussian_kde test_set_copy = test_set.copy() test_set_copy['pred'] = rf.predict(test_set_copy) test_to_names = pd.merge( left = test_set_copy, right = skaters, how = 'inner', on = 'player_id' ) correct = test_to_names[test_to_names['primaryPosition']==test_to_names['pred']].copy() incorrect = test_to_names[test_to_names['primaryPosition']!=test_to_names['pred']].copy() incorrect[['firstName', 'lastName', 'primaryPosition', 'pred']].head(5) .dataframe tbody tr th { vertical-align: top; } .dataframe thead th { text-align: right; }  correct_gp = correct['games_played'].values incorrect_gp = incorrect['games_played'].values # We can create a Gaussian kernel on top of the number of games played to do some comparisons correct_kde = gaussian_kde(correct_gp) incorrect_kde = gaussian_kde(incorrect_gp) num_games = np.arange(1, 801) fig, ax = plt.subplots(1,1) ax.plot(num_games, correct_kde.evaluate(num_games), color = '#134a8e', label = \"Correct predictions\") ax.plot(num_games, incorrect_kde.evaluate(num_games), color = '#e8291c', label = \"Incorrect predictions\") ax.set_xlabel(\"Number of games played\") ax.set_ylabel(\"Density\") Text(0, 0.5, 'Density')  What’s interesting here is that:\n For the random forest, mis-classifications are only found for forwards (no defensemen are ever classified as forwards and vice-versa). There are more winger mis-classifications (actual = RW, predicted = LW), which may imply a too-stringent classification scheme. This doesn’t seem to be affected by the number of games played by the players as they have similar distributions.  While we can explore the data further to explain misclassifications, I think that’s outside the scope of this post and that’s for next time…\n",
+  "wordCount" : "2798",
+  "inLanguage": "en",
+  "datePublished": "2019-11-01T00:00:00Z",
+  "dateModified": "2019-11-01T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://ideasbyjin.github.io/post/2019-11-01-supervised/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Read between the rows",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://ideasbyjin.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+
+
+
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    }
+
+</script>
+<noscript>
+    <style type="text/css">
+        .theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://ideasbyjin.github.io/" accesskey="h" title="Read between the rows (Alt + H)">Read between the rows</a>
+            <span class="logo-switches">
+                <a id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </a>
+                
+                
+            </span>
+        </div>
+        <ul id="menu" onscroll="menu_on_scroll()">
+            <li>
+                <a href="https://ideasbyjin.github.io/search" title="search (Alt &#43; /)" accesskey=/>
+                    <span>search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://ideasbyjin.github.io/archives" title="archive">
+                    <span>archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://ideasbyjin.github.io/about" title="about">
+                    <span>about</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://ideasbyjin.github.io/" title="home">
+                    <span>home</span>
+                </a>
+            </li></ul>
+    </nav>
+</header>
+
+    <main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+
+    <h1 class="post-title">
+      Supervised learning demo: what position do I play?
+    </h1>
+    <div class="post-meta">November 1, 2019&nbsp;·&nbsp;14 min
+
+</div>
+  </header> 
+
+  <div class="toc">
+    <details >
+      <summary accesskey="c" title="(Alt + C)">
+        <div class="details">Table of Contents</div>
+      </summary>
+      <div class="inner"><ul><ul><ul><li>
+        <a href="#wait-so-why-do-you-want-to-know-a-players-position" aria-label="Wait, so why do you want to know a player&amp;rsquo;s position?">Wait, so why do you want to know a player&rsquo;s position?</a></li></ul>
+        <li>
+        <a href="#data-cleanup" aria-label="Data cleanup">Data cleanup</a></li></ul>
+        <li>
+        <a href="#train-validate-test" aria-label="Train, validate, test">Train, validate, test</a></li><li>
+        <a href="#the-ml-bit" aria-label="The &amp;ldquo;ML bit&amp;rdquo;">The &ldquo;ML bit&rdquo;</a><ul>
+            <li>
+        <a href="#logistic-regression" aria-label="Logistic Regression">Logistic Regression</a></li><li>
+        <a href="#random-foest" aria-label="Random Foest">Random Foest</a></li><li>
+        <a href="#naive-bayes-classifier" aria-label="Naive Bayes Classifier">Naive Bayes Classifier</a></li><li>
+        <a href="#support-vector-machines" aria-label="Support Vector Machines">Support Vector Machines</a></li></ul>
+    </li><li>
+        <a href="#revision" aria-label="Revision">Revision</a></li></ul>
+      </div>
+    </details>
+  </div>
+  <div class="post-content">
+<p>Last time I covered a section on clustering, a group of <em>unsupervised</em> learning methods – so called because
+they are not given the class memberships of the data$$^\dagger$$. Don&rsquo;t worry, I will do more posts on
+clustering soon. For now I wanted to give a quick overview of what <em>supervised</em> methods look like. For that, let&rsquo;s
+look at the statistics of hockey players!</p>
+<p>$$\dagger$$: this is a gross generalisation. More formally, for some dataset $$\mathbf{X}$$, if we are trying
+to predict an output variable $$\mathbf{Y}$$, we use supervised learning methods, otherwise unsupervised
+learning methods.</p>
+<p>Hockey (on ice, obviously!) is a game where we have 5 skaters and 1 goalie per rotation.
+The 5 skaters can be divided into three$$^\ddagger$$ subclasses:</p>
+<ul>
+<li>The wingers (LW, RW)</li>
+<li>The centre (C)</li>
+<li>Defensemen (D)</li>
+</ul>
+<p>$$\ddagger$$: the centre and wingers can also be bundled up as forwards.</p>
+<!-- raw HTML omitted -->
+<p>Typically, each skater&rsquo;s actions are recorded, which include:</p>
+<ul>
+<li>Goal(s) scored, assist(s) made [i.e. did the player make a pass leading up to the goal?]</li>
+<li>Penalties in minutes (infringements typically lead to 2 minute bans from the game)</li>
+<li>Ice time in 5-on-5 or &lsquo;penalty kill&rsquo; situations</li>
+<li>Shots blocked
+etc.</li>
+</ul>
+<p>Usually by looking at these statistics, one can have an approximate idea of the position a given hockey player plays. To many, this might seem like a pretty easy problem. Surely forwards are supposed to score goals! Defensemen are supposed to block shots!</p>
+<h4 id="wait-so-why-do-you-want-to-know-a-players-position">Wait, so why do you want to know a player&rsquo;s position?<a hidden class="anchor" aria-hidden="true" href="#wait-so-why-do-you-want-to-know-a-players-position">#</a></h4>
+<p>Predicting a player&rsquo;s position is perhaps not the first classification that comes to mind. However, it&rsquo;s useful for something like fantasy sports leagues. In fantasy sports, you typically have roster slots for <em>n</em> centres, <em>m</em> defensemen, and <em>q</em> wingers. Using those constraints, you want to (usually) maximise every statistical category.</p>
+<p>For example, if a fantasy team has a bunch of goal-scoring centremen, which position player do we pick out next to max out the penalties in minutes category? Simultaneously, which position also happens to maximise the number of assists? Do we pick up a defenseman, or a gritty right wing?</p>
+<p>Hockey is slightly more complex than meets the eye. Typically, being a defenseman or forward can largely constrain your statistical profile; there are some defensemen that are very talented on offense (e.g. Morgan Reilly), and some forwards who are tougher, and deployed on a &ldquo;checking&rdquo; line to provide strength.</p>
+<!-- raw HTML omitted -->
+<p>(This is Morgan Reilly.)</p>
+<p>So, how can we predict positions using stats? Let&rsquo;s find out.</p>
+<p><strong>If you have 30 seconds&hellip;</strong></p>
+<ul>
+<li>This post is really a demo of various supervised learning methods. See table below for a quick overview.</li>
+<li>The algorithm of choice is often dependent on use case, and you should consider questions like:
+<ul>
+<li>What is the distribution of your output?</li>
+<li>How can we interpret the model?</li>
+</ul>
+</li>
+</ul>
+<p><strong>If you have 10 minutes&hellip;</strong></p>
+<ul>
+<li>Read on. I&rsquo;ve tried to section this entry based on what bits you might be interested in. This post is very much intended to be a whirlwind tour of the various supervised learning methods, rather than a deep-dive.</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> pandas <span style="color:#f92672">as</span> pd
+<span style="color:#f92672">import</span> matplotlib.pyplot <span style="color:#f92672">as</span> plt
+<span style="color:#f92672">import</span> numpy <span style="color:#f92672">as</span> np
+</code></pre></div><h3 id="data-cleanup">Data cleanup<a hidden class="anchor" aria-hidden="true" href="#data-cleanup">#</a></h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Read in the data from Kaggle</span>
+df <span style="color:#f92672">=</span> pd<span style="color:#f92672">.</span>read_csv(<span style="color:#e6db74">&#34;game_skater_stats.csv&#34;</span>)
+
+<span style="color:#75715e"># We&#39;ll use this later.</span>
+pinfo <span style="color:#f92672">=</span> pd<span style="color:#f92672">.</span>read_csv(<span style="color:#e6db74">&#34;player_info.csv&#34;</span>)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">df<span style="color:#f92672">.</span>head(<span style="color:#ae81ff">3</span>)
+</code></pre></div><!-- raw HTML omitted -->
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p><!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<p>The skater stats are given per player (<code>player_id</code>), and per game (<code>game_id</code>) that they have played. We know from some good documentation that:</p>
+<ul>
+<li>The first four digits represent the season (e.g. 2010-2011 season)</li>
+<li>The next two digits represent whether the game was held in the regular season or playoffs, etc.</li>
+</ul>
+<p>What we will do is some clever <code>pandas</code> magic to:</p>
+<ul>
+<li>Only use regular season games</li>
+<li>Aggregate the statistics per player</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Filter for regular season and annotate season ID</span>
+<span style="color:#75715e"># https://github.com/dword4/nhlapi#game-ids</span>
+
+df[<span style="color:#e6db74">&#39;game_id&#39;</span>] <span style="color:#f92672">=</span> df[<span style="color:#e6db74">&#39;game_id&#39;</span>]<span style="color:#f92672">.</span>astype(str)
+reg_season <span style="color:#f92672">=</span> df[df[<span style="color:#e6db74">&#39;game_id&#39;</span>]<span style="color:#f92672">.</span>apply(<span style="color:#66d9ef">lambda</span> x: x[<span style="color:#ae81ff">4</span>:<span style="color:#ae81ff">6</span>] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;02&#34;</span>)]<span style="color:#f92672">.</span>copy()
+reg_season[<span style="color:#e6db74">&#39;Season&#39;</span>] <span style="color:#f92672">=</span> reg_season[<span style="color:#e6db74">&#39;game_id&#39;</span>]<span style="color:#f92672">.</span>apply(<span style="color:#66d9ef">lambda</span> x: x[:<span style="color:#ae81ff">4</span>])
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">reg_season<span style="color:#f92672">.</span>head(<span style="color:#ae81ff">3</span>)
+</code></pre></div><!-- raw HTML omitted -->
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p><!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># aggregate stats and use average for time; otherwise totals</span>
+<span style="color:#75715e"># We could do this by season but we&#39;ll stick to overall totals for simplification.</span>
+aggregated_stats <span style="color:#f92672">=</span> reg_season<span style="color:#f92672">.</span>groupby(<span style="color:#e6db74">&#39;player_id&#39;</span>)<span style="color:#f92672">.</span>agg(
+    {
+        <span style="color:#e6db74">&#34;game_id&#34;</span>: len, <span style="color:#75715e"># use this as an aggregating function to get number of games played</span>
+        <span style="color:#e6db74">&#34;timeOnIce&#34;</span>: <span style="color:#e6db74">&#34;mean&#34;</span>,
+        <span style="color:#e6db74">&#34;goals&#34;</span>: <span style="color:#e6db74">&#34;sum&#34;</span>,
+        <span style="color:#e6db74">&#34;assists&#34;</span>: <span style="color:#e6db74">&#34;sum&#34;</span>,
+        <span style="color:#e6db74">&#34;shots&#34;</span>: <span style="color:#e6db74">&#34;sum&#34;</span>,
+        <span style="color:#e6db74">&#34;hits&#34;</span>: <span style="color:#e6db74">&#34;sum&#34;</span>,
+        <span style="color:#e6db74">&#34;powerPlayGoals&#34;</span>:<span style="color:#e6db74">&#34;sum&#34;</span>,
+        <span style="color:#e6db74">&#34;powerPlayAssists&#34;</span>: <span style="color:#e6db74">&#34;sum&#34;</span>,
+        <span style="color:#e6db74">&#34;penaltyMinutes&#34;</span>: <span style="color:#e6db74">&#34;sum&#34;</span>,
+        <span style="color:#e6db74">&#34;faceOffWins&#34;</span>: <span style="color:#e6db74">&#34;sum&#34;</span>,
+        <span style="color:#e6db74">&#34;faceoffTaken&#34;</span>: <span style="color:#e6db74">&#34;sum&#34;</span>,
+        <span style="color:#e6db74">&#34;takeaways&#34;</span>: <span style="color:#e6db74">&#34;sum&#34;</span>,
+        <span style="color:#e6db74">&#34;giveaways&#34;</span>: <span style="color:#e6db74">&#34;sum&#34;</span>,
+        <span style="color:#e6db74">&#34;shortHandedGoals&#34;</span>: <span style="color:#e6db74">&#34;sum&#34;</span>,
+        <span style="color:#e6db74">&#34;shortHandedAssists&#34;</span>: <span style="color:#e6db74">&#34;sum&#34;</span>,
+        <span style="color:#e6db74">&#34;blocked&#34;</span>: <span style="color:#e6db74">&#34;sum&#34;</span>,
+        <span style="color:#e6db74">&#34;plusMinus&#34;</span>: <span style="color:#e6db74">&#34;sum&#34;</span>,
+        <span style="color:#e6db74">&#34;evenTimeOnIce&#34;</span>: <span style="color:#e6db74">&#34;mean&#34;</span>,
+        <span style="color:#e6db74">&#34;shortHandedTimeOnIce&#34;</span>: <span style="color:#e6db74">&#34;mean&#34;</span>,
+    }
+)
+aggregated_stats<span style="color:#f92672">.</span>columns <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#39;games_played&#39;</span>] <span style="color:#f92672">+</span> list(aggregated_stats<span style="color:#f92672">.</span>columns[<span style="color:#ae81ff">1</span>:])
+aggregated_stats<span style="color:#f92672">.</span>head(<span style="color:#ae81ff">3</span>)
+</code></pre></div><!-- raw HTML omitted -->
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p><!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<p>Let&rsquo;s do some more feature engineering to make our lives easier&hellip;</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Powerplay and shorthanded goals/assists are typically much lower than regular goals/assists, so it&#39;s convenient to take the sum.</span>
+<span style="color:#75715e"># Faceoffs are typically reported in percentages, anyway.</span>
+aggregated_stats[<span style="color:#e6db74">&#39;powerPlayPoints&#39;</span>] <span style="color:#f92672">=</span> aggregated_stats[<span style="color:#e6db74">&#39;powerPlayGoals&#39;</span>] <span style="color:#f92672">+</span> aggregated_stats[<span style="color:#e6db74">&#39;powerPlayAssists&#39;</span>]
+aggregated_stats[<span style="color:#e6db74">&#39;shortHandedPoints&#39;</span>] <span style="color:#f92672">=</span> aggregated_stats[<span style="color:#e6db74">&#39;shortHandedGoals&#39;</span>] <span style="color:#f92672">+</span> aggregated_stats[<span style="color:#e6db74">&#39;shortHandedAssists&#39;</span>]
+
+<span style="color:#75715e"># Since some players never take faceOffs, just stick to 0 to avoid zero division errors</span>
+percentage <span style="color:#f92672">=</span> (aggregated_stats[<span style="color:#e6db74">&#39;faceOffWins&#39;</span>] <span style="color:#f92672">/</span> aggregated_stats[<span style="color:#e6db74">&#39;faceoffTaken&#39;</span>])<span style="color:#f92672">*</span><span style="color:#ae81ff">100</span>
+percentage <span style="color:#f92672">=</span> [ _ <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> np<span style="color:#f92672">.</span>isnan(_) <span style="color:#66d9ef">else</span> <span style="color:#ae81ff">0</span> <span style="color:#66d9ef">for</span> _ <span style="color:#f92672">in</span> percentage ]
+
+aggregated_stats[<span style="color:#e6db74">&#39;faceOffPercentage&#39;</span>] <span style="color:#f92672">=</span> percentage
+aggregated_stats<span style="color:#f92672">.</span>drop(columns<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#39;powerPlayGoals&#39;</span>, <span style="color:#e6db74">&#39;powerPlayAssists&#39;</span>, <span style="color:#e6db74">&#39;shortHandedGoals&#39;</span>, <span style="color:#e6db74">&#39;shortHandedAssists&#39;</span>, <span style="color:#e6db74">&#39;faceOffWins&#39;</span>, <span style="color:#e6db74">&#39;faceoffTaken&#39;</span>])<span style="color:#f92672">.</span>head(<span style="color:#ae81ff">3</span>)
+</code></pre></div><!-- raw HTML omitted -->
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p><!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<p>Finally, for each player, if they have played fewer than 41 games, let&rsquo;s remove them. I chose the number 41 because
+there are 82 games in a season. I want to know that a player has played at least half a season&rsquo;s worth of games, otherwise we would have very little data to work with.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">sufficient_games <span style="color:#f92672">=</span> []
+<span style="color:#66d9ef">for</span> n,g <span style="color:#f92672">in</span> aggregated_stats<span style="color:#f92672">.</span>groupby(<span style="color:#e6db74">&#39;player_id&#39;</span>):
+    <span style="color:#66d9ef">if</span> g[<span style="color:#e6db74">&#39;games_played&#39;</span>]<span style="color:#f92672">.</span>sum() <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">41</span>:
+        sufficient_games<span style="color:#f92672">.</span>append(n)
+
+final_stats <span style="color:#f92672">=</span> aggregated_stats[aggregated_stats<span style="color:#f92672">.</span>index<span style="color:#f92672">.</span>get_level_values(<span style="color:#e6db74">&#34;player_id&#34;</span>)<span style="color:#f92672">.</span>isin(sufficient_games)]<span style="color:#f92672">.</span>copy()
+final_stats_players <span style="color:#f92672">=</span> final_stats<span style="color:#f92672">.</span>index<span style="color:#f92672">.</span>get_level_values(<span style="color:#e6db74">&#39;player_id&#39;</span>)
+final_stats<span style="color:#f92672">.</span>head(<span style="color:#ae81ff">3</span>)
+</code></pre></div><!-- raw HTML omitted -->
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p><!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<h2 id="train-validate-test">Train, validate, test<a hidden class="anchor" aria-hidden="true" href="#train-validate-test">#</a></h2>
+<p>In machine learning, training, validating, and testing your model is a fundamental piece of the puzzle. Without proper splits of your data, there is a potential to overfit your model to the training set. Furthermore, the split datasets should have similar distributions of classes so that you avoid overfitting/over-penalisation, too. For the sake of this blog, I will only split by training and testing, and make one split.
+There are other split strategies like $$k$$-fold cross-validation but&hellip; we won&rsquo;t talk about that for now. Back to topic!</p>
+<p>Splitting is best done using <code>sklearn</code>&rsquo;s builtin train-test splitter:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">from</span> sklearn.model_selection <span style="color:#f92672">import</span> train_test_split
+
+<span style="color:#75715e"># Get skater data from pinfo</span>
+skaters <span style="color:#f92672">=</span> pinfo[pinfo[<span style="color:#e6db74">&#39;primaryPosition&#39;</span>] <span style="color:#f92672">!=</span> <span style="color:#e6db74">&#34;G&#34;</span>][[<span style="color:#e6db74">&#39;player_id&#39;</span>, <span style="color:#e6db74">&#39;firstName&#39;</span>, <span style="color:#e6db74">&#39;lastName&#39;</span>, <span style="color:#e6db74">&#39;primaryPosition&#39;</span>]]<span style="color:#f92672">.</span>copy()
+skaters <span style="color:#f92672">=</span> skaters[skaters[<span style="color:#e6db74">&#39;player_id&#39;</span>]<span style="color:#f92672">.</span>isin(final_stats_players)]
+
+<span style="color:#75715e"># the stratify argument makes sure we split our dataset</span>
+<span style="color:#75715e"># so that even though the test set is 1/3 the size of the training set</span>
+<span style="color:#75715e"># it has a similar distribution of wingers, defensemen... etc.</span>
+<span style="color:#75715e"># let&#39;s use a seed of 0.</span>
+training_ids, test_ids <span style="color:#f92672">=</span> train_test_split(skaters[<span style="color:#e6db74">&#39;player_id&#39;</span>], random_state <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>,
+                                               test_size <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.25</span>, stratify <span style="color:#f92672">=</span> skaters[<span style="color:#e6db74">&#39;primaryPosition&#39;</span>])
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># get the training set of data.</span>
+<span style="color:#75715e"># Since aggregated_stats is aggregated on both player id and season,</span>
+<span style="color:#75715e"># we have a multi-index object. this is a way to search on one column of that index.</span>
+playerIdIndex <span style="color:#f92672">=</span> aggregated_stats<span style="color:#f92672">.</span>index<span style="color:#f92672">.</span>get_level_values(<span style="color:#e6db74">&#34;player_id&#34;</span>)
+
+<span style="color:#75715e"># Get the training set and test set of data.</span>
+training_set <span style="color:#f92672">=</span> aggregated_stats[playerIdIndex<span style="color:#f92672">.</span>isin(training_ids)]<span style="color:#f92672">.</span>copy()
+test_set <span style="color:#f92672">=</span> aggregated_stats[playerIdIndex<span style="color:#f92672">.</span>isin(test_ids)]<span style="color:#f92672">.</span>copy()
+training_set<span style="color:#f92672">.</span>head(<span style="color:#ae81ff">3</span>)
+</code></pre></div><!-- raw HTML omitted -->
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p><!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<p>Normally for machine learning methods, we can do some form of <em>feature selection</em> to use the most relevant variables. I am going to do the slightly naive approach of using every possible variable for prediction. This is something that may be done in practice, though it&rsquo;s not the most clever idea; variables can be correlated. Here I&rsquo;m going to do what&rsquo;s called a &ldquo;pairplot&rdquo;:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pairplot</span>(columns, names):
+    n_col <span style="color:#f92672">=</span> columns<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">1</span>]
+    fig, ax <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>subplots(n_col, n_col)
+    
+    short_names <span style="color:#f92672">=</span> {
+        <span style="color:#e6db74">&#39;timeOnIce&#39;</span>: <span style="color:#e6db74">&#34;time&#34;</span>, 
+        <span style="color:#e6db74">&#39;goals&#39;</span>: <span style="color:#e6db74">&#34;goals&#34;</span>, 
+        <span style="color:#e6db74">&#39;assists&#39;</span>: <span style="color:#e6db74">&#34;assists&#34;</span>, 
+        <span style="color:#e6db74">&#39;shots&#39;</span>: <span style="color:#e6db74">&#34;shots&#34;</span>, 
+        <span style="color:#e6db74">&#39;hits&#39;</span>: <span style="color:#e6db74">&#34;hits&#34;</span>, 
+        <span style="color:#e6db74">&#39;penaltyMinutes&#39;</span>: <span style="color:#e6db74">&#34;PIM&#34;</span>, 
+        <span style="color:#e6db74">&#39;powerPlayPoints&#39;</span>: <span style="color:#e6db74">&#34;PPP&#34;</span>, 
+        <span style="color:#e6db74">&#39;shortHandedPoints&#39;</span>: <span style="color:#e6db74">&#34;SHP&#34;</span>
+    }
+    
+    <span style="color:#75715e"># Upper-triangular matrix shows correlation between variables</span>
+    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">0</span>, n_col<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>):
+        <span style="color:#66d9ef">for</span> j <span style="color:#f92672">in</span> range(i<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>, n_col):
+            ax[i,j]<span style="color:#f92672">.</span>scatter(columns[:,i], columns[:,j])
+            <span style="color:#66d9ef">if</span> j <span style="color:#f92672">-</span> i <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>:
+                ax[i,j]<span style="color:#f92672">.</span>get_yaxis()<span style="color:#f92672">.</span>set_ticklabels([])
+                ax[i,j]<span style="color:#f92672">.</span>get_xaxis()<span style="color:#f92672">.</span>set_ticklabels([])
+                
+            <span style="color:#66d9ef">if</span> i <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+                ax[i,j]<span style="color:#f92672">.</span>set_title(<span style="color:#e6db74">&#34;{}&#34;</span><span style="color:#f92672">.</span>format(short_names[names[j]]))
+            <span style="color:#66d9ef">if</span> j <span style="color:#f92672">==</span> n_col<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>:
+                ax[i,j]<span style="color:#f92672">.</span>yaxis<span style="color:#f92672">.</span>set_label_position(<span style="color:#e6db74">&#34;right&#34;</span>)
+                ax[i,j]<span style="color:#f92672">.</span>set_ylabel(<span style="color:#e6db74">&#34;{}&#34;</span><span style="color:#f92672">.</span>format(short_names[names[i]]))
+
+    <span style="color:#75715e"># Diagonal contains histograms</span>
+    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">0</span>, n_col):
+        <span style="color:#66d9ef">for</span> j <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">0</span>, n_col):
+            <span style="color:#66d9ef">if</span> i <span style="color:#f92672">!=</span> j: <span style="color:#66d9ef">continue</span>
+            ax[i,j]<span style="color:#f92672">.</span>hist(columns[:,i], color <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;#ffd700&#39;</span>)
+            
+            <span style="color:#66d9ef">if</span> i <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+                ax[i,j]<span style="color:#f92672">.</span>set_title(<span style="color:#e6db74">&#34;{}&#34;</span><span style="color:#f92672">.</span>format(short_names[names[j]]))
+            <span style="color:#66d9ef">elif</span> j <span style="color:#f92672">==</span> (n_col<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>):
+                ax[i,j]<span style="color:#f92672">.</span>set_xlabel(<span style="color:#e6db74">&#34;{}&#34;</span><span style="color:#f92672">.</span>format(short_names[names[j]]))
+    
+    <span style="color:#75715e"># Lower-triangular matrix is hidden</span>
+    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">1</span>, n_col):
+        <span style="color:#66d9ef">for</span> j <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">0</span>, i):
+            ax[i,j]<span style="color:#f92672">.</span>axis(<span style="color:#e6db74">&#34;off&#34;</span>)
+
+    <span style="color:#66d9ef">return</span> fig, ax
+
+columns <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#39;timeOnIce&#39;</span>, <span style="color:#e6db74">&#39;goals&#39;</span>, <span style="color:#e6db74">&#39;assists&#39;</span>, <span style="color:#e6db74">&#39;shots&#39;</span>, <span style="color:#e6db74">&#39;hits&#39;</span>, <span style="color:#e6db74">&#39;penaltyMinutes&#39;</span>, <span style="color:#e6db74">&#39;powerPlayPoints&#39;</span>, <span style="color:#e6db74">&#39;shortHandedPoints&#39;</span>]
+
+fig, ax <span style="color:#f92672">=</span> pairplot(training_set[columns]<span style="color:#f92672">.</span>values, columns)
+fig<span style="color:#f92672">.</span>set_size_inches((<span style="color:#ae81ff">10</span>,<span style="color:#ae81ff">10</span>))
+</code></pre></div><p><img src="../../../../../assets/notebooks/hockey/output_18_0.png" alt="png"></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Get the names of the players</span>
+train_skaters <span style="color:#f92672">=</span> skaters[skaters[<span style="color:#e6db74">&#39;player_id&#39;</span>]<span style="color:#f92672">.</span>isin(training_ids)]<span style="color:#f92672">.</span>copy()
+test_skaters  <span style="color:#f92672">=</span> skaters[skaters[<span style="color:#e6db74">&#39;player_id&#39;</span>]<span style="color:#f92672">.</span>isin(test_ids)]<span style="color:#f92672">.</span>copy()
+
+<span style="color:#75715e"># Create a dictionary of player IDs to positions, this makes label creation easier</span>
+train_position <span style="color:#f92672">=</span> dict(train_skaters[[<span style="color:#e6db74">&#39;player_id&#39;</span>,<span style="color:#e6db74">&#39;primaryPosition&#39;</span>]]<span style="color:#f92672">.</span>values)
+test_position <span style="color:#f92672">=</span> dict(test_skaters[[<span style="color:#e6db74">&#39;player_id&#39;</span>,<span style="color:#e6db74">&#39;primaryPosition&#39;</span>]]<span style="color:#f92672">.</span>values)
+
+
+<span style="color:#75715e"># Get &#34;labels&#34; which are the hockey players&#39; positions.</span>
+train_labels <span style="color:#f92672">=</span> [train_position[pid] <span style="color:#66d9ef">for</span> pid <span style="color:#f92672">in</span> training_set<span style="color:#f92672">.</span>index<span style="color:#f92672">.</span>get_level_values(<span style="color:#e6db74">&#39;player_id&#39;</span>)]
+test_labels  <span style="color:#f92672">=</span> [test_position[pid] <span style="color:#66d9ef">for</span> pid <span style="color:#f92672">in</span> test_set<span style="color:#f92672">.</span>index<span style="color:#f92672">.</span>get_level_values(<span style="color:#e6db74">&#39;player_id&#39;</span>)]
+</code></pre></div><h2 id="the-ml-bit">The &ldquo;ML bit&rdquo;<a hidden class="anchor" aria-hidden="true" href="#the-ml-bit">#</a></h2>
+<p>For this exercise, I am going to use the following supervised learning methods; below is a summary along with some pros and cons of each method. I&rsquo;ve also tried to write equations where appropriate.</p>
+<ul>
+<li><strong>Logistic Regression</strong> – Applies the logistic (binary classes) or softmax (multiple) function to a linear combination of weighted variables to predict the probability of class membership.
+<ul>
+<li>Pros: Model is fairly simple to interpret, with flexibility for regularisation$$\dagger$$.</li>
+<li>Cons: Assumes a linear relationship between features (after logistic transformation) to class membership</li>
+<li>$$Pr(Y = c) = \dfrac{ e^{z_c}}{\sum_{i=1}^C e^{z_i} } ~~\mathrm{where}~~ z_i = w_iX+b_i.$$</li>
+</ul>
+</li>
+<li><strong>Naive Bayes Classifier</strong> – applies &ldquo;Bayes' rule&rdquo; to estimate the probability of belonging to a class.
+<ul>
+<li>Pros: Typically shows good performance and is inexpensive to run.</li>
+<li>Cons: Assumes that each feature is independent of another</li>
+<li>$$Pr(Y = c|x_1, x_2&hellip; x_n) \propto P(c) \prod_{i=1}^{C} Pr(x_i|c)$$</li>
+</ul>
+</li>
+<li><strong>Random Forest Classifier</strong> – bootstraps$\ddagger$ the dataset to create a series of decision trees (the &ldquo;forest&rdquo;). New data is then predicted according to all the decision trees, and we take the average prediction. In the case of classification, we take the majority vote.
+<ul>
+<li>Pros: Possible to trace the importance of specific features using the Gini index; very stable performance.</li>
+<li>Cons: Difficult to trace how the decision trees were made.</li>
+<li>For regression, $$\hat{f} = \dfrac{1}{T} \sum_{i=1}^{T} f_i(X_{test})$$</li>
+</ul>
+</li>
+<li><strong>Support Vector machines</strong> – finds a hyperplane that best separates classes in a dataset.
+<ul>
+<li>Pros: coupled with a kernel function, can be applicable for non-linear datasets</li>
+<li>Cons: sometimes a &ldquo;soft&rdquo; margin is required</li>
+</ul>
+</li>
+</ul>
+<p>$$\dagger$$: &ldquo;regularisation&rdquo; is a technique where the weights of some terms are shrunk; examples include Lasso and Ridge.</p>
+<p>$$\ddagger$$: &ldquo;bootstrap&rdquo; here refers to statistical bootstrapping where we sample <em>with</em> replacement.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Let&#39;s get some classifiers</span>
+<span style="color:#f92672">from</span> sklearn.linear_model <span style="color:#f92672">import</span> LogisticRegression 
+<span style="color:#f92672">from</span> sklearn.naive_bayes <span style="color:#f92672">import</span> GaussianNB <span style="color:#75715e"># assumes that P(x_i |y) is a Gaussian distribution</span>
+<span style="color:#f92672">from</span> sklearn.svm <span style="color:#f92672">import</span> LinearSVC, SVC
+<span style="color:#f92672">from</span> sklearn.ensemble <span style="color:#f92672">import</span> RandomForestClassifier
+</code></pre></div><p>For any classification, we need some mechanism of calculating the performance of our models. There are many measures one can use, but for this exercise, we will simply calculate the accuracy, which is likely the easiest to interpret in this type of whistle-tour blog post. For a pretty visualisation, I will plot the predictions in what&rsquo;s called a &ldquo;confusion matrix&rdquo;, which shows the distribution of predictions vs. the true answers.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">from</span> sklearn.metrics <span style="color:#f92672">import</span> confusion_matrix
+<span style="color:#f92672">from</span> matplotlib <span style="color:#f92672">import</span> cm
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">accuracy</span>(true, pred):
+    <span style="color:#66d9ef">assert</span> pred<span style="color:#f92672">.</span>shape <span style="color:#f92672">==</span> true<span style="color:#f92672">.</span>shape, <span style="color:#e6db74">&#34;Shape of pred and true arrays should be the same!&#34;</span>
+    <span style="color:#66d9ef">return</span> (pred <span style="color:#f92672">==</span> true)<span style="color:#f92672">.</span>sum() <span style="color:#f92672">/</span> pred<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">0</span>]
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_confusion_matrix</span>(true,pred):
+    label_list <span style="color:#f92672">=</span> list(set(pred) <span style="color:#f92672">|</span> set(true))
+    <span style="color:#66d9ef">return</span> confusion_matrix(pred,true,labels<span style="color:#f92672">=</span>label_list), label_list
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">plot_confusion_matrix</span>(cmat, labels, cmap <span style="color:#f92672">=</span> cm<span style="color:#f92672">.</span>Greens):
+    <span style="color:#e6db74">&#34;&#34;&#34;
+</span><span style="color:#e6db74">    Plot a heatmap
+</span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+    fig, ax <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>subplots()
+    ax<span style="color:#f92672">.</span>imshow(cmat, cmap <span style="color:#f92672">=</span> cmap)
+    
+    n_labels <span style="color:#f92672">=</span> len(labels)
+    ticklocs <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>arange(n_labels)
+    
+    ax<span style="color:#f92672">.</span>set_xticks(ticklocs)
+    ax<span style="color:#f92672">.</span>set_yticks(ticklocs)
+    
+    ax<span style="color:#f92672">.</span>set_xticklabels(labels)
+    ax<span style="color:#f92672">.</span>set_yticklabels(labels)
+    
+    ax<span style="color:#f92672">.</span>set_xlim(min(ticklocs)<span style="color:#f92672">-</span><span style="color:#ae81ff">0.5</span>, max(ticklocs)<span style="color:#f92672">+</span><span style="color:#ae81ff">0.5</span>)
+    ax<span style="color:#f92672">.</span>set_ylim(min(ticklocs)<span style="color:#f92672">-</span><span style="color:#ae81ff">0.5</span>, max(ticklocs)<span style="color:#f92672">+</span><span style="color:#ae81ff">0.5</span>)
+    
+    ax<span style="color:#f92672">.</span>set_xlabel(<span style="color:#e6db74">&#34;Predicted&#34;</span>)
+    ax<span style="color:#f92672">.</span>set_ylabel(<span style="color:#e6db74">&#34;True&#34;</span>)
+    
+    color_threshold <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>max(cmat) <span style="color:#f92672">*</span> <span style="color:#ae81ff">0.75</span>
+    
+    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(cmat<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">0</span>]):
+        <span style="color:#66d9ef">for</span> j <span style="color:#f92672">in</span> range(cmat<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">1</span>]):
+            value <span style="color:#f92672">=</span> cmat[i,j]
+            <span style="color:#66d9ef">if</span> value <span style="color:#f92672">&gt;=</span> color_threshold:
+                ax<span style="color:#f92672">.</span>text(j, i, cmat[i,j], color <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;white&#39;</span>, ha <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;center&#39;</span>, va <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;center&#39;</span>)
+            <span style="color:#66d9ef">else</span>:
+                ax<span style="color:#f92672">.</span>text(j, i, cmat[i,j], ha <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;center&#39;</span>, va <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;center&#39;</span>)
+    
+    <span style="color:#66d9ef">return</span> fig, ax
+</code></pre></div><h3 id="logistic-regression">Logistic Regression<a hidden class="anchor" aria-hidden="true" href="#logistic-regression">#</a></h3>
+<p>For the purpose of this exercise I am going to use the (default) logistic regression with the $$l_2$$ penalty
+(also known as Ridge regression). I won&rsquo;t go into too many of the mathematical details here but an important
+hyper-parameter of the method is the regularisation strength, $$\lambda$$. The higher the value of $$\lambda$$,
+this ultimately shrinks the weights closer to 0.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">lm <span style="color:#f92672">=</span> LogisticRegression(solver<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;lbfgs&#39;</span>,multi_class<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;multinomial&#39;</span>, C <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.1</span>)
+lm<span style="color:#f92672">.</span>fit(training_set<span style="color:#f92672">.</span>values, train_labels)
+</code></pre></div><pre><code>LogisticRegression(C=0.1, class_weight=None, dual=False, fit_intercept=True,
+                   intercept_scaling=1, l1_ratio=None, max_iter=100,
+                   multi_class='multinomial', n_jobs=None, penalty='l2',
+                   random_state=None, solver='lbfgs', tol=0.0001, verbose=0,
+                   warm_start=False)
+</code></pre>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">pred <span style="color:#f92672">=</span> lm<span style="color:#f92672">.</span>predict(test_set<span style="color:#f92672">.</span>values)
+<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;Accuracy of logistic regression is: {}&#34;</span><span style="color:#f92672">.</span>format(accuracy(np<span style="color:#f92672">.</span>array(pred), np<span style="color:#f92672">.</span>array(test_labels))))
+</code></pre></div><pre><code>Accuracy of logistic regression is: 0.7105263157894737
+</code></pre>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># plot the confusion matrix</span>
+cmat, label_list <span style="color:#f92672">=</span> get_confusion_matrix(test_labels,pred)
+fig, ax <span style="color:#f92672">=</span> plot_confusion_matrix(cmat, label_list)
+plt<span style="color:#f92672">.</span>show()
+</code></pre></div><p><img src="../../../../../assets/notebooks/hockey/output_27_0.png" alt="png"></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Plot pred vs. true in a PCA plot</span>
+<span style="color:#f92672">from</span> sklearn.decomposition <span style="color:#f92672">import</span> PCA
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pca_plot</span>(pred, method):
+
+    <span style="color:#75715e"># scale the data</span>
+    tv <span style="color:#f92672">=</span> (test_set <span style="color:#f92672">-</span> test_set<span style="color:#f92672">.</span>mean()) <span style="color:#f92672">/</span> test_set<span style="color:#f92672">.</span>std()
+
+    pca <span style="color:#f92672">=</span> PCA()
+    new_data <span style="color:#f92672">=</span> pca<span style="color:#f92672">.</span>fit_transform(tv)
+
+    colors <span style="color:#f92672">=</span> {
+        <span style="color:#e6db74">&#34;RW&#34;</span>: <span style="color:#e6db74">&#34;#ffd700&#34;</span>,
+        <span style="color:#e6db74">&#34;D&#34;</span>: <span style="color:#e6db74">&#34;#1348ae&#34;</span>,
+        <span style="color:#e6db74">&#34;C&#34;</span>: <span style="color:#e6db74">&#34;#90ee90&#34;</span>,
+        <span style="color:#e6db74">&#34;LW&#34;</span>: <span style="color:#e6db74">&#34;#e8291c&#34;</span>
+    }
+
+    true_labels_to_colors <span style="color:#f92672">=</span> [ colors[pos] <span style="color:#66d9ef">for</span> pos <span style="color:#f92672">in</span> test_labels ]
+    pred_labels_to_colors <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array([ colors[pos] <span style="color:#66d9ef">for</span> pos <span style="color:#f92672">in</span> pred ])
+
+    fig, ax <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>subplots(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>, sharey<span style="color:#f92672">=</span>True)
+    ax[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>scatter(new_data[:,<span style="color:#ae81ff">0</span>], new_data[:,<span style="color:#ae81ff">1</span>], 
+                  alpha <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.5</span>, 
+                  color <span style="color:#f92672">=</span> true_labels_to_colors)
+    
+    <span style="color:#75715e"># </span>
+    <span style="color:#66d9ef">for</span> lab <span style="color:#f92672">in</span> set(pred):
+        pos_idx <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>argwhere(pred <span style="color:#f92672">==</span> lab)<span style="color:#f92672">.</span>flatten()
+        ax[<span style="color:#ae81ff">1</span>]<span style="color:#f92672">.</span>scatter(new_data[pos_idx,<span style="color:#ae81ff">0</span>], new_data[pos_idx,<span style="color:#ae81ff">1</span>], 
+                      color <span style="color:#f92672">=</span> pred_labels_to_colors[pos_idx], 
+                      alpha <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.5</span>,
+                      label <span style="color:#f92672">=</span> lab)
+    
+    
+    ax[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>set_title(<span style="color:#e6db74">&#34;True labels&#34;</span>)
+    ax[<span style="color:#ae81ff">1</span>]<span style="color:#f92672">.</span>set_title(<span style="color:#e6db74">&#34;Predicted labels&#34;</span>)
+    
+    ax[<span style="color:#ae81ff">1</span>]<span style="color:#f92672">.</span>legend(loc <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;upper left&#39;</span>, ncol <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>)
+    
+    fig<span style="color:#f92672">.</span>suptitle(method)
+    fig<span style="color:#f92672">.</span>set_size_inches((<span style="color:#ae81ff">10</span>,<span style="color:#ae81ff">5</span>))
+    
+    <span style="color:#66d9ef">return</span> fig, ax
+
+fig, ax <span style="color:#f92672">=</span> pca_plot(pred, <span style="color:#e6db74">&#34;Logistic Regression&#34;</span>)
+</code></pre></div><p><img src="../../../../../assets/notebooks/hockey/output_28_0.png" alt="png"></p>
+<h3 id="random-foest">Random Foest<a hidden class="anchor" aria-hidden="true" href="#random-foest">#</a></h3>
+<p>As before, I will just use the default implementation.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># let&#39;s train a &#34;simple&#34; random forest</span>
+rf <span style="color:#f92672">=</span> RandomForestClassifier()
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">rf<span style="color:#f92672">.</span>fit(training_set<span style="color:#f92672">.</span>values, train_labels)
+</code></pre></div><pre><code>RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini',
+                       max_depth=None, max_features='auto', max_leaf_nodes=None,
+                       min_impurity_decrease=0.0, min_impurity_split=None,
+                       min_samples_leaf=1, min_samples_split=2,
+                       min_weight_fraction_leaf=0.0, n_estimators=10,
+                       n_jobs=None, oob_score=False, random_state=None,
+                       verbose=0, warm_start=False)
+</code></pre>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">pred <span style="color:#f92672">=</span> rf<span style="color:#f92672">.</span>predict(test_set<span style="color:#f92672">.</span>values)
+<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;Accuracy of random forest is: {}&#34;</span><span style="color:#f92672">.</span>format(accuracy(np<span style="color:#f92672">.</span>array(pred), np<span style="color:#f92672">.</span>array(test_labels))))
+</code></pre></div><pre><code>Accuracy of random forest is: 0.6929824561403509
+</code></pre>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">cmat, label_list <span style="color:#f92672">=</span> get_confusion_matrix(test_labels, pred)
+fig, ax <span style="color:#f92672">=</span> plot_confusion_matrix(cmat, label_list)
+</code></pre></div><p><img src="../../../../../assets/notebooks/hockey/output_33_0.png" alt="png"></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">fig, ax <span style="color:#f92672">=</span> pca_plot(pred, <span style="color:#e6db74">&#34;Random Forest&#34;</span>)
+</code></pre></div><p><img src="../../../../../assets/notebooks/hockey/output_34_0.png" alt="png"></p>
+<h3 id="naive-bayes-classifier">Naive Bayes Classifier<a hidden class="anchor" aria-hidden="true" href="#naive-bayes-classifier">#</a></h3>
+<p>For the NBC, I will again use the default implementation but assume that every variable has a Gaussian
+distribution. This is not ideal by any means, but is easiest to code and gives you a flavour of what it does.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># let&#39;s train a &#34;simple&#34; naive bayes classifier</span>
+nbc <span style="color:#f92672">=</span> GaussianNB()
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">nbc<span style="color:#f92672">.</span>fit(training_set<span style="color:#f92672">.</span>values, train_labels)
+</code></pre></div><pre><code>GaussianNB(priors=None, var_smoothing=1e-09)
+</code></pre>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">pred <span style="color:#f92672">=</span> nbc<span style="color:#f92672">.</span>predict(test_set<span style="color:#f92672">.</span>values)
+<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;Accuracy of Naive Bayes classifier is: {}&#34;</span><span style="color:#f92672">.</span>format(accuracy(np<span style="color:#f92672">.</span>array(pred), np<span style="color:#f92672">.</span>array(test_labels))))
+</code></pre></div><pre><code>Accuracy of Naive Bayes classifier is: 0.5847953216374269
+</code></pre>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">fig, ax <span style="color:#f92672">=</span> pca_plot(pred, <span style="color:#e6db74">&#34;NBC&#34;</span>)
+</code></pre></div><p><img src="../../../../../assets/notebooks/hockey/output_39_0.png" alt="png"></p>
+<h3 id="support-vector-machines">Support Vector Machines<a hidden class="anchor" aria-hidden="true" href="#support-vector-machines">#</a></h3>
+<p>Here I will use the <code>LinearSVC</code> class; essentially we are applying a linear kernel to the data. What this
+means is that essentially we are assuming that no transformation is needed to draw a hyperplane that will
+separate the data.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">svc <span style="color:#f92672">=</span> LinearSVC(max_iter<span style="color:#f92672">=</span><span style="color:#ae81ff">2000</span>)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">svc<span style="color:#f92672">.</span>fit(training_set<span style="color:#f92672">.</span>values, train_labels)
+</code></pre></div><pre><code>LinearSVC(C=1.0, class_weight=None, dual=True, fit_intercept=True,
+          intercept_scaling=1, loss='squared_hinge', max_iter=2000,
+          multi_class='ovr', penalty='l2', random_state=None, tol=0.0001,
+          verbose=0)
+</code></pre>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">pred <span style="color:#f92672">=</span> svc<span style="color:#f92672">.</span>predict(test_set<span style="color:#f92672">.</span>values)
+<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;Accuracy of SVC is: {}&#34;</span><span style="color:#f92672">.</span>format(accuracy(np<span style="color:#f92672">.</span>array(pred), np<span style="color:#f92672">.</span>array(test_labels))))
+</code></pre></div><pre><code>Accuracy of SVC is: 0.7017543859649122
+</code></pre>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">cmat, label_list <span style="color:#f92672">=</span> get_confusion_matrix(test_labels, pred)
+fig, ax <span style="color:#f92672">=</span> plot_confusion_matrix(cmat, label_list)
+plt<span style="color:#f92672">.</span>show()
+</code></pre></div><p><img src="../../../../../assets/notebooks/hockey/output_44_0.png" alt="png"></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">fig, ax <span style="color:#f92672">=</span> pca_plot(pred, <span style="color:#e6db74">&#34;SVM&#34;</span>)
+</code></pre></div><p><img src="../../../../../assets/notebooks/hockey/output_45_0.png" alt="png"></p>
+<h2 id="revision">Revision<a hidden class="anchor" aria-hidden="true" href="#revision">#</a></h2>
+<p>No method was a true outstanding performer. While the random forest classifier did have the highest level of accuracy, it was only marginally better than logistic regression.</p>
+<p>It would be worth seeing why certain methods failed to classify a player into the correct primary position. We could go more in-depth and ask,</p>
+<ul>
+<li>Is this a case where we over-penalise ourselves (e.g. left-wing vs. right-wing players are not that different)?</li>
+<li>Is this a case where a player has out-of-position behaviours (e.g. a defenseman with some high goals/assists? a forward who is a defensive specialist?)</li>
+<li>Is there not enough game data?</li>
+</ul>
+<p>Going further, we can ask&hellip;</p>
+<ul>
+<li>Are there fundamental aspects of the ML methods tested here that make it unsuitable for this problem?</li>
+<li>Can we do feature selection of some sort?</li>
+<li>What other information can we get to improve prediction? For example, does stick handed-ness have any bearing on position?</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">from</span> scipy.stats <span style="color:#f92672">import</span> gaussian_kde
+
+test_set_copy <span style="color:#f92672">=</span> test_set<span style="color:#f92672">.</span>copy()
+test_set_copy[<span style="color:#e6db74">&#39;pred&#39;</span>] <span style="color:#f92672">=</span> rf<span style="color:#f92672">.</span>predict(test_set_copy)
+
+test_to_names <span style="color:#f92672">=</span> pd<span style="color:#f92672">.</span>merge(
+    left <span style="color:#f92672">=</span> test_set_copy,
+    right <span style="color:#f92672">=</span> skaters,
+    how <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;inner&#39;</span>, on <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;player_id&#39;</span>
+)
+
+correct <span style="color:#f92672">=</span> test_to_names[test_to_names[<span style="color:#e6db74">&#39;primaryPosition&#39;</span>]<span style="color:#f92672">==</span>test_to_names[<span style="color:#e6db74">&#39;pred&#39;</span>]]<span style="color:#f92672">.</span>copy()
+incorrect <span style="color:#f92672">=</span> test_to_names[test_to_names[<span style="color:#e6db74">&#39;primaryPosition&#39;</span>]<span style="color:#f92672">!=</span>test_to_names[<span style="color:#e6db74">&#39;pred&#39;</span>]]<span style="color:#f92672">.</span>copy()
+
+incorrect[[<span style="color:#e6db74">&#39;firstName&#39;</span>, <span style="color:#e6db74">&#39;lastName&#39;</span>, <span style="color:#e6db74">&#39;primaryPosition&#39;</span>, <span style="color:#e6db74">&#39;pred&#39;</span>]]<span style="color:#f92672">.</span>head(<span style="color:#ae81ff">5</span>)
+</code></pre></div><!-- raw HTML omitted -->
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p><!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">correct_gp <span style="color:#f92672">=</span> correct[<span style="color:#e6db74">&#39;games_played&#39;</span>]<span style="color:#f92672">.</span>values
+incorrect_gp <span style="color:#f92672">=</span> incorrect[<span style="color:#e6db74">&#39;games_played&#39;</span>]<span style="color:#f92672">.</span>values
+
+<span style="color:#75715e"># We can create a Gaussian kernel on top of the number of games played to do some comparisons</span>
+correct_kde <span style="color:#f92672">=</span> gaussian_kde(correct_gp)
+incorrect_kde <span style="color:#f92672">=</span> gaussian_kde(incorrect_gp)
+
+num_games <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">801</span>)
+
+fig, ax <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>subplots(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>)
+ax<span style="color:#f92672">.</span>plot(num_games, correct_kde<span style="color:#f92672">.</span>evaluate(num_games), color <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;#134a8e&#39;</span>, label <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Correct predictions&#34;</span>)
+ax<span style="color:#f92672">.</span>plot(num_games, incorrect_kde<span style="color:#f92672">.</span>evaluate(num_games), color <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;#e8291c&#39;</span>, label <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Incorrect predictions&#34;</span>)
+ax<span style="color:#f92672">.</span>set_xlabel(<span style="color:#e6db74">&#34;Number of games played&#34;</span>)
+ax<span style="color:#f92672">.</span>set_ylabel(<span style="color:#e6db74">&#34;Density&#34;</span>)
+</code></pre></div><pre><code>Text(0, 0.5, 'Density')
+</code></pre>
+<p><img src="/assets/notebooks/hockey/output_48_1.png" alt="png"></p>
+<p>What&rsquo;s interesting here is that:</p>
+<ul>
+<li>For the random forest, mis-classifications are only found for forwards (no defensemen are ever classified as forwards and vice-versa).</li>
+<li>There are more winger mis-classifications (actual = RW, predicted = LW), which may imply a too-stringent classification scheme.</li>
+<li>This doesn&rsquo;t seem to be affected by the number of games played by the players as they have similar distributions.</li>
+</ul>
+<p>While we can explore the data further to explain misclassifications, I think that&rsquo;s outside the scope of this post and that&rsquo;s for next time&hellip;</p>
+
+</div>
+  <footer class="post-footer">
+  </footer>
+</article>
+    </main><footer class="footer">
+    <span>&copy; 2021 <a href="https://ideasbyjin.github.io/">Read between the rows</a></span>
+    <span>&middot;</span>
+    <span>Powered by <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a></span>
+    <span>&middot;</span>
+    <span>Theme <a href="https://git.io/hugopapermod" rel="noopener" target="_blank">PaperMod</a></span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)">
+    <button class="top-link" id="top-link" type="button" accesskey="g">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+            <path d="M12 6H0l6-6z" />
+        </svg>
+    </button>
+</a>
+
+
+
+<script defer src="/assets/js/highlight.min.27cd435cc9ed6abb4b496581b151804f79f366c412620272bb94e2f5f598ebcc.js" integrity="sha256-J81DXMntartLSWWBsVGAT3nzZsQSYgJyu5Ti9fWY68w="
+    onload="hljs.initHighlightingOnLoad();"></script>
+<script>
+    window.onload = function () {
+        if (localStorage.getItem("menu-scroll-position")) {
+            document.getElementById('menu').scrollLeft = localStorage.getItem("menu-scroll-position");
+        }
+    }
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+    function menu_on_scroll() {
+        localStorage.setItem("menu-scroll-position", document.getElementById('menu').scrollLeft);
+    }
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+
+</body>
+
+</html>

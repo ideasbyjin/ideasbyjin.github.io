@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Categories on Read between the rows</title>
+    <link>https://ideasbyjin.github.io/categories/</link>
+    <description>Recent content in Categories on Read between the rows</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Sat, 30 Jan 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://ideasbyjin.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>stats</title>
+      <link>https://ideasbyjin.github.io/categories/stats/</link>
+      <pubDate>Sat, 30 Jan 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/categories/stats/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>bioinf</title>
+      <link>https://ideasbyjin.github.io/categories/bioinf/</link>
+      <pubDate>Sat, 23 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/categories/bioinf/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>other</title>
+      <link>https://ideasbyjin.github.io/categories/other/</link>
+      <pubDate>Sun, 15 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/categories/other/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>code</title>
+      <link>https://ideasbyjin.github.io/categories/code/</link>
+      <pubDate>Mon, 28 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/categories/code/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

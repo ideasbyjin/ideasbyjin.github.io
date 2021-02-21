@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Read between the rows</title>
+    <link>https://ideasbyjin.github.io/post/</link>
+    <description>Recent content in Posts on Read between the rows</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Sat, 20 Feb 2021 23:09:46 +0000</lastBuildDate><atom:link href="https://ideasbyjin.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>2021 02 20 Hugo Migration</title>
+      <link>https://ideasbyjin.github.io/post/2021-02-20-hugo-migration/</link>
+      <pubDate>Sat, 20 Feb 2021 23:09:46 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/post/2021-02-20-hugo-migration/</guid>
+      <description>I&amp;rsquo;ve recently migrated my blog to Hugo instead of Jekyll. It&amp;rsquo;s an ongoing process and there might be some broken elements (e.g. images) but will get to updating these soon. In the meantime, enjoy the new format.
+I&amp;rsquo;ll do a post at some stage about how I&amp;rsquo;ve done this. Long story short, I was a bit tired of Jekyll&amp;rsquo;s dependency on Ruby which required a lot of tinkering on my Mac (with the Big Sur update).</description>
+    </item>
+    
+    <item>
+      <title>Numba in action!</title>
+      <link>https://ideasbyjin.github.io/post/2021-01-30-numba/</link>
+      <pubDate>Sat, 30 Jan 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/post/2021-01-30-numba/</guid>
+      <description>Accelerate your Numpy code with numba</description>
+    </item>
+    
+    <item>
+      <title>My favourite Pandas tricks</title>
+      <link>https://ideasbyjin.github.io/post/2021-01-26-pandas/</link>
+      <pubDate>Tue, 26 Jan 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/post/2021-01-26-pandas/</guid>
+      <description>Pandas tips &amp;amp; tricks</description>
+    </item>
+    
+    <item>
+      <title>Docker Cheat Sheet</title>
+      <link>https://ideasbyjin.github.io/post/2020-05-23-docker/</link>
+      <pubDate>Sat, 23 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/post/2020-05-23-docker/</guid>
+      <description>A list of essential commands and examples to use Docker</description>
+    </item>
+    
+    <item>
+      <title>What are antibodies, anyway?</title>
+      <link>https://ideasbyjin.github.io/post/2020-05-16-antibodies/</link>
+      <pubDate>Sat, 16 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/post/2020-05-16-antibodies/</guid>
+      <description>A primer on antibodies</description>
+    </item>
+    
+    <item>
+      <title>Example applications of probability distributions</title>
+      <link>https://ideasbyjin.github.io/post/2020-04-14-distributions-applications/</link>
+      <pubDate>Tue, 14 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/post/2020-04-14-distributions-applications/</guid>
+      <description>This post shows how we can use a PMF and PDF to some toy problems.</description>
+    </item>
+    
+    <item>
+      <title>Distributions Cheat sheet</title>
+      <link>https://ideasbyjin.github.io/post/2020-04-11-distributions/</link>
+      <pubDate>Sat, 11 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/post/2020-04-11-distributions/</guid>
+      <description>A cheat sheet for probability distributions.</description>
+    </item>
+    
+    <item>
+      <title>Book reviews of Q1 2020</title>
+      <link>https://ideasbyjin.github.io/post/2020-03-15-bookreview/</link>
+      <pubDate>Sun, 15 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/post/2020-03-15-bookreview/</guid>
+      <description>The books I&amp;rsquo;ve read in Q1 2020.</description>
+    </item>
+    
+    <item>
+      <title>An introduction to Artificial Neural Networks</title>
+      <link>https://ideasbyjin.github.io/post/2020-02-26-anns/</link>
+      <pubDate>Wed, 26 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/post/2020-02-26-anns/</guid>
+      <description>This is my intro to neural networks.</description>
+    </item>
+    
+    <item>
+      <title>Book reviews of 2019</title>
+      <link>https://ideasbyjin.github.io/post/2019-12-31-bookreview/</link>
+      <pubDate>Tue, 31 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/post/2019-12-31-bookreview/</guid>
+      <description>These are the books of 2019 that I found to be thought-provoking.</description>
+    </item>
+    
+    <item>
+      <title>Santa Bayes: a Christmas introduction to Bayesian inference</title>
+      <link>https://ideasbyjin.github.io/post/2019-12-25-santa-bayes/</link>
+      <pubDate>Wed, 25 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/post/2019-12-25-santa-bayes/</guid>
+      <description>It&amp;rsquo;s Christmas, and Santa is here! He&amp;rsquo;s got his list and he&amp;rsquo;s about to see who&amp;rsquo;s been naughty or nice this year. While on his way out of the North Pole, he comes across some turbulence, and he loses his list. Rudolph tried his hardest, but to no avail.
+Santa is in trouble. Without his list, it&amp;rsquo;s going to take ages to visit every house in every neighbourhood, then go down the chimney to see who&amp;rsquo;s been nice or naughty.</description>
+    </item>
+    
+    <item>
+      <title>Clustering Gene Expression Data using DBSCAN</title>
+      <link>https://ideasbyjin.github.io/post/2019-12-18-clustering-2/</link>
+      <pubDate>Wed, 18 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/post/2019-12-18-clustering-2/</guid>
+      <description>In a previous post, I covered arguably one of the most straight-forward clustering algorithms: hierarchical clustering. Remember that any clustering method requires a distance metric to quantify how &amp;ldquo;far apart&amp;rdquo; two points are placed in some N-dimensional space. While typically Euclidean, there&amp;rsquo;s loads of ways in doing this.
+Generally, hierarchical clustering is a very good way of clustering your data, though it suffers from a couple of limitations:
+ Users have to define the number of clusters The linkage criterion (UPGMA, Ward&amp;hellip;) can have a huge effect on the cluster shapes  Other clustering methods like K-means clustering also depend on the number of clusters to be determined beforehand, and it can be prone to hitting local minima.</description>
+    </item>
+    
+    <item>
+      <title>Supervised learning demo: what position do I play?</title>
+      <link>https://ideasbyjin.github.io/post/2019-11-01-supervised/</link>
+      <pubDate>Fri, 01 Nov 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/post/2019-11-01-supervised/</guid>
+      <description>Last time I covered a section on clustering, a group of unsupervised learning methods – so called because they are not given the class memberships of the data$$^\dagger$$. Don&amp;rsquo;t worry, I will do more posts on clustering soon. For now I wanted to give a quick overview of what supervised methods look like. For that, let&amp;rsquo;s look at the statistics of hockey players!
+$$\dagger$$: this is a gross generalisation. More formally, for some dataset $$\mathbf{X}$$, if we are trying to predict an output variable $$\mathbf{Y}$$, we use supervised learning methods, otherwise unsupervised learning methods.</description>
+    </item>
+    
+    <item>
+      <title>RMSD using SVD</title>
+      <link>https://ideasbyjin.github.io/post/2019-10-06-rmsd/</link>
+      <pubDate>Sun, 06 Oct 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/post/2019-10-06-rmsd/</guid>
+      <description>During my PhD and postdoc, my main day-to-day was driven by one question:
+ How do we make the best model protein structures?
+ To answer that question, this is often done by calculating the root-mean square deviation (RMSD) between the predicted structure vs. the known &amp;lsquo;true&amp;rsquo; protein structure. There are other measures (e.g. TM-score, GDT_TS), but RMSD is still the most intuitive, and (unfortunately?) the accepted standard metric for goodness-of-fit.</description>
+    </item>
+    
+    <item>
+      <title>Lessons from a very Korean holiday</title>
+      <link>https://ideasbyjin.github.io/post/2019-10-05-korea/</link>
+      <pubDate>Sat, 05 Oct 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/post/2019-10-05-korea/</guid>
+      <description>This September, my wife and I were in Korea visiting relatives, eating loads of Korean food, and re-connecting with friends. Initially, the idea of going to Korea made me petrified - while I am fluent, I generally avoid speaking in Korean apart from with those closest to me. I felt like I stuttered, and sounded like Jeff Goldblum from Jurassic Park. This trip would, I thought, demand most of my mental capacity to make sure I speak reasonably okay.</description>
+    </item>
+    
+    <item>
+      <title>A primer to Clustering - Hierarchical clustering</title>
+      <link>https://ideasbyjin.github.io/post/2019-09-23-clustering-1/</link>
+      <pubDate>Mon, 23 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/post/2019-09-23-clustering-1/</guid>
+      <description>Context From the last blog post, we saw that data can come with many features. When data gets very complex (at least, more complex than the Starbucks data from the last post), we can rely on machine learning methods to &amp;ldquo;learn&amp;rdquo; patterns in the data. For example, suppose you have 1000 photos, of which 500 are cats, and the other 500 are dogs. Machine learning methods can, for instance, read the RGB channels of the images&#39; pixels, then use that information to distinguish which combinations of pixels are associated with cat images, and which combinations are linked to dogs.</description>
+    </item>
+    
+    <item>
+      <title>Principal component analysis of Starbucks Nutrition data</title>
+      <link>https://ideasbyjin.github.io/post/2019-09-17-pca/</link>
+      <pubDate>Tue, 17 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/post/2019-09-17-pca/</guid>
+      <description>Data is everywhere. Whether it&amp;rsquo;s political survey data, the DNA sequences of wacky organisms, nutritional profiles of our favourite foods, you name it. Data comes in various shapes and sizes, too - it can be several thousand samples with only a few features, or only a small number of examples with tons of features. For either case, and anything else in between, finding a lower-dimensional (i.e. fewer features) representation of our data is useful; however, how do we choose which features to use for capturing the essence of our data?</description>
+    </item>
+    
+    <item>
+      <title>Building Python modules using C&#43;&#43;</title>
+      <link>https://ideasbyjin.github.io/post/2019-01-28-mesh-cpp-python/</link>
+      <pubDate>Mon, 28 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://ideasbyjin.github.io/post/2019-01-28-mesh-cpp-python/</guid>
+      <description>Python is an amazing programming language for lots of applications, particularly for bioinformatics. One of the potential downsides to using Python (apart from whitespace, non-static typing) is its speed. It&amp;rsquo;s certainly faster than languages such as R, but it&amp;rsquo;s nowhere near the level of C/C++. In fact, many Python modules are already written in C/C++ (such as NumPy) but it might be practical to have your own C/C++ code to interface with your Python objects.</description>
+    </item>
+    
+  </channel>
+</rss>

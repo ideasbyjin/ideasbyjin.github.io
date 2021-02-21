@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Example applications of probability distributions | Read between the rows</title>
+
+<meta name="keywords" content="" />
+<meta name="description" content="This post shows how we can use a PMF and PDF to some toy problems.">
+<meta name="author" content="">
+<link rel="canonical" href="https://ideasbyjin.github.io/post/2020-04-14-distributions-applications/" />
+<link href="/assets/css/stylesheet.min.54720d48c4fa0c4ebe8555f04b9fc5b856112ec49cafef19cb385e89661150b7.css" integrity="sha256-VHINSMT6DE6&#43;hVXwS5/FuFYRLsScr&#43;8ZyzheiWYRULc=" rel="preload stylesheet"
+    as="style">
+
+<link rel="icon" href="https://ideasbyjin.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://ideasbyjin.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://ideasbyjin.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://ideasbyjin.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://ideasbyjin.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<meta name="generator" content="Hugo 0.80.0" />
+
+
+
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$','$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+  };
+
+  window.addEventListener('load', (event) => {
+      document.querySelectorAll("mjx-container").forEach(function(x){
+        x.parentElement.classList += 'has-jax'})
+    });
+
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><meta property="og:title" content="Example applications of probability distributions" />
+<meta property="og:description" content="This post shows how we can use a PMF and PDF to some toy problems." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ideasbyjin.github.io/post/2020-04-14-distributions-applications/" />
+<meta property="article:published_time" content="2020-04-14T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-04-14T00:00:00+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Example applications of probability distributions"/>
+<meta name="twitter:description" content="This post shows how we can use a PMF and PDF to some toy problems."/>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Example applications of probability distributions",
+  "name": "Example applications of probability distributions",
+  "description": "This post shows how we can use a PMF and PDF to some toy problems.",
+  "keywords": [
+    
+  ],
+  "articleBody": "I’ve been asked a really simple question since my last post on distributions.\n What do you do with them? How do they help you in real world applications?\n These are both really good questions, so I’ll use this post today to discuss:\n What you can do with the hypergeometric distribution (a discrete case) What you can do with the beta distribution (a continuous case)  If you have…\n 30 seconds: knowing the various PMFs and PDFs is super handy, and allow you to make neat inferences, but they are ultimately “models”. 10 minutes: read on.  # Import some stuff import scipy.stats as sp import matplotlib.pyplot as plt import seaborn as sns import numpy as np # Make things pretty. sns.set_style(\"ticks\") sns.set_context(\"paper\") The Discrete Case: the hypergeometric distribution Recall that the hypergeometric distribution is a probability mass function (PMF). It is used to describe scenarios where we sample “type I” objects from a population. The canonical example is:\n I have a bag containing K white balls and N-K black balls. If I sample n balls from the bag, how many of these are white (k)?\n Thus, the hypergeometric distribution represents the probability that $$k$$ takes on a specific value.\nThe hypergeometric virus Let’s suppose we live in a town with 1000 people. We know from official statistics that 10 people have been diagnosed with COVID-19.\n Disclaimer: this post is intended to be an example, providing a more intuitive guide on how statistical models can help us think about this huge global problem. This is not an infectious disease modelling exercise, and in fact the post assumes the virus is not transmissible. We know that’s definitely not the case. Please stay home.\n With the lockdown / social distancing in place, you decide to use your “exercise once a day” credit for a walk in the local park. However, you see 20 other individuals in the park. You may then ask,\n Can I estimate how many of these 20 individuals have COVID-19?\n Intuitively, we know that the chances of bumping into one of those ten individuals with COVID-19 in this town is low, let alone two, or even three! Furthermore, what are the chances that this would happen in the park? Put another way, we can visualise the distribution as a table:\n    Has COVID-19 Doesn’t have COVID-19 Total     Park k n-k n   Not the park K-k N-K-n+k N-n   Total K N-K N    This is when having an understanding of probability distributions, in particular the hypergeometric distribution, can be very handy. By understanding that the hypergeometric distribution is an appropriate model for this type of data, we can then do two further analyses:\n Illustrate the probability of seeing $$k$$ individuals with COVID-19 in the park Perform hypothesis tests  1. Illustration of the probability space # Let's draw the probability mass function of the hypergeometric distribution def hypergeometric_draw(k, K = 10, n = 20, N = 1000): \"\"\" Return the hypergeometric PMF at k. :param: k: number of \"successful\" cases in the sample :param: K: total number of \"successful\" cases :param: n: sample size :param: N: population size \"\"\" # The scipy notation for the hypergeometric distribution is ... a little odd. return sp.hypergeom.pmf(k, n = K, N = n, M = N) # Let's visualise the probability space for seeing 0 to 10 COVID-19 patients # in our sample of 20 individuals in the park. n_vector = np.arange(0, 11, 1) fig, ax = plt.subplots() # We'll plot the hypergeometric distribution PMF sns.barplot( n_vector, list(map(hypergeometric_draw, n_vector)), ax = ax ) sns.despine() ax.set_xlabel(\"$k$\") ax.set_ylabel(\"$Pr(X = k)$\") _ = ax.set_title(\"PMF of sampling $k$ COVID-19 individuals\\nin a sample of 20 people from a population of 1000\") plt.savefig(\"hypergeometric_pmf.png\", dpi = 300) You’ll notice two things here:\n In this hypothetical town, it is most likely (~80% probability) that none of those 20 individuals in the park had COVID-19. The chance that one of those 20 has COVID-19 is around 15%. Anything more, the probability becomes almost negligible.  2. A hypothesis test with the hypergeometric distribution I’ll assume you know what hypothesis tests are in this section, though a brief primer is provided at the Appendix below. Given our scenario described above, we can formulate the following hypotheses:\n The null hypothesis: the number of COVID-19 patients is distributed randomly between the park and everywhere else, according to the hypergeometric distribution, as described in the table above. The alternative hypothesis: the number of COVID-19 patients is higher in the park than elsewhere.  Going with our previous numbers of:\n 1000 people in the whole town 10 of whom have COVID-19 20 people were seen in the park  …suppose that two of those 20 individuals in the park were tested positive for COVID-19.\nHypothesis tests then seek to quantify\n How significant is this observation assuming that the null hypothesis is true?\n Estimating the p-value is equivalent to getting the “area under the curve” of the hypergeometric distribution described above.\n And in our example, it can be obtained by 1 - CDF(k-1) where $$k$$ is 2.\n # Number of confirmed COVID-19 patients out of the 20 k = 2 # P-value calculation p_value = 1 - sp.hypergeom.cdf(k-1, n = 10, N = 20, M = 1000) print(f\"The p-value is: {p_value}\") fig, ax = plt.subplots() # Inset axis plot - inspired by https://scipython.com/blog/inset-plots-in-matplotlib/ from mpl_toolkits.axes_grid1.inset_locator import inset_axes, mark_inset # Create an inset that is 40%/70% of the original plot size with some padding. inner_ax = inset_axes(ax, \"40%\", \"70%\" ,loc=\"lower right\", borderpad=3) n_vector = np.array(n_vector) pmf_hypergeom = np.array(list(map(hypergeometric_draw, n_vector))) # Plot the barplot of the main axis sns.barplot( n_vector, pmf_hypergeom, ax = ax ) # Plot the barplot of the inset sns.barplot( n_vector, pmf_hypergeom, ax = inner_ax, palette = ['#e3e3e3' if _  k else '#ffd700' for _ in n_vector ] ) inner_ax.set_xlim((1.5, 5.5)) inner_ax.set_ylim((0, 0.02)) ax.set_title(\"Hypergeometric Distribution PMF\") inner_ax.set_title(\"p-value: sum of all the yellow bars\") mark_inset(ax, inner_ax, loc1 = 2, loc2 = 4, fc = 'none', ec = '0.7', linestyle = '--') sns.despine() plt.savefig(\"inset_hypergeometric.png\", dpi = 300) The p-value is: 0.015542413797821064  The p-value for this test is a low 0.0155! This means that, if the distribution of individuals with COVID-19 was indeed random , and following the hypergeometric distribution, the probability of seeing two (or more) COVID-19 patients in the park is 0.0155.\nThis gives us a safe bet to reject the null hypothesis. Now let’s cover what we can do with knowing the distributions of continuous random variables.\nThe Continuous Case: the beta distribution Recall that the beta distribution is a probability distribution function (PDF). It is used to describe random variables whose values lie within 0 and 1. This makes it a pretty good choice for sampling percentages, probabilities, etc.\nLet’s get some baskets (Inspired by Variance Explained) Let’s switch topics for a second.\nThe COVID-19 lockdown has put the NBA season on hold, and the season has shut down. You’re the general manager and tasked with drafting a player for the new season. We’re considering drafting LaMelo Ball, who’s currently playing in Australia (who knew?!)\nIt turns out that there isn’t that much data available for LaMelo Ball, so it’s kind of difficult to extrapolate how good of a scorer he’ll be when he comes to the NBA. One of the numbers that represent a player’s scoring efficiency is the field goal (FG) percentage, which is simply\n$$ FG% = \\dfrac{\\textrm{Shots Made}}{\\textrm{Shots Attempted}} $$\nThe beta distribution is an appropriate model for estimating LaMelo’s FG percentage as it is a value between 0 and 1! With the beta distribution, we can:\n Illustrate a possible distribution of LaMelo’s true FG percentage Perform Bayesian inference  For this experiment we’ll just use LaMelo’s NBL numbers, but in the Appendix I’ll explain some limitations of using this type of data.\n1. Illustration of the probability space Recall that the beta distribution is appropriate for representing random variables that are like percentages, and influenced by two shape parameters: $$\\alpha$$ and $$\\beta$$.\nWhat is the interpretation behind $$\\alpha$$ and $$\\beta$$? What’s even an appropriate set of values for $$\\alpha$$ and $$\\beta$$ for this problem? Well, we can rely on two hints:\n Beta distributions with high $$\\alpha$$ and low $$\\beta$$ are negative-skewed (larger probabilities $$\\rightarrow$$ higher values of the PDF), and vice-versa. The expected value (average) of a beta distribution is  $$\\mathbb{E} [ X ] = \\dfrac{\\alpha}{\\alpha+\\beta}$$\nLook familiar? The $$\\alpha$$ represents shots made and $$\\beta$$ shots missed. In LaMelo’s case, since he made 75 and attempted 199 (thus missing 124) in his single NBL season, we can use that to parameterise the beta distribution.\n# Let's draw the probability distribution function of the beta distribution def beta_draw(x, a, b): \"\"\" Return the beta distribution PDF at k. :param: x: value between 0 and 1 :param: a, b: shape parameters \"\"\" # The scipy notation for the hypergeometric distribution is ... a little odd. return sp.beta.pdf(x, a = a, b = b) fig, ax = plt.subplots() possible_percentages = np.arange(0.2, 0.51, 0.005) fg_made = 75 fg_missed = 199-75 beta_vals = list(map(lambda x: beta_draw(x, a = fg_made, b = fg_missed), possible_percentages)) max_value = possible_percentages[np.argmax(beta_vals)] print(\"The FG% with the highest density is {:.2f}\".format(max_value)) # We'll plot the beta distribution PDF sns.lineplot(possible_percentages, beta_vals, ax = ax) plt.axvline(max_value, ymin = 0.05, ymax = 0.95, color = '#e8291c', linestyle = '--') sns.despine() # Some decorative stuff ax.set_xlabel(\"FG%\") ax.set_ylabel(\"Density\") _ = ax.set_title(\"PDF of LaMelo Ball's field goal percentage\") plt.savefig(\"beta_pdf.png\", dpi = 300) The FG% with the highest density is 0.38  2. Bayesian Inference on Field Goals Now that we know the beta distribution of LaMelo’s FG percentage, we can use it as a prior for Bayesian inference. Recall that Bayesian inference can be formulated as shown below;\n$$ Posterior(FG%|Data) \\propto Prior(FG%) \\times Likelihood(Data) $$\nThis framework allows us to estimate the true field goal percentage by combining our prior distribution with some observed data. (Side note: this observed data would come from a binomial distribution!)\nHowever, as we don’t have observations, let’s generate some random numbers as our “observed” FGs that are made over 82 games of a “typical” NBA season.\nimport pymc3 as pm # LaMelo attempts about 16 shots a game (199 shots / 12 games) # As a rookie, he'll probably attempt fewer shots over an 82 game season, so let's use 12. np.random.seed(42) pseudo_obs = sp.randint.rvs(0, 12, size = 82) with pm.Model() as model: # Establish the prior field_goal_percentage = pm.Beta(\"FG\", alpha = 75, beta = 199-75) # Set the binomial distribution to model baskets made with 12 shots attempted per game field_goal_data = pm.Binomial(\"Baskets\", n = 12, p = field_goal_percentage, observed = pseudo_obs) # Run the metropolis-hastings algorithm step = pm.Metropolis() # Sample the trace trace = pm.sample(10000, step = step, cores=1) Sequential sampling (2 chains in 1 job) Metropolis: [FG] Sampling chain 0, 0 divergences: 100%|██████████| 10500/10500 [00:01 Now let’s visualise the posterior after the PyMC run:\nfig, (ax, ax2) = plt.subplots(1,2) # Plot the pseudo-observations to give context ax.hist(pseudo_obs, bins = np.arange(0,13,2), color = '#77dd77') ax.set_title(\"Distribution of pseudo-observed field goals\") # Prior distribution possible_percentages = np.arange(0.2, 0.55, 0.001) prior = list(map(lambda x: beta_draw(x, a = 75, b = 199-75), possible_percentages)) # Plot the prior ax2.plot(possible_percentages, prior, label = 'Prior distribution') # Plot the posterior posterior_density = [sp.gaussian_kde(trace['FG']).evaluate(_) for _ in possible_percentages] ax2.plot(possible_percentages, posterior_density, label = \"Posterior distribution\") max_value_prior = possible_percentages[np.argmax(prior)] max_value_posterior = possible_percentages[np.argmax(posterior_density)] print(\"The FG% with the highest density in the prior distribution is {:.2f}\".format(max_value_prior)) print(\"The FG% with the highest density in the posterior distribution is {:.2f}\".format(max_value_posterior)) sns.despine() ax2.set_xlim((0.25, 0.55)) ax2.set_xlabel(\"FG%\") ax2.set_ylabel(\"Density\") _ = ax2.set_title(\"PDF of LaMelo Ball's FG percentage\") _ = ax2.legend(loc='upper left') fig.set_size_inches((10,5)) plt.savefig(\"posterior_distribution.png\", dpi = 300) The FG% with the highest density in the prior distribution is 0.38 The FG% with the highest density in the posterior distribution is 0.47  Hopefully this gives you a brief insight into how knowing different probability distributions can be useful for an aspiring data scientist.\nIn practice, data doesn’t necessarily conform to a known probability distribution’s shape - for example, data can be bi-modal (traffic jams tend to happen closer to 9AM and just after 5PM). Probability distributions are intended to guide your reasoning more than anything else! Have fun with it, experiment, and learn.\nAppendix What are hypothesis tests? You may have heard of tests like the $$t$$-test before; tests like these are used to measure the significance of some observed lab results.\nHypothesis tests aim to quantify the extremity of a particular observation under the assumption that some “null” hypothesis is true. The extremity is measured as a probability – the beloved (or despised) p-value.\nTo break it down:\n   Term Definition Example(s)     Hypothesis test A test to measure extremity of an observation $$t$$-test, $$\\chi^2$$ tests, ANOVA….   Null hypothesis Some default position regarding the nature of the random variable “The data is distributed randomly”   Alternative hypothesis Usually counteracts the null “The data is not distributed randomly”    Hypothesis tests are defined by the probability distribution of the null hypothesis. For example, the $$t$$-test is the $$t$$-test because the null hypothesis assumes that the $$t$$ statistic follows Student’s $$t$$-distribution. Similarly, the $$\\chi^2$$ test for independence assumes that the test statistic follows a $$\\chi^2$$ distribution.\nThe LaMelo ball experiment While there isn’t much data out there for LaMelo Ball, we know that his brother Lonzo is in the NBA! Assuming that, as point guards, both he and his brother Lonzo play similarly, we can potentially combine the data from Lonzo and LaMelo to estimate LaMelo’s field goal percentage in the NBA.\nHowever, we would have to…\n Assume that Lonzo and LaMelo play so similarly that their field goal percentages should be more or less similar. Assume that it is just as easy to get a field goal in the NBA and the NBL Assume that season-by-season field goal percentages are more or less the same  Once those assumptions are OK to take, we can then use LaMelo’s Australian NBL field goal percentage as a prior, then use Lonzo’s NBA numbers to compute a posterior distribution.\n",
+  "wordCount" : "2333",
+  "inLanguage": "en",
+  "datePublished": "2020-04-14T00:00:00Z",
+  "dateModified": "2020-04-14T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://ideasbyjin.github.io/post/2020-04-14-distributions-applications/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Read between the rows",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://ideasbyjin.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+
+
+
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    }
+
+</script>
+<noscript>
+    <style type="text/css">
+        .theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://ideasbyjin.github.io/" accesskey="h" title="Read between the rows (Alt + H)">Read between the rows</a>
+            <span class="logo-switches">
+                <a id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </a>
+                
+                
+            </span>
+        </div>
+        <ul id="menu" onscroll="menu_on_scroll()">
+            <li>
+                <a href="https://ideasbyjin.github.io/search" title="search (Alt &#43; /)" accesskey=/>
+                    <span>search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://ideasbyjin.github.io/archives" title="archive">
+                    <span>archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://ideasbyjin.github.io/about" title="about">
+                    <span>about</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://ideasbyjin.github.io/" title="home">
+                    <span>home</span>
+                </a>
+            </li></ul>
+    </nav>
+</header>
+
+    <main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+
+    <h1 class="post-title">
+      Example applications of probability distributions
+    </h1>
+    <div class="post-meta">April 14, 2020&nbsp;·&nbsp;11 min
+
+</div>
+  </header> 
+
+  <div class="toc">
+    <details >
+      <summary accesskey="c" title="(Alt + C)">
+        <div class="details">Table of Contents</div>
+      </summary>
+      <div class="inner"><ul><li>
+        <a href="#the-discrete-case-the-hypergeometric-distribution" aria-label="The Discrete Case: the hypergeometric distribution">The Discrete Case: the hypergeometric distribution</a><ul>
+            <li>
+        <a href="#the-hypergeometric-virus" aria-label="The hypergeometric virus">The hypergeometric virus</a><ul>
+            <li>
+        <a href="#1-illustration-of-the-probability-space" aria-label="1. Illustration of the probability space">1. Illustration of the probability space</a></li><li>
+        <a href="#2-a-hypothesis-test-with-the-hypergeometric-distribution" aria-label="2. A hypothesis test with the hypergeometric distribution">2. A hypothesis test with the hypergeometric distribution</a></li></ul>
+    </li></ul>
+    </li><li>
+        <a href="#the-continuous-case-the-beta-distribution" aria-label="The Continuous Case: the beta distribution">The Continuous Case: the beta distribution</a><ul>
+            <li>
+        <a href="#lets-get-some-baskets" aria-label="Let&amp;rsquo;s get some baskets">Let&rsquo;s get some baskets</a><ul>
+            <li>
+        <a href="#1-illustration-of-the-probability-space-1" aria-label="1. Illustration of the probability space">1. Illustration of the probability space</a></li><li>
+        <a href="#2-bayesian-inference-on-field-goals" aria-label="2. Bayesian Inference on Field Goals">2. Bayesian Inference on Field Goals</a></li></ul>
+    </li><li>
+        <a href="#appendix" aria-label="Appendix">Appendix</a><ul>
+            <li>
+        <a href="#what-are-hypothesis-tests" aria-label="What are hypothesis tests?">What are hypothesis tests?</a></li><li>
+        <a href="#the-lamelo-ball-experiment" aria-label="The LaMelo ball experiment">The LaMelo ball experiment</a></li></ul>
+</li></ul>
+</li></ul>
+      </div>
+    </details>
+  </div>
+  <div class="post-content">
+<p>I&rsquo;ve been asked a really simple question since my <a href="../11/distributions.html">last post on distributions</a>.</p>
+<blockquote>
+<p>What <em>do</em> you do with them? How do they help you in real world applications?</p>
+</blockquote>
+<p>These are both really good questions, so I&rsquo;ll use this post today to discuss:</p>
+<ul>
+<li>What you can do with the hypergeometric distribution (a discrete case)</li>
+<li>What you can do with the beta distribution (a continuous case)</li>
+</ul>
+<p>If you have&hellip;</p>
+<ul>
+<li><strong>30 seconds</strong>: knowing the various PMFs and PDFs is super handy, and allow you to make neat inferences, but they are
+ultimately &ldquo;models&rdquo;.</li>
+<li><strong>10 minutes</strong>: read on.</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Import some stuff</span>
+<span style="color:#f92672">import</span> scipy.stats <span style="color:#f92672">as</span> sp
+<span style="color:#f92672">import</span> matplotlib.pyplot <span style="color:#f92672">as</span> plt
+<span style="color:#f92672">import</span> seaborn <span style="color:#f92672">as</span> sns
+<span style="color:#f92672">import</span> numpy <span style="color:#f92672">as</span> np
+
+<span style="color:#75715e"># Make things pretty.</span>
+sns<span style="color:#f92672">.</span>set_style(<span style="color:#e6db74">&#34;ticks&#34;</span>)
+sns<span style="color:#f92672">.</span>set_context(<span style="color:#e6db74">&#34;paper&#34;</span>)
+</code></pre></div><h2 id="the-discrete-case-the-hypergeometric-distribution">The Discrete Case: the hypergeometric distribution<a hidden class="anchor" aria-hidden="true" href="#the-discrete-case-the-hypergeometric-distribution">#</a></h2>
+<p>Recall that the hypergeometric distribution is a probability mass function (PMF). It is used to describe scenarios where
+we sample &ldquo;type <em>I</em>&rdquo; objects from a population. The canonical example is:</p>
+<blockquote>
+<p>I have a bag containing K white balls and N-K black balls. If I sample n balls from the bag, how many of these are white (k)?</p>
+</blockquote>
+<p>Thus, the hypergeometric distribution represents the probability that $$k$$ takes on a specific value.</p>
+<h3 id="the-hypergeometric-virus">The hypergeometric virus<a hidden class="anchor" aria-hidden="true" href="#the-hypergeometric-virus">#</a></h3>
+<p>Let&rsquo;s suppose we live in a town with <strong>1000 people</strong>. We know from official statistics that <strong>10</strong> people have been
+diagnosed with COVID-19.</p>
+<blockquote>
+<p>Disclaimer: this post is intended to be an example, providing a more intuitive guide on how statistical models can help
+us think about this huge global problem. This is not an infectious disease modelling exercise, and in fact the post assumes
+the virus is not transmissible. We know that&rsquo;s <em>definitely</em> not the case. <strong>Please stay home.</strong></p>
+</blockquote>
+<p>With the lockdown / social distancing in place, you decide to use your &ldquo;exercise once a day&rdquo; credit for a walk in the local park. However, you see <strong>20</strong> other individuals in the park. You may then ask,</p>
+<blockquote>
+<p>Can I estimate how many of these 20 individuals have COVID-19?</p>
+</blockquote>
+<p>Intuitively, we know that the chances of bumping into one of those ten individuals with COVID-19 in this town is low,
+let alone two, or even three! Furthermore, what are the chances that this would happen <strong>in the park</strong>? Put another way,
+we can visualise the distribution as a table:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Has COVID-19</th>
+<th>Doesn&rsquo;t have COVID-19</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Park</td>
+<td>k</td>
+<td>n-k</td>
+<td>n</td>
+</tr>
+<tr>
+<td>Not the park</td>
+<td>K-k</td>
+<td>N-K-n+k</td>
+<td>N-n</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td>K</td>
+<td>N-K</td>
+<td>N</td>
+</tr>
+</tbody>
+</table>
+<p><strong>This</strong> is when having an understanding of probability distributions, in particular the hypergeometric distribution, can be very handy. By understanding that the hypergeometric distribution is an <em>appropriate model</em> for this type of data, we can then do two further analyses:</p>
+<ol>
+<li>Illustrate the probability of seeing $$k$$ individuals with COVID-19 in the park</li>
+<li>Perform hypothesis tests</li>
+</ol>
+<h4 id="1-illustration-of-the-probability-space">1. Illustration of the probability space<a hidden class="anchor" aria-hidden="true" href="#1-illustration-of-the-probability-space">#</a></h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Let&#39;s draw the probability mass function of the hypergeometric distribution</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">hypergeometric_draw</span>(k, K <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>, n <span style="color:#f92672">=</span> <span style="color:#ae81ff">20</span>, N <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>):
+    <span style="color:#e6db74">&#34;&#34;&#34;
+</span><span style="color:#e6db74">    Return the hypergeometric PMF at k.
+</span><span style="color:#e6db74">    :param: k: number of &#34;successful&#34; cases in the sample
+</span><span style="color:#e6db74">    :param: K: total number of &#34;successful&#34; cases
+</span><span style="color:#e6db74">    :param: n: sample size
+</span><span style="color:#e6db74">    :param: N: population size
+</span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+    <span style="color:#75715e"># The scipy notation for the hypergeometric distribution is ... a little odd.</span>
+    <span style="color:#66d9ef">return</span> sp<span style="color:#f92672">.</span>hypergeom<span style="color:#f92672">.</span>pmf(k, n <span style="color:#f92672">=</span> K, N <span style="color:#f92672">=</span> n, M <span style="color:#f92672">=</span> N)
+
+<span style="color:#75715e"># Let&#39;s visualise the probability space for seeing 0 to 10 COVID-19 patients</span>
+<span style="color:#75715e"># in our sample of 20 individuals in the park.</span>
+n_vector <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">11</span>, <span style="color:#ae81ff">1</span>)
+fig, ax <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>subplots()
+
+<span style="color:#75715e"># We&#39;ll plot the hypergeometric distribution PMF</span>
+sns<span style="color:#f92672">.</span>barplot(
+    n_vector, 
+    list(map(hypergeometric_draw, n_vector)), 
+    ax <span style="color:#f92672">=</span> ax
+)
+sns<span style="color:#f92672">.</span>despine()
+
+ax<span style="color:#f92672">.</span>set_xlabel(<span style="color:#e6db74">&#34;$k$&#34;</span>)
+ax<span style="color:#f92672">.</span>set_ylabel(<span style="color:#e6db74">&#34;$Pr(X = k)$&#34;</span>)
+_ <span style="color:#f92672">=</span> ax<span style="color:#f92672">.</span>set_title(<span style="color:#e6db74">&#34;PMF of sampling $k$ COVID-19 individuals</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">in a sample of 20 people from a population of 1000&#34;</span>)
+
+plt<span style="color:#f92672">.</span>savefig(<span style="color:#e6db74">&#34;hypergeometric_pmf.png&#34;</span>, dpi <span style="color:#f92672">=</span> <span style="color:#ae81ff">300</span>)
+</code></pre></div><!-- raw HTML omitted -->
+<p>You&rsquo;ll notice two things here:</p>
+<ul>
+<li>In this hypothetical town, it is most likely (~80% probability) that <em>none</em> of those 20 individuals in the park had COVID-19.</li>
+<li>The chance that one of those 20 has COVID-19 is around 15%. Anything more, the probability becomes almost negligible.</li>
+</ul>
+<h4 id="2-a-hypothesis-test-with-the-hypergeometric-distribution">2. A hypothesis test with the hypergeometric distribution<a hidden class="anchor" aria-hidden="true" href="#2-a-hypothesis-test-with-the-hypergeometric-distribution">#</a></h4>
+<p>I&rsquo;ll assume you know what hypothesis tests are in this section, though a brief primer is provided at the Appendix below.
+Given our scenario described above, we can formulate the following hypotheses:</p>
+<ul>
+<li>The <em>null</em> hypothesis: the number of COVID-19 patients is distributed <strong>randomly</strong> between the park and everywhere else,
+<strong>according to the hypergeometric distribution</strong>, as described in the table above.</li>
+<li>The <em>alternative</em> hypothesis: the number of COVID-19 patients is higher in the park than elsewhere.</li>
+</ul>
+<p>Going with our previous numbers of:</p>
+<ul>
+<li>1000 people in the whole town</li>
+<li>10 of whom have COVID-19</li>
+<li>20 people were seen in the park</li>
+</ul>
+<p>&hellip;suppose that <strong>two</strong> of those 20 individuals in the park were tested positive for COVID-19.</p>
+<p>Hypothesis tests then seek to quantify</p>
+<blockquote>
+<p><em>How significant</em> is this observation assuming that the null hypothesis <strong>is true</strong>?</p>
+</blockquote>
+<p>Estimating the p-value is equivalent to getting the &ldquo;area under the curve&rdquo; of the hypergeometric distribution described above.</p>
+<blockquote>
+<p>And in our example, it can be obtained by <code>1 - CDF(k-1)</code> where $$k$$ is 2.</p>
+</blockquote>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Number of confirmed COVID-19 patients out of the 20</span>
+k <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>
+
+<span style="color:#75715e"># P-value calculation</span>
+p_value <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">-</span> sp<span style="color:#f92672">.</span>hypergeom<span style="color:#f92672">.</span>cdf(k<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, n <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>, N <span style="color:#f92672">=</span> <span style="color:#ae81ff">20</span>, M <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>)
+<span style="color:#66d9ef">print</span>(f<span style="color:#e6db74">&#34;The p-value is: {p_value}&#34;</span>)
+
+fig, ax <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>subplots()
+
+
+<span style="color:#75715e"># Inset axis plot - inspired by https://scipython.com/blog/inset-plots-in-matplotlib/</span>
+<span style="color:#f92672">from</span> mpl_toolkits.axes_grid1.inset_locator <span style="color:#f92672">import</span> inset_axes, mark_inset
+<span style="color:#75715e"># Create an inset that is 40%/70% of the original plot size with some padding.</span>
+inner_ax <span style="color:#f92672">=</span> inset_axes(ax,  <span style="color:#e6db74">&#34;40%&#34;</span>, <span style="color:#e6db74">&#34;70%&#34;</span> ,loc<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;lower right&#34;</span>, borderpad<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>)
+
+n_vector <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array(n_vector)
+pmf_hypergeom <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array(list(map(hypergeometric_draw, n_vector)))
+
+<span style="color:#75715e"># Plot the barplot of the main axis</span>
+sns<span style="color:#f92672">.</span>barplot(
+    n_vector,
+    pmf_hypergeom,
+    ax <span style="color:#f92672">=</span> ax
+)
+
+<span style="color:#75715e"># Plot the barplot of the inset</span>
+sns<span style="color:#f92672">.</span>barplot(
+    n_vector, 
+    pmf_hypergeom,
+    ax <span style="color:#f92672">=</span> inner_ax,
+    palette <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#39;#e3e3e3&#39;</span> <span style="color:#66d9ef">if</span> _ <span style="color:#f92672">&lt;</span> k <span style="color:#66d9ef">else</span> <span style="color:#e6db74">&#39;#ffd700&#39;</span> <span style="color:#66d9ef">for</span> _ <span style="color:#f92672">in</span> n_vector ]
+)
+
+inner_ax<span style="color:#f92672">.</span>set_xlim((<span style="color:#ae81ff">1.5</span>, <span style="color:#ae81ff">5.5</span>))
+inner_ax<span style="color:#f92672">.</span>set_ylim((<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0.02</span>))
+
+ax<span style="color:#f92672">.</span>set_title(<span style="color:#e6db74">&#34;Hypergeometric Distribution PMF&#34;</span>)
+inner_ax<span style="color:#f92672">.</span>set_title(<span style="color:#e6db74">&#34;p-value: sum of all the yellow bars&#34;</span>)
+
+mark_inset(ax, inner_ax, loc1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>, loc2 <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span>, fc <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;none&#39;</span>, ec <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;0.7&#39;</span>, linestyle <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;--&#39;</span>)
+sns<span style="color:#f92672">.</span>despine()
+
+plt<span style="color:#f92672">.</span>savefig(<span style="color:#e6db74">&#34;inset_hypergeometric.png&#34;</span>, dpi <span style="color:#f92672">=</span> <span style="color:#ae81ff">300</span>)
+</code></pre></div><pre><code>The p-value is: 0.015542413797821064
+</code></pre>
+<!-- raw HTML omitted -->
+<p>The p-value for this test is a low 0.0155! This means that, <em>if</em> the distribution of individuals with COVID-19 <em>was indeed random</em> , <strong>and</strong> following the hypergeometric distribution, the probability of seeing <strong>two</strong> (or more) COVID-19 patients in the park is 0.0155.</p>
+<p>This gives us a safe bet to reject the null hypothesis. Now let&rsquo;s cover what we can do with knowing the distributions of continuous random variables.</p>
+<h2 id="the-continuous-case-the-beta-distribution">The Continuous Case: the beta distribution<a hidden class="anchor" aria-hidden="true" href="#the-continuous-case-the-beta-distribution">#</a></h2>
+<p>Recall that the beta distribution is a probability distribution function (PDF). It is used to describe random variables whose values lie within 0 and 1. This makes it a pretty good choice for sampling percentages, probabilities, etc.</p>
+<h3 id="lets-get-some-baskets">Let&rsquo;s get some baskets<a hidden class="anchor" aria-hidden="true" href="#lets-get-some-baskets">#</a></h3>
+<p>(Inspired by <a href="http://varianceexplained.org/statistics/beta_distribution_and_baseball/">Variance Explained</a>) Let&rsquo;s switch topics for a second.</p>
+<p>The COVID-19 lockdown has put the NBA season on hold, and the season has shut down. You&rsquo;re the general manager and tasked with drafting a player for the new season. We&rsquo;re considering drafting LaMelo Ball, who&rsquo;s currently playing in Australia (who knew?!)</p>
+<p>It turns out that there <a href="https://basketball.realgm.com/player/LaMelo-Ball/Summary/103892">isn&rsquo;t that much data available for LaMelo Ball</a>,
+so it&rsquo;s kind of difficult to extrapolate how good of a scorer he&rsquo;ll be when he comes to the NBA. One of the numbers that
+represent a player&rsquo;s scoring efficiency is the field goal (FG) percentage, which is simply</p>
+<p>$$ FG% = \dfrac{\textrm{Shots Made}}{\textrm{Shots Attempted}} $$</p>
+<p>The beta distribution is an appropriate model for estimating LaMelo&rsquo;s FG percentage as it is a value between 0 and 1!
+With the beta distribution,  we can:</p>
+<ul>
+<li>Illustrate a possible distribution of LaMelo&rsquo;s true FG percentage</li>
+<li>Perform Bayesian inference</li>
+</ul>
+<p>For this experiment we&rsquo;ll just use LaMelo&rsquo;s NBL numbers, but in the Appendix I&rsquo;ll explain some limitations of using this
+type of data.</p>
+<h4 id="1-illustration-of-the-probability-space-1">1. Illustration of the probability space<a hidden class="anchor" aria-hidden="true" href="#1-illustration-of-the-probability-space-1">#</a></h4>
+<p>Recall that the beta distribution is appropriate for representing random variables that are like percentages, and influenced
+by two shape parameters: $$\alpha$$ and $$\beta$$.</p>
+<p>What is the interpretation behind $$\alpha$$ and $$\beta$$? What&rsquo;s even an appropriate set of values for $$\alpha$$ and $$\beta$$
+for this problem? Well, we can rely on two hints:</p>
+<ul>
+<li>Beta distributions with high $$\alpha$$ and low $$\beta$$ are negative-skewed (larger probabilities $$\rightarrow$$ higher
+values of the PDF), and vice-versa.</li>
+<li>The expected value (average) of a beta distribution is</li>
+</ul>
+<p>$$\mathbb{E} [ X ] = \dfrac{\alpha}{\alpha+\beta}$$</p>
+<p>Look familiar? The $$\alpha$$ represents <strong>shots made</strong> and $$\beta$$ <strong>shots missed</strong>. In LaMelo&rsquo;s case, since he made 75 and
+attempted 199 (thus missing 124) in his <em>single</em> NBL season, we can use that to parameterise the beta distribution.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Let&#39;s draw the probability distribution function of the beta distribution</span>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">beta_draw</span>(x, a, b):
+    <span style="color:#e6db74">&#34;&#34;&#34;
+</span><span style="color:#e6db74">    Return the beta distribution PDF at k.
+</span><span style="color:#e6db74">    :param: x: value between 0 and 1
+</span><span style="color:#e6db74">    :param: a, b: shape parameters
+</span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+    <span style="color:#75715e"># The scipy notation for the hypergeometric distribution is ... a little odd.</span>
+    <span style="color:#66d9ef">return</span> sp<span style="color:#f92672">.</span>beta<span style="color:#f92672">.</span>pdf(x, a <span style="color:#f92672">=</span> a, b <span style="color:#f92672">=</span> b)
+
+fig, ax <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>subplots()
+possible_percentages <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0.2</span>, <span style="color:#ae81ff">0.51</span>, <span style="color:#ae81ff">0.005</span>)
+
+fg_made <span style="color:#f92672">=</span> <span style="color:#ae81ff">75</span>
+fg_missed <span style="color:#f92672">=</span> <span style="color:#ae81ff">199</span><span style="color:#f92672">-</span><span style="color:#ae81ff">75</span>
+
+beta_vals <span style="color:#f92672">=</span> list(map(<span style="color:#66d9ef">lambda</span> x: beta_draw(x, a <span style="color:#f92672">=</span> fg_made, b <span style="color:#f92672">=</span> fg_missed), possible_percentages))
+max_value <span style="color:#f92672">=</span> possible_percentages[np<span style="color:#f92672">.</span>argmax(beta_vals)]
+
+<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;The FG% with the highest density is {:.2f}&#34;</span><span style="color:#f92672">.</span>format(max_value))
+
+<span style="color:#75715e"># We&#39;ll plot the beta distribution PDF</span>
+sns<span style="color:#f92672">.</span>lineplot(possible_percentages, beta_vals, ax <span style="color:#f92672">=</span> ax)
+plt<span style="color:#f92672">.</span>axvline(max_value, ymin <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.05</span>, ymax <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.95</span>, color <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;#e8291c&#39;</span>, linestyle <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;--&#39;</span>)
+sns<span style="color:#f92672">.</span>despine()
+
+<span style="color:#75715e"># Some decorative stuff</span>
+ax<span style="color:#f92672">.</span>set_xlabel(<span style="color:#e6db74">&#34;FG%&#34;</span>)
+ax<span style="color:#f92672">.</span>set_ylabel(<span style="color:#e6db74">&#34;Density&#34;</span>)
+_ <span style="color:#f92672">=</span> ax<span style="color:#f92672">.</span>set_title(<span style="color:#e6db74">&#34;PDF of LaMelo Ball&#39;s field goal percentage&#34;</span>)
+
+plt<span style="color:#f92672">.</span>savefig(<span style="color:#e6db74">&#34;beta_pdf.png&#34;</span>, dpi <span style="color:#f92672">=</span> <span style="color:#ae81ff">300</span>)
+</code></pre></div><pre><code>The FG% with the highest density is 0.38
+</code></pre>
+<!-- raw HTML omitted -->
+<h4 id="2-bayesian-inference-on-field-goals">2. Bayesian Inference on Field Goals<a hidden class="anchor" aria-hidden="true" href="#2-bayesian-inference-on-field-goals">#</a></h4>
+<p>Now that we know the beta distribution of LaMelo&rsquo;s FG percentage, we can use it as a prior for Bayesian inference. Recall
+that Bayesian inference can be formulated as shown below;</p>
+<p>$$ Posterior(FG%|Data) \propto Prior(FG%) \times Likelihood(Data) $$</p>
+<p>This framework allows us to <strong>estimate</strong> the true field goal percentage by combining our prior distribution with some
+observed data. (Side note: this observed data would come from a binomial distribution!)</p>
+<p>However, as we <em>don&rsquo;t</em> have observations, let&rsquo;s generate some random numbers as our &ldquo;observed&rdquo; FGs that are made over 82 games of a &ldquo;typical&rdquo; NBA season.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> pymc3 <span style="color:#f92672">as</span> pm
+
+<span style="color:#75715e"># LaMelo attempts about 16 shots a game (199 shots / 12 games)</span>
+<span style="color:#75715e"># As a rookie, he&#39;ll probably attempt fewer shots over an 82 game season, so let&#39;s use 12.</span>
+np<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>seed(<span style="color:#ae81ff">42</span>)
+pseudo_obs <span style="color:#f92672">=</span> sp<span style="color:#f92672">.</span>randint<span style="color:#f92672">.</span>rvs(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">12</span>, size <span style="color:#f92672">=</span> <span style="color:#ae81ff">82</span>)
+
+<span style="color:#66d9ef">with</span> pm<span style="color:#f92672">.</span>Model() <span style="color:#66d9ef">as</span> model:
+    <span style="color:#75715e"># Establish the prior</span>
+    field_goal_percentage <span style="color:#f92672">=</span> pm<span style="color:#f92672">.</span>Beta(<span style="color:#e6db74">&#34;FG&#34;</span>, alpha <span style="color:#f92672">=</span> <span style="color:#ae81ff">75</span>, beta <span style="color:#f92672">=</span> <span style="color:#ae81ff">199</span><span style="color:#f92672">-</span><span style="color:#ae81ff">75</span>)
+    
+    <span style="color:#75715e"># Set the binomial distribution to model baskets made with 12 shots attempted per game</span>
+    field_goal_data <span style="color:#f92672">=</span> pm<span style="color:#f92672">.</span>Binomial(<span style="color:#e6db74">&#34;Baskets&#34;</span>, n <span style="color:#f92672">=</span> <span style="color:#ae81ff">12</span>, p <span style="color:#f92672">=</span> field_goal_percentage, observed <span style="color:#f92672">=</span> pseudo_obs)
+
+    <span style="color:#75715e"># Run the metropolis-hastings algorithm</span>
+    step <span style="color:#f92672">=</span> pm<span style="color:#f92672">.</span>Metropolis()
+    
+    <span style="color:#75715e"># Sample the trace</span>
+    trace <span style="color:#f92672">=</span> pm<span style="color:#f92672">.</span>sample(<span style="color:#ae81ff">10000</span>, step <span style="color:#f92672">=</span> step, cores<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
+</code></pre></div><pre><code>Sequential sampling (2 chains in 1 job)
+Metropolis: [FG]
+Sampling chain 0, 0 divergences: 100%|██████████| 10500/10500 [00:01&lt;00:00, 8902.08it/s]
+Sampling chain 1, 0 divergences: 100%|██████████| 10500/10500 [00:01&lt;00:00, 9060.07it/s]
+The number of effective samples is smaller than 10% for some parameters.
+</code></pre>
+<p>Now let&rsquo;s visualise the posterior after the PyMC run:</p>
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">fig, (ax, ax2) <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>subplots(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>)
+
+<span style="color:#75715e"># Plot the pseudo-observations to give context</span>
+ax<span style="color:#f92672">.</span>hist(pseudo_obs, bins <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">13</span>,<span style="color:#ae81ff">2</span>), color <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;#77dd77&#39;</span>)
+ax<span style="color:#f92672">.</span>set_title(<span style="color:#e6db74">&#34;Distribution of pseudo-observed field goals&#34;</span>)
+
+<span style="color:#75715e"># Prior distribution</span>
+possible_percentages <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0.2</span>, <span style="color:#ae81ff">0.55</span>, <span style="color:#ae81ff">0.001</span>)
+prior <span style="color:#f92672">=</span> list(map(<span style="color:#66d9ef">lambda</span> x: beta_draw(x, a <span style="color:#f92672">=</span> <span style="color:#ae81ff">75</span>, b <span style="color:#f92672">=</span> <span style="color:#ae81ff">199</span><span style="color:#f92672">-</span><span style="color:#ae81ff">75</span>), possible_percentages))
+
+<span style="color:#75715e"># Plot the prior</span>
+ax2<span style="color:#f92672">.</span>plot(possible_percentages, prior, label <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;Prior distribution&#39;</span>)
+
+<span style="color:#75715e"># Plot the posterior</span>
+posterior_density <span style="color:#f92672">=</span> [sp<span style="color:#f92672">.</span>gaussian_kde(trace[<span style="color:#e6db74">&#39;FG&#39;</span>])<span style="color:#f92672">.</span>evaluate(_) <span style="color:#66d9ef">for</span> _ <span style="color:#f92672">in</span> possible_percentages]
+ax2<span style="color:#f92672">.</span>plot(possible_percentages, posterior_density, label <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Posterior distribution&#34;</span>)
+
+max_value_prior <span style="color:#f92672">=</span> possible_percentages[np<span style="color:#f92672">.</span>argmax(prior)]
+max_value_posterior <span style="color:#f92672">=</span> possible_percentages[np<span style="color:#f92672">.</span>argmax(posterior_density)]
+
+<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;The FG% with the highest density in the prior distribution is {:.2f}&#34;</span><span style="color:#f92672">.</span>format(max_value_prior))
+<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;The FG% with the highest density in the posterior distribution is {:.2f}&#34;</span><span style="color:#f92672">.</span>format(max_value_posterior))
+
+sns<span style="color:#f92672">.</span>despine()
+ax2<span style="color:#f92672">.</span>set_xlim((<span style="color:#ae81ff">0.25</span>, <span style="color:#ae81ff">0.55</span>))
+
+ax2<span style="color:#f92672">.</span>set_xlabel(<span style="color:#e6db74">&#34;FG%&#34;</span>)
+ax2<span style="color:#f92672">.</span>set_ylabel(<span style="color:#e6db74">&#34;Density&#34;</span>)
+_ <span style="color:#f92672">=</span> ax2<span style="color:#f92672">.</span>set_title(<span style="color:#e6db74">&#34;PDF of LaMelo Ball&#39;s FG percentage&#34;</span>)
+_ <span style="color:#f92672">=</span> ax2<span style="color:#f92672">.</span>legend(loc<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;upper left&#39;</span>)
+
+fig<span style="color:#f92672">.</span>set_size_inches((<span style="color:#ae81ff">10</span>,<span style="color:#ae81ff">5</span>))
+plt<span style="color:#f92672">.</span>savefig(<span style="color:#e6db74">&#34;posterior_distribution.png&#34;</span>, dpi <span style="color:#f92672">=</span> <span style="color:#ae81ff">300</span>)
+</code></pre></div><pre><code>The FG% with the highest density in the prior distribution is 0.38
+The FG% with the highest density in the posterior distribution is 0.47
+</code></pre>
+<p>Hopefully this gives you a brief insight into how knowing different probability distributions can be useful for an aspiring data scientist.</p>
+<p>In practice, data doesn&rsquo;t necessarily conform to a known probability distribution&rsquo;s shape - for example, data can be
+bi-modal (traffic jams tend to happen closer to 9AM and just after 5PM). Probability distributions are intended to guide
+your reasoning more than anything else! Have fun with it, experiment, and learn.</p>
+<h3 id="appendix">Appendix<a hidden class="anchor" aria-hidden="true" href="#appendix">#</a></h3>
+<h4 id="what-are-hypothesis-tests">What are hypothesis tests?<a hidden class="anchor" aria-hidden="true" href="#what-are-hypothesis-tests">#</a></h4>
+<p>You may have heard of tests like the $$t$$-test before; tests like these are used to measure the significance of some observed lab results.</p>
+<p>Hypothesis tests aim to quantify the <em>extremity</em> of a particular observation under the assumption that some &ldquo;null&rdquo; hypothesis is <strong>true</strong>. The extremity is measured as a probability &ndash; the beloved (or despised) <strong>p-value</strong>.</p>
+<p>To break it down:</p>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Definition</th>
+<th>Example(s)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hypothesis test</td>
+<td>A test to measure extremity of an observation</td>
+<td>$$t$$-test, $$\chi^2$$ tests, ANOVA&hellip;.</td>
+</tr>
+<tr>
+<td>Null hypothesis</td>
+<td>Some default position regarding the nature of the random variable</td>
+<td>&ldquo;The data is distributed randomly&rdquo;</td>
+</tr>
+<tr>
+<td>Alternative hypothesis</td>
+<td>Usually counteracts the null</td>
+<td>&ldquo;The data is not distributed randomly&rdquo;</td>
+</tr>
+</tbody>
+</table>
+<p>Hypothesis tests are defined by the probability distribution of the null hypothesis. For example, the $$t$$-test is the $$t$$-test
+because the null hypothesis assumes that the $$t$$ statistic follows Student&rsquo;s $$t$$-distribution. Similarly, the $$\chi^2$$
+test for independence assumes that the test statistic follows a $$\chi^2$$ distribution.</p>
+<h4 id="the-lamelo-ball-experiment">The LaMelo ball experiment<a hidden class="anchor" aria-hidden="true" href="#the-lamelo-ball-experiment">#</a></h4>
+<p>While there isn&rsquo;t much data out there for LaMelo Ball, we know that his brother Lonzo is in the NBA! Assuming that, as point guards, both he and his brother Lonzo play similarly, we can potentially combine the data from Lonzo and LaMelo to <strong>estimate LaMelo&rsquo;s field goal percentage in the NBA</strong>.</p>
+<p>However, we would have to&hellip;</p>
+<ul>
+<li>Assume that Lonzo and LaMelo play so similarly that their field goal percentages should be more or less similar.</li>
+<li>Assume that it is just as easy to get a field goal in the NBA and the NBL</li>
+<li>Assume that season-by-season field goal percentages are more or less the same</li>
+</ul>
+<p>Once those assumptions are OK to take, we can then use LaMelo&rsquo;s Australian NBL field goal percentage as a prior, then use Lonzo&rsquo;s NBA numbers to compute a posterior distribution.</p>
+
+</div>
+  <footer class="post-footer">
+  </footer>
+</article>
+    </main><footer class="footer">
+    <span>&copy; 2021 <a href="https://ideasbyjin.github.io/">Read between the rows</a></span>
+    <span>&middot;</span>
+    <span>Powered by <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a></span>
+    <span>&middot;</span>
+    <span>Theme <a href="https://git.io/hugopapermod" rel="noopener" target="_blank">PaperMod</a></span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)">
+    <button class="top-link" id="top-link" type="button" accesskey="g">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+            <path d="M12 6H0l6-6z" />
+        </svg>
+    </button>
+</a>
+
+
+
+<script defer src="/assets/js/highlight.min.27cd435cc9ed6abb4b496581b151804f79f366c412620272bb94e2f5f598ebcc.js" integrity="sha256-J81DXMntartLSWWBsVGAT3nzZsQSYgJyu5Ti9fWY68w="
+    onload="hljs.initHighlightingOnLoad();"></script>
+<script>
+    window.onload = function () {
+        if (localStorage.getItem("menu-scroll-position")) {
+            document.getElementById('menu').scrollLeft = localStorage.getItem("menu-scroll-position");
+        }
+    }
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+    function menu_on_scroll() {
+        localStorage.setItem("menu-scroll-position", document.getElementById('menu').scrollLeft);
+    }
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+
+</body>
+
+</html>

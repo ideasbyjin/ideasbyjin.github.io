@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Clustering Gene Expression Data using DBSCAN | Read between the rows</title>
+
+<meta name="keywords" content="" />
+<meta name="description" content="In a previous post, I covered arguably one of the most straight-forward clustering algorithms: hierarchical clustering. Remember that any clustering method requires a distance metric to quantify how &ldquo;far apart&rdquo; two points are placed in some N-dimensional space. While typically Euclidean, there&rsquo;s loads of ways in doing this.
+Generally, hierarchical clustering is a very good way of clustering your data, though it suffers from a couple of limitations:
+ Users have to define the number of clusters The linkage criterion (UPGMA, Ward&hellip;) can have a huge effect on the cluster shapes  Other clustering methods like K-means clustering also depend on the number of clusters to be determined beforehand, and it can be prone to hitting local minima.">
+<meta name="author" content="">
+<link rel="canonical" href="https://ideasbyjin.github.io/post/2019-12-18-clustering-2/" />
+<link href="/assets/css/stylesheet.min.54720d48c4fa0c4ebe8555f04b9fc5b856112ec49cafef19cb385e89661150b7.css" integrity="sha256-VHINSMT6DE6&#43;hVXwS5/FuFYRLsScr&#43;8ZyzheiWYRULc=" rel="preload stylesheet"
+    as="style">
+
+<link rel="icon" href="https://ideasbyjin.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://ideasbyjin.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://ideasbyjin.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://ideasbyjin.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://ideasbyjin.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<meta name="generator" content="Hugo 0.80.0" />
+
+
+
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$','$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    }
+  };
+
+  window.addEventListener('load', (event) => {
+      document.querySelectorAll("mjx-container").forEach(function(x){
+        x.parentElement.classList += 'has-jax'})
+    });
+
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><meta property="og:title" content="Clustering Gene Expression Data using DBSCAN" />
+<meta property="og:description" content="In a previous post, I covered arguably one of the most straight-forward clustering algorithms: hierarchical clustering. Remember that any clustering method requires a distance metric to quantify how &ldquo;far apart&rdquo; two points are placed in some N-dimensional space. While typically Euclidean, there&rsquo;s loads of ways in doing this.
+Generally, hierarchical clustering is a very good way of clustering your data, though it suffers from a couple of limitations:
+ Users have to define the number of clusters The linkage criterion (UPGMA, Ward&hellip;) can have a huge effect on the cluster shapes  Other clustering methods like K-means clustering also depend on the number of clusters to be determined beforehand, and it can be prone to hitting local minima." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ideasbyjin.github.io/post/2019-12-18-clustering-2/" />
+<meta property="article:published_time" content="2019-12-18T00:00:00+00:00" />
+<meta property="article:modified_time" content="2019-12-18T00:00:00+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Clustering Gene Expression Data using DBSCAN"/>
+<meta name="twitter:description" content="In a previous post, I covered arguably one of the most straight-forward clustering algorithms: hierarchical clustering. Remember that any clustering method requires a distance metric to quantify how &ldquo;far apart&rdquo; two points are placed in some N-dimensional space. While typically Euclidean, there&rsquo;s loads of ways in doing this.
+Generally, hierarchical clustering is a very good way of clustering your data, though it suffers from a couple of limitations:
+ Users have to define the number of clusters The linkage criterion (UPGMA, Ward&hellip;) can have a huge effect on the cluster shapes  Other clustering methods like K-means clustering also depend on the number of clusters to be determined beforehand, and it can be prone to hitting local minima."/>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Clustering Gene Expression Data using DBSCAN",
+  "name": "Clustering Gene Expression Data using DBSCAN",
+  "description": "In a previous post, I covered arguably one of the most straight-forward clustering algorithms: hierarchical clustering. Remember that any clustering method requires a distance …",
+  "keywords": [
+    
+  ],
+  "articleBody": "In a previous post, I covered arguably one of the most straight-forward clustering algorithms: hierarchical clustering. Remember that any clustering method requires a distance metric to quantify how “far apart” two points are placed in some N-dimensional space. While typically Euclidean, there’s loads of ways in doing this.\nGenerally, hierarchical clustering is a very good way of clustering your data, though it suffers from a couple of limitations:\n Users have to define the number of clusters The linkage criterion (UPGMA, Ward…) can have a huge effect on the cluster shapes  Other clustering methods like K-means clustering also depend on the number of clusters to be determined beforehand, and it can be prone to hitting local minima.\nIn theory, no clustering method is perfect, as it is very much dependent on the shape of your data and use case. This diagram from Scikit-learn shows us exactly that:\nHowever, if I had to pick one clustering algorithm for any dataset, it would have to be DBSCAN (Density-based spatial clustering of applications with noise). Cheeky plug: I’ve written a paper on using it for clustering protein structures. Essentially, DBSCAN wins the “clustering trophy” for three reasons:\n It’s very intuitive to understand It’s very scalable It requires a distance parameter rather than the number of clusters  If you have…\n 30 seconds: DBSCAN essentially requires a user to determine a distance parameter, $$\\epsilon$$.  $$P_i = \\begin{cases} \\text{Core} \u0026 \\text{if}\\ (\\sum_{j=1, j\\neq i}^{n} \\mathbb{1}(d_{P_i, P_j} \\leq \\epsilon)) \\geq m \\\n\\text{Reachable} \u0026 \\text{if}\\ 0 The combinaiton of core and reachable points form a cluster, while outliers are… outliers.\n 10 minutes: Read below.  To run DBSCAN, we first define some distance threshold, $$\\epsilon$$, and the minimum number of points, m, we need to form a cluster. Notice the slight difference to how we parameterise hierarchical clustering methods; instead of having a declaration such as\n I expect my dataset to have 10 clusters from 1000 points.\n This is more analogous to saying\n I expect my dataset of 1000 points to form bunches that are, at most, $\\epsilon$ apart.\n If you like LateX/equations, the i th point of a dataset, $$P_i$$, can be designated one of three things:\n$$P_i = \\begin{cases} \\text{Core} \u0026 \\text{if}\\ (\\sum_{j=1}^{n} \\mathbb{1}(d_{P_i, P_j} \\leq \\epsilon)) \\geq m \\\n\\text{Reachable} \u0026 \\text{if}\\ 0 One of the most helpful ways of understanding DBSCAN is using this diagram from Wikipedia:\nSuppose we had a minimum of 4 ($$m=4$$). Then,\n The red points are core points. For every red point, we see that, including itself, there are at least 4 red points within $$\\epsilon$$ (illustrated by the double-sided arrow). However, The two yellow points are only “reachable” as there’s less than m points within $$\\epsilon$$ (including itself). Hence the yellow points are not core points. And of course, the blue point is just a chillin' outlier.  The combination of red and yellow points form a cluster! We repeat this process for every point in our dataset, and we’re done. Now let’s run some code.\nData Acquisition and Cleaning # Import stuff import pandas as pd from sklearn.cluster import DBSCAN import numpy as np For this blog post, I am going to ingest a huge dataset of gene expression data from GTEx. The GTEx portal is a really interesting resource, which describes how genes are differentially expressed in specific tissues. This can be measured by a quantity known as TPM (Transcripts per million). The data itself was acquired by RNA sequencing from post-mortem samples. There’s metadata we could use to understand our data even better, but for simplicity, let’s stick to using only the TPM data, and ignore the metadata completely (though it could be useful for informing our clustering strategy).\nSince the file from GTEx is pretty big, we’re going to stream it and use some clever tricks!\nimport gzip import urllib import io # Let's stream the data URL = \"https://storage.googleapis.com/gtex_analysis_v8/rna_seq_data/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_tpm.gct.gz\" urlHandle = urllib.request.urlopen(URL) # Create a Gzipped File handle - this allows line-by-line iteration fh = gzip.GzipFile(fileobj=urlHandle) Having dealt with GCT files before, with a weird format, we need to skip the first line, but the second line onward has some useful information.\nfh.readline() # skip first line dimensions = fh.readline().split() [int(x) for x in dimensions] [56200, 17382]  The GCT file format is interesting because it tells us the dimensions of the file; there are 56200 genes and 17382 samples. That’s a lot of genes to work with; not to mention quite a few samples, too. This of course means there are 56200 rows and 17382 columns, which could be pretty cumbersome for a laptop to handle. Not to mention downloading the entire thing all at once before we do anything else.\nTo trim it down a bit, let’s see what these samples are, first:\nDECODE_CODEC = 'utf-8' def stream_request(url): \"\"\" Open a connection to some url, then stream data from it This has the advantage of: A. We don't have to wait for the entire file to download to do operations B. We can perform some operations on-the-fly \"\"\" fh = urllib.request.urlopen(url) buffer = io.StringIO() for line in fh: decoded = line.decode(DECODE_CODEC) buffer.write(decoded) # Reset the StringIO buffer to byte position 0 buffer.seek(0) return buffer def stream_request_to_pandas(url: str, sep: str = '\\t') - pd.DataFrame: streamed_buffer = stream_request(url) return pd.read_csv(streamed_buffer, sep = sep) sampleUrl = \"https://storage.googleapis.com/gtex_analysis_v8/annotations/GTEx_Analysis_v8_Annotations_SampleAttributesDS.txt\" sample_df = stream_request_to_pandas(sampleUrl) # Just get a random 4 rows and the first 10 columns sample_df.iloc[np.random.randint(0, 1000, 4)][sample_df.columns[:10]] .dataframe tbody tr th { vertical-align: top; } .dataframe thead th { text-align: right; }  For sake of argument, I’m only going to get samples where the source was Blood, Blood Vessel, and Hear (SMTS == Blood Vessel|Blood|Heart).\ntissues_of_interest = sample_df[sample_df['SMTS'].isin(['Blood', 'Blood Vessel', 'Heart'])] relevant_samples = tissues_of_interest['SAMPID'].values # This will be useful later, trust me! # This is a dictionary of sample ID - tissue location sample_id_to_smts = dict(tissues_of_interest[['SAMPID','SMTS']].values) sample_id_to_smtsd = dict(tissues_of_interest[['SAMPID','SMTSD']].values) Furthermore, I am only going to read the rows of data that have protein-coding genes.\ngeneUrl = \"https://www.genenames.org/cgi-bin/download/custom?col=gd_app_sym\u0026col=gd_pub_ensembl_id\u0026status=Approved\u0026hgnc_dbtag=on\u0026order_by=gd_app_sym_sort\u0026format=text\u0026where=(gd_pub_chrom_map%20not%20like%20%27%25patch%25%27%20and%20gd_pub_chrom_map%20not%20like%20%27%25alternate%20reference%20locus%25%27)%0Aand%20gd_locus_type%20=%20%27gene%20with%20protein%20product%27\u0026submit=submit\" gene_df = stream_request_to_pandas(geneUrl) # Let's get the Ensembl Gene IDs of things that are protein-coding gene_ensembl = gene_df[~pd.isnull(gene_df['Ensembl gene ID'])]['Ensembl gene ID'].values OK. Now that we have:\n Protein coding genes, and Sample IDs that mark whether samples are from blood, heart, or blood vessel…  We can extract what we want!\n# From that big GTEx file, let's get the column names header = fh.readline().decode(\"utf-8\").split('\\t') # Find out what columns (in terms of indices) these samples correspond to. # We want 0 and 1 by default because they are the Ensembl gene ID and Gene name header_indices = [0,1] + [ ix for ix, val in enumerate(header) if val in relevant_samples ] # Use numpy arrays because then we can use multiple integers for indexing! dataframe_columns = np.array(header)[header_indices] from tqdm.notebook import tqdm # nice little progress bar data = [] ENSEMBL_LENGTH = 15 # obtained from gene_ensembl for line in tqdm(fh): strline = line.decode('utf-8') if strline[:ENSEMBL_LENGTH] in gene_ensembl: tokens = np.array(strline.split('\\t')) data.append(tokens[header_indices]) # Create a pandas data-frame with our data expression = pd.DataFrame(data, columns = dataframe_columns) expression.iloc[np.random.randint(0, 1000, 4)] .dataframe tbody tr th { vertical-align: top; } .dataframe thead th { text-align: right; }  expression.shape (18619, 3127)  Understanding the Data # Let's get the TPM values of the matrix vals = expression[expression.columns[2:]].astype(float).values.T Let’s consider what we have here. We got the TPM values from the dataframe, converted it to float, then took the transpose of this matrix. This means we now have samples per row and genes per column.\nEvery clustering algorithm needs to have some type of distance metric to compute how far apart two objects are. If we had had the genes in rows, this would have meant we’re calculating how far apart two genes are (based on TPM), though the tranpose shows how far apart two samples are.\nThis then means that we’re going to cluster on the basis of the distances between samples, rather than genes. This was a deliberate choice to see if DBSCAN can roughly identify three clusters that correspond to - you guessed it, Blood, Blood Vessel, and Heart.\n Just as an FYI, of course you can just cluster on the genes, though interpretation could be tricky. In fact, one could even do bi-clustering for something like this, but I digress…\n Another nice aspect of this is computational scalability. Previously we had a $$n\\times k$$ matrix of $$n$$ genes and $$k$$ samples ($$18619 \\times 3127$$). The distance matrix of genes would be $$n \\times n$$, while a distance matrix of samples is just $$k \\times k$$.\nLet’s see what the range of TPM values can look like - this can help us understand what the distances would be like.\n%matplotlib inline import matplotlib.pyplot as plt # Let's plot a heatmap first, as it's a matrix plt.imshow(vals, interpolation='nearest', cmap = 'Blues')  Hmm… that doesn’t look quite right. How about we flatten out those values and create a histogram?\n# Flatten to a 1-dimensional vector. valarray = vals.flatten() min_tpm = np.min(valarray) max_tpm = np.max(valarray) mean_tpm = np.mean(valarray) median_tpm = np.median(valarray) # Draw the histogram o = plt.hist(valarray, bins = np.arange(0, 1001, 10)) print(\"Min: {}, Max: {}, Mean: {}, Median: {}\".format(min_tpm, max_tpm, mean_tpm, median_tpm)) Min: 0.0, Max: 747400.0, Mean: 50.455648440229176, Median: 3.181  OK, so the distribution is very skewed, with some values having very, very high values, and with nearly the entire dataset falling within 100TPM. One way to go around this is to use log transformation using a pseudocount of 1. $$\\log_\\text{TPM} = log(\\text{TPM}+1)$$.\nBy giving everything a pseudo-count of 1, this means that genes with 0 TPM in some samples will be transformed to 0, while for other genes, this shouldn’t have a huge effect.\nlogTpm = np.log(vals+1) logTpmArray = logTpm.flatten() fig, ax = plt.subplots(1,2) ax[0].hist(logTpmArray) ax[1].imshow(logTpm, interpolation='nearest', cmap = 'Blues') fig.set_size_inches((10,5)) Now that looks a lot better. We will calculate the pairwise distances based on this log TPM value.\n# pairwise distances - use default of Euclidean though there are various ways of doing this # This will take a while since there's ~3000 pairwise distances to compute. from scipy.spatial.distance import pdist dmat = pdist(logTpm) # Let's look at the distribution of distances o = plt.hist(dmat) MDS + DBSCAN For visualisation of the clusters, we’re going to create a multi-dimensional scaling plot. In a nutshell, when given some distances between objects, MDS tries to reconstruct where various points sit with respect to each other.\nThe analogy is something like, if you know the pairwise distances between New York, London, Tokyo, Sydney, and Dubai, MDS tries to figure out where those cities would sit (in a coordinate sense) from using just the distances alone.\nfrom scipy.spatial.distance import squareform # Convert distance matrix from pdist into a square matrix sqmat = squareform(dmat) # Import some stuff from sklearn.cluster import DBSCAN from sklearn.manifold import MDS # Initialise an MDS object, this allows us to visualise points in space mds = MDS(dissimilarity='precomputed') # This step can take a while np.random.seed(0) coords = mds.fit_transform(sqmat) # Let's see what the MDS generates for the samples plt.scatter(coords[:,0], coords[:,1])  Now that we know where the samples sit with respect to each other, let’s see what the DBSCAN algorithm generates. We mentioned earlier that the DBSCAN algorithm depends on some distance parameter, $\\epsilon$, to determine how objects are clustered together.\n For large values of $$\\epsilon$$, objects will all be consumed into one cluster For small values of $$\\epsilon$$, objects will break down into individual singletons  So then, how do we choose a good value of $$\\epsilon$$? This is usually achievable by an algorithm called OPTICS, but looking at our distance histogram from earlier, we can see that 75 could be a reasonable choice.\nfrom sklearn.cluster import DBSCAN THRESHOLD = 75 dbscan = DBSCAN(metric='precomputed', eps = THRESHOLD) # we calculated the distance already dbscan.fit(sqmat) print(set(dbscan.labels_)) {0, 1, 2, -1}  This is an interesting result; there are some outliers (label -1), but it found three distinct clusters even if I did not specify that there would be three clusters! How neat. Just for sake of argument, we can see how this result changes for very large or very small values of epsilon:\ndbscan_large = DBSCAN(metric='precomputed', eps = 250) # we calculated the distance already dbscan_large.fit(sqmat) dbscan_small = DBSCAN(metric='precomputed', eps = 1) # we calculated the distance already dbscan_small.fit(sqmat) print(\"These are the clusters for large EPS: {}\".format(set(dbscan_large.labels_))) print(\"These are the clusters for small EPS: {}\".format(set(dbscan_small.labels_))) These are the clusters for large EPS: {0} These are the clusters for small EPS: {-1}  So it seems like the optimal epsilon value sits somewhere between 1 and 250. Let’s visualise using our original results.\n# Colour points based on cluster membership cols = {0: '#316fba', 1: '#e8291c', 2: '#77ff77', -1:'black'} colours = [ cols[c] for c in dbscan.labels_ ] # Now let's see what the clusters look like plt.scatter(coords[:,0], coords[:,1], c = colours)  That’s beautiful isn’t it? Notice how the green dots are situated in two distinct areas of this MDS plot. This is not a surprising behaviour because we’re plotting the samples in a two-dimensional MDS plot, which is a reconstruction from the distance matrix we gave. In fact, in a higher-dimensional space, it’s likely that these green dots are indeed close, but beyond three dimensions it’s slightly hard to visualise dots.\nAnyway, let’s see if our clusters vaguely capture the cellular locations.\nsample_ids_used = expression.columns[2:] tissues_represented = {0: set(), 1: set(), 2: set(), -1: set()} for i, label in enumerate(dbscan.labels_): sample_id = sample_ids_used[i] tissue = sample_id_to_smts[sample_id] tissues_represented[label].add(tissue) tissues_represented {0: {'Blood Vessel', 'Heart'}, 1: {'Blood'}, 2: {'Blood'}, -1: {'Blood', 'Blood Vessel'}}  This is a very neat result. It seems that samples from the Blood Vessel and Heart have similar tissue expression patterns, though Blood can be broken down to two separate clusters. Let’s look at the finer location of the tissue (based on the SMTSD column from GTEx rather than SMTS)…\nfiner_represented = {0: set(), 1: set(), 2: set(), -1: set()} for i, label in enumerate(dbscan.labels_): sample_id = sample_ids_used[i] smtsd = sample_id_to_smtsd[sample_id] finer_represented[label].add(smtsd) finer_represented {0: {'Artery - Aorta', 'Artery - Coronary', 'Artery - Tibial', 'Heart - Atrial Appendage', 'Heart - Left Ventricle'}, 1: {'Whole Blood'}, 2: {'Cells - EBV-transformed lymphocytes'}, -1: {'Artery - Tibial', 'Whole Blood'}}  Very interesting indeed. So the arteries are close to the heart (aorta, coronary artery), and we see these samples clustering together. On the other hand, even though samples are designated as belonging to “blood”, we see that there are two sub-samples of whole blood or from EBV-transformed lymphocytes. This is very neat.\nAgain, this shows how, even when I haven’t specified the number of clusters, but merely a distance, the algorithm detects three clusters, which broadly correspond to the three regions that we had specified earlier.\nHopefully this shows you all how cool DBSCAN can be, and coupled with MDS, gives us an intuition for where samples can lie in some 2-dimensional manifold.\n",
+  "wordCount" : "2496",
+  "inLanguage": "en",
+  "datePublished": "2019-12-18T00:00:00Z",
+  "dateModified": "2019-12-18T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://ideasbyjin.github.io/post/2019-12-18-clustering-2/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Read between the rows",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://ideasbyjin.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+
+
+
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    }
+
+</script>
+<noscript>
+    <style type="text/css">
+        .theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://ideasbyjin.github.io/" accesskey="h" title="Read between the rows (Alt + H)">Read between the rows</a>
+            <span class="logo-switches">
+                <a id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </a>
+                
+                
+            </span>
+        </div>
+        <ul id="menu" onscroll="menu_on_scroll()">
+            <li>
+                <a href="https://ideasbyjin.github.io/search" title="search (Alt &#43; /)" accesskey=/>
+                    <span>search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://ideasbyjin.github.io/archives" title="archive">
+                    <span>archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://ideasbyjin.github.io/about" title="about">
+                    <span>about</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://ideasbyjin.github.io/" title="home">
+                    <span>home</span>
+                </a>
+            </li></ul>
+    </nav>
+</header>
+
+    <main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+
+    <h1 class="post-title">
+      Clustering Gene Expression Data using DBSCAN
+    </h1>
+    <div class="post-meta">December 18, 2019&nbsp;·&nbsp;12 min
+
+</div>
+  </header> 
+
+  <div class="toc">
+    <details >
+      <summary accesskey="c" title="(Alt + C)">
+        <div class="details">Table of Contents</div>
+      </summary>
+      <div class="inner"><ul><ul><li>
+        <a href="#data-acquisition-and-cleaning" aria-label="Data Acquisition and Cleaning">Data Acquisition and Cleaning</a></li></ul>
+        <li>
+        <a href="#understanding-the-data" aria-label="Understanding the Data">Understanding the Data</a></li><li>
+        <a href="#mds--dbscan" aria-label="MDS &#43; DBSCAN">MDS + DBSCAN</a></li></ul>
+      </div>
+    </details>
+  </div>
+  <div class="post-content">
+<p>In a <a href="../../09/23/clustering-1.html">previous post</a>, I covered arguably one of the most straight-forward clustering algorithms: hierarchical clustering. Remember that any clustering method requires a <strong>distance metric</strong> to quantify how &ldquo;far apart&rdquo; two points are placed in some N-dimensional space. While typically Euclidean, there&rsquo;s loads of ways in doing this.</p>
+<p>Generally, hierarchical clustering is a very good way of clustering your data, though it suffers from a couple of limitations:</p>
+<ul>
+<li>Users have to define the number of clusters</li>
+<li>The linkage criterion (UPGMA, Ward&hellip;) can have a huge effect on the cluster shapes</li>
+</ul>
+<p>Other clustering methods like K-means clustering also depend on the number of clusters to be determined beforehand, and it can be prone to hitting local minima.</p>
+<p>In theory, no clustering method is perfect, as it is very much dependent on the shape of your data and use case. This diagram from Scikit-learn shows us exactly that:</p>
+<p><img src="https://scikit-learn.org/stable/_images/sphx_glr_plot_cluster_comparison_0011.png" alt="Clustering"></p>
+<p>However, if I had to pick one clustering algorithm for any dataset, it would have to be DBSCAN (Density-based spatial clustering of applications with noise). Cheeky plug: I&rsquo;ve written a paper on <a href="https://www.frontiersin.org/articles/10.3389/fimmu.2019.02454/abstract">using it for clustering protein structures</a>. Essentially, DBSCAN wins the &ldquo;clustering trophy&rdquo; for three reasons:</p>
+<ul>
+<li>It&rsquo;s very intuitive to understand</li>
+<li>It&rsquo;s very scalable</li>
+<li>It requires a distance parameter rather than the number of clusters</li>
+</ul>
+<p>If you have&hellip;</p>
+<ul>
+<li><strong>30 seconds</strong>: DBSCAN  essentially requires a user to determine a distance parameter, $$\epsilon$$.</li>
+</ul>
+<p>$$P_i = \begin{cases} \text{Core} &amp; \text{if}\ (\sum_{j=1, j\neq i}^{n} \mathbb{1}(d_{P_i, P_j} \leq \epsilon)) \geq m \<br>
+\text{Reachable} &amp; \text{if}\ 0 &lt; (\sum_{j=1, j\neq i}^{n} \mathbb{1}(d_{P_i, P_j} \leq \epsilon)) &lt; m \<br>
+\text{Outlier} &amp; \text{Otherwise.}
+\end{cases}$$</p>
+<p>The combinaiton of core and reachable points form a cluster, while outliers are&hellip; outliers.</p>
+<ul>
+<li><strong>10 minutes</strong>: Read below.</li>
+</ul>
+<p>To run DBSCAN, we first define some distance threshold, $$\epsilon$$, and the minimum number of points, <em>m</em>, we need to form a cluster. Notice the slight difference to how we parameterise hierarchical clustering methods; instead of having a declaration such as</p>
+<blockquote>
+<p>I expect my dataset to have 10 clusters from 1000 points.</p>
+</blockquote>
+<p>This is more analogous to saying</p>
+<blockquote>
+<p>I expect my dataset of 1000 points to form bunches that are, at most, $\epsilon$ apart.</p>
+</blockquote>
+<p>If you like LateX/equations, the <em>i</em> th point of a dataset, $$P_i$$, can be designated one of three things:</p>
+<p>$$P_i = \begin{cases} \text{Core} &amp; \text{if}\ (\sum_{j=1}^{n} \mathbb{1}(d_{P_i, P_j} \leq \epsilon)) \geq m \<br>
+\text{Reachable} &amp; \text{if}\ 0 &lt; (\sum_{j=1}^{n} \mathbb{1}(d_{P_i, P_j} \leq \epsilon)) &lt; m \<br>
+\text{Outlier} &amp; \text{Otherwise.}
+\end{cases}
+$$</p>
+<p>One of the most helpful ways of understanding DBSCAN is using this diagram from Wikipedia:</p>
+<!-- raw HTML omitted -->
+<p>Suppose we had a minimum of 4 ($$m=4$$). Then,</p>
+<ul>
+<li>The red points are <em>core points</em>. For every red point, we see that, including itself, there are at least 4 red points within $$\epsilon$$ (illustrated by the double-sided arrow). However,</li>
+<li>The two yellow points are only &ldquo;reachable&rdquo; as there&rsquo;s less than <em>m</em> points within $$\epsilon$$ (including itself). Hence the yellow points are not core points.</li>
+<li>And of course, the blue point is just a chillin' outlier.</li>
+</ul>
+<p>The combination of red and yellow points form a cluster! We repeat this process for every point in our dataset, and we&rsquo;re done. Now let&rsquo;s run some code.</p>
+<h2 id="data-acquisition-and-cleaning">Data Acquisition and Cleaning<a hidden class="anchor" aria-hidden="true" href="#data-acquisition-and-cleaning">#</a></h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Import stuff</span>
+<span style="color:#f92672">import</span> pandas <span style="color:#f92672">as</span> pd
+<span style="color:#f92672">from</span> sklearn.cluster <span style="color:#f92672">import</span> DBSCAN
+<span style="color:#f92672">import</span> numpy <span style="color:#f92672">as</span> np
+</code></pre></div><p>For this blog post, I am going to ingest a huge dataset of gene expression data from <a href="https://gtexportal.org/home/datasets">GTEx</a>. The GTEx portal is a really <a href="https://www.nature.com/articles/nature24277">interesting resource</a>, which describes how genes are differentially expressed in specific tissues.
+This can be measured by a quantity known as TPM (Transcripts per million). The data itself was acquired by RNA sequencing from post-mortem samples.
+There&rsquo;s metadata we could use to understand our data even better, but for simplicity, let&rsquo;s stick to using only the TPM data, and ignore the metadata completely (though it could be useful for informing our clustering strategy).</p>
+<p>Since the file from GTEx is pretty big, we&rsquo;re going to <code>stream</code> it and use some clever tricks!</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> gzip
+<span style="color:#f92672">import</span> urllib
+<span style="color:#f92672">import</span> io
+
+<span style="color:#75715e"># Let&#39;s stream the data</span>
+URL <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;https://storage.googleapis.com/gtex_analysis_v8/rna_seq_data/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_tpm.gct.gz&#34;</span>
+urlHandle <span style="color:#f92672">=</span> urllib<span style="color:#f92672">.</span>request<span style="color:#f92672">.</span>urlopen(URL)
+
+<span style="color:#75715e"># Create a Gzipped File handle - this allows line-by-line iteration</span>
+fh <span style="color:#f92672">=</span> gzip<span style="color:#f92672">.</span>GzipFile(fileobj<span style="color:#f92672">=</span>urlHandle)
+</code></pre></div><p>Having dealt with GCT files before, with a <a href="https://software.broadinstitute.org/cancer/software/gsea/wiki/index.php/Data_formats">weird format</a>, we need to skip the first line, but the second line onward has some useful information.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">fh<span style="color:#f92672">.</span>readline() <span style="color:#75715e"># skip first line</span>
+dimensions <span style="color:#f92672">=</span> fh<span style="color:#f92672">.</span>readline()<span style="color:#f92672">.</span>split()
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">[int(x) <span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> dimensions]
+</code></pre></div><pre><code>[56200, 17382]
+</code></pre>
+<p>The GCT file format is interesting because it tells us the dimensions of the file; there are 56200 genes and 17382 samples. That&rsquo;s a lot of genes to work with; not to mention quite a few samples, too. This of course means there are 56200 rows and 17382 columns, which could be pretty cumbersome for a laptop to handle. Not to mention downloading the entire thing all at once <em>before</em> we do anything else.</p>
+<p>To trim it down a bit, let&rsquo;s see what these samples are, first:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">DECODE_CODEC <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;utf-8&#39;</span>
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">stream_request</span>(url):
+    <span style="color:#e6db74">&#34;&#34;&#34;
+</span><span style="color:#e6db74">    Open a connection to some url, then stream data from it
+</span><span style="color:#e6db74">    This has the advantage of:
+</span><span style="color:#e6db74">    A. We don&#39;t have to wait for the entire file to download to do operations
+</span><span style="color:#e6db74">    B. We can perform some operations on-the-fly
+</span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+    fh <span style="color:#f92672">=</span> urllib<span style="color:#f92672">.</span>request<span style="color:#f92672">.</span>urlopen(url)
+    buffer <span style="color:#f92672">=</span> io<span style="color:#f92672">.</span>StringIO()
+    
+    <span style="color:#66d9ef">for</span> line <span style="color:#f92672">in</span> fh:
+        decoded <span style="color:#f92672">=</span> line<span style="color:#f92672">.</span>decode(DECODE_CODEC)
+        buffer<span style="color:#f92672">.</span>write(decoded)
+    
+    <span style="color:#75715e"># Reset the StringIO buffer to byte position 0</span>
+    buffer<span style="color:#f92672">.</span>seek(<span style="color:#ae81ff">0</span>)
+    <span style="color:#66d9ef">return</span> buffer
+    
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">stream_request_to_pandas</span>(url: str, sep: str <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\t</span><span style="color:#e6db74">&#39;</span>) <span style="color:#f92672">-&gt;</span> pd<span style="color:#f92672">.</span>DataFrame:
+    streamed_buffer <span style="color:#f92672">=</span> stream_request(url)
+    <span style="color:#66d9ef">return</span> pd<span style="color:#f92672">.</span>read_csv(streamed_buffer, sep <span style="color:#f92672">=</span> sep)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">sampleUrl <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;https://storage.googleapis.com/gtex_analysis_v8/annotations/GTEx_Analysis_v8_Annotations_SampleAttributesDS.txt&#34;</span>
+sample_df <span style="color:#f92672">=</span> stream_request_to_pandas(sampleUrl)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Just get a random 4 rows and the first 10 columns</span>
+sample_df<span style="color:#f92672">.</span>iloc[np<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>randint(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1000</span>, <span style="color:#ae81ff">4</span>)][sample_df<span style="color:#f92672">.</span>columns[:<span style="color:#ae81ff">10</span>]]
+</code></pre></div><!-- raw HTML omitted -->
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p><!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<p>For sake of argument, I&rsquo;m only going to get samples where the source was Blood, Blood Vessel, and Hear (<code>SMTS == Blood Vessel|Blood|Heart</code>).</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">tissues_of_interest <span style="color:#f92672">=</span> sample_df[sample_df[<span style="color:#e6db74">&#39;SMTS&#39;</span>]<span style="color:#f92672">.</span>isin([<span style="color:#e6db74">&#39;Blood&#39;</span>, <span style="color:#e6db74">&#39;Blood Vessel&#39;</span>, <span style="color:#e6db74">&#39;Heart&#39;</span>])]
+relevant_samples <span style="color:#f92672">=</span> tissues_of_interest[<span style="color:#e6db74">&#39;SAMPID&#39;</span>]<span style="color:#f92672">.</span>values
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># This will be useful later, trust me!</span>
+<span style="color:#75715e"># This is a dictionary of sample ID -&gt; tissue location</span>
+sample_id_to_smts <span style="color:#f92672">=</span> dict(tissues_of_interest[[<span style="color:#e6db74">&#39;SAMPID&#39;</span>,<span style="color:#e6db74">&#39;SMTS&#39;</span>]]<span style="color:#f92672">.</span>values)
+sample_id_to_smtsd <span style="color:#f92672">=</span> dict(tissues_of_interest[[<span style="color:#e6db74">&#39;SAMPID&#39;</span>,<span style="color:#e6db74">&#39;SMTSD&#39;</span>]]<span style="color:#f92672">.</span>values)
+</code></pre></div><p>Furthermore, I am only going to read the rows of data that have protein-coding genes.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">geneUrl <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;https://www.genenames.org/cgi-bin/download/custom?col=gd_app_sym&amp;col=gd_pub_ensembl_id&amp;status=Approved&amp;hgnc_dbtag=on&amp;order_by=gd_app_sym_sort&amp;format=text&amp;where=(gd_pub_chrom_map%20not</span><span style="color:#e6db74">%20li</span><span style="color:#e6db74">ke</span><span style="color:#e6db74">%20%</span><span style="color:#e6db74">27%25patch</span><span style="color:#e6db74">%25%</span><span style="color:#e6db74">27%20and</span><span style="color:#e6db74">%20g</span><span style="color:#e6db74">d_pub_chrom_map%20not</span><span style="color:#e6db74">%20li</span><span style="color:#e6db74">ke</span><span style="color:#e6db74">%20%</span><span style="color:#e6db74">27%25alternate</span><span style="color:#e6db74">%20r</span><span style="color:#e6db74">eference</span><span style="color:#e6db74">%20lo</span><span style="color:#e6db74">cus</span><span style="color:#e6db74">%25%</span><span style="color:#e6db74">27)%0Aand</span><span style="color:#e6db74">%20g</span><span style="color:#e6db74">d_locus_type%20=</span><span style="color:#e6db74">%20%</span><span style="color:#e6db74">27gene%20with%20protein%20product%27&amp;submit=submit&#34;</span>
+gene_df <span style="color:#f92672">=</span> stream_request_to_pandas(geneUrl)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Let&#39;s get the Ensembl Gene IDs of things that are protein-coding</span>
+gene_ensembl <span style="color:#f92672">=</span> gene_df[<span style="color:#f92672">~</span>pd<span style="color:#f92672">.</span>isnull(gene_df[<span style="color:#e6db74">&#39;Ensembl gene ID&#39;</span>])][<span style="color:#e6db74">&#39;Ensembl gene ID&#39;</span>]<span style="color:#f92672">.</span>values
+</code></pre></div><p>OK. Now that we have:</p>
+<ul>
+<li>Protein coding genes, and</li>
+<li>Sample IDs that mark whether samples are from blood, heart, or blood vessel&hellip;</li>
+</ul>
+<p>We can extract what we want!</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># From that big GTEx file, let&#39;s get the column names</span>
+header <span style="color:#f92672">=</span> fh<span style="color:#f92672">.</span>readline()<span style="color:#f92672">.</span>decode(<span style="color:#e6db74">&#34;utf-8&#34;</span>)<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\t</span><span style="color:#e6db74">&#39;</span>)
+
+<span style="color:#75715e"># Find out what columns (in terms of indices) these samples correspond to.</span>
+<span style="color:#75715e"># We want 0 and 1 by default because they are the Ensembl gene ID and Gene name</span>
+header_indices <span style="color:#f92672">=</span> [<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">1</span>] <span style="color:#f92672">+</span> [ ix <span style="color:#66d9ef">for</span> ix, val <span style="color:#f92672">in</span> enumerate(header) <span style="color:#66d9ef">if</span> val <span style="color:#f92672">in</span> relevant_samples ]
+
+<span style="color:#75715e"># Use numpy arrays because then we can use multiple integers for indexing!</span>
+dataframe_columns <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array(header)[header_indices]
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">from</span> tqdm.notebook <span style="color:#f92672">import</span> tqdm <span style="color:#75715e"># nice little progress bar</span>
+
+data <span style="color:#f92672">=</span> []
+ENSEMBL_LENGTH <span style="color:#f92672">=</span> <span style="color:#ae81ff">15</span> <span style="color:#75715e"># obtained from gene_ensembl</span>
+
+<span style="color:#66d9ef">for</span> line <span style="color:#f92672">in</span> tqdm(fh):    
+    strline <span style="color:#f92672">=</span> line<span style="color:#f92672">.</span>decode(<span style="color:#e6db74">&#39;utf-8&#39;</span>)
+    <span style="color:#66d9ef">if</span> strline[:ENSEMBL_LENGTH] <span style="color:#f92672">in</span> gene_ensembl:
+        tokens <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array(strline<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\t</span><span style="color:#e6db74">&#39;</span>))
+        data<span style="color:#f92672">.</span>append(tokens[header_indices])
+
+<span style="color:#75715e"># Create a pandas data-frame with our data</span>
+expression <span style="color:#f92672">=</span> pd<span style="color:#f92672">.</span>DataFrame(data, columns <span style="color:#f92672">=</span> dataframe_columns)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">expression<span style="color:#f92672">.</span>iloc[np<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>randint(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1000</span>, <span style="color:#ae81ff">4</span>)]
+</code></pre></div><!-- raw HTML omitted -->
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p><!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<pre><code>expression.shape
+</code></pre><pre><code>(18619, 3127)
+</code></pre>
+<h1 id="understanding-the-data">Understanding the Data<a hidden class="anchor" aria-hidden="true" href="#understanding-the-data">#</a></h1>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Let&#39;s get the TPM values of the matrix</span>
+vals <span style="color:#f92672">=</span> expression[expression<span style="color:#f92672">.</span>columns[<span style="color:#ae81ff">2</span>:]]<span style="color:#f92672">.</span>astype(float)<span style="color:#f92672">.</span>values<span style="color:#f92672">.</span>T
+</code></pre></div><p>Let&rsquo;s consider what we have here. We got the TPM values from the dataframe, converted it to <code>float</code>, then took the <em>transpose</em> of this matrix. This means we now have <em>samples</em> per row and <em>genes</em> per column.</p>
+<p>Every clustering algorithm needs to have some type of distance metric to compute how far apart two objects are. If we had had the <em>genes</em> in rows, this would have meant we&rsquo;re calculating <em>how far apart two genes are</em> (based on TPM), though the tranpose shows <em>how far apart two samples are</em>.</p>
+<p>This then means that we&rsquo;re going to cluster on the basis of the distances between samples, rather than genes. This was a deliberate choice to see if DBSCAN can roughly identify three clusters that correspond to - you guessed it, <strong>Blood, Blood Vessel, and Heart</strong>.</p>
+<blockquote>
+<p>Just as an FYI, of course you can just cluster on the genes, though interpretation could be tricky. In fact, one could even do bi-clustering for something like this, but I digress&hellip;</p>
+</blockquote>
+<p>Another nice aspect of this is computational scalability. Previously we had a $$n\times k$$ matrix of $$n$$ genes and $$k$$
+samples ($$18619 \times 3127$$). The distance matrix of genes would be $$n \times n$$, while a distance matrix of samples
+is just $$k \times k$$.</p>
+<p>Let&rsquo;s see what the range of TPM values can look like - this can help us understand what the distances would be like.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">%</span>matplotlib inline
+<span style="color:#f92672">import</span> matplotlib.pyplot <span style="color:#f92672">as</span> plt
+
+<span style="color:#75715e"># Let&#39;s plot a heatmap first, as it&#39;s a matrix</span>
+plt<span style="color:#f92672">.</span>imshow(vals, interpolation<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;nearest&#39;</span>, cmap <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;Blues&#39;</span>)
+</code></pre></div><pre><code>&lt;matplotlib.image.AxesImage at 0x1c4ce20978&gt;
+</code></pre>
+<p><img src="/assets/notebooks/gene_exp/output_29_1.png" alt="png"></p>
+<p>Hmm&hellip; that doesn&rsquo;t look quite right. How about we flatten out those values and create a histogram?</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Flatten to a 1-dimensional vector.</span>
+valarray <span style="color:#f92672">=</span> vals<span style="color:#f92672">.</span>flatten()
+
+min_tpm <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>min(valarray)
+max_tpm <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>max(valarray)
+mean_tpm <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>mean(valarray)
+median_tpm <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>median(valarray)
+
+<span style="color:#75715e"># Draw the histogram</span>
+o <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>hist(valarray, bins <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1001</span>, <span style="color:#ae81ff">10</span>))
+
+<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;Min: {}, Max: {}, Mean: {}, Median: {}&#34;</span><span style="color:#f92672">.</span>format(min_tpm, max_tpm, mean_tpm, median_tpm))
+</code></pre></div><pre><code>Min: 0.0, Max: 747400.0, Mean: 50.455648440229176, Median: 3.181
+</code></pre>
+<p><img src="/assets/notebooks/gene_exp/output_31_1.png" alt="png"></p>
+<p>OK, so the distribution is very skewed, with some values having very, very high values, and with nearly the entire dataset falling within 100TPM. One way to go around this is to use log transformation using a pseudocount of 1. $$\log_\text{TPM} = log(\text{TPM}+1)$$.</p>
+<p>By giving everything a pseudo-count of 1, this means that genes with 0 TPM in some samples will be transformed to 0, while for other genes, this shouldn&rsquo;t have a huge effect.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">logTpm <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>log(vals<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>)
+
+logTpmArray <span style="color:#f92672">=</span> logTpm<span style="color:#f92672">.</span>flatten()
+
+fig, ax <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>subplots(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>)
+ax[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>hist(logTpmArray)
+ax[<span style="color:#ae81ff">1</span>]<span style="color:#f92672">.</span>imshow(logTpm, interpolation<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;nearest&#39;</span>, cmap <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;Blues&#39;</span>)
+
+fig<span style="color:#f92672">.</span>set_size_inches((<span style="color:#ae81ff">10</span>,<span style="color:#ae81ff">5</span>))
+</code></pre></div><p><img src="/assets/notebooks/gene_exp/output_33_0.png" alt="png"></p>
+<p>Now that looks a lot better. We will calculate the pairwise distances based on this log TPM value.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># pairwise distances - use default of Euclidean though there are various ways of doing this</span>
+<span style="color:#75715e"># This will take a while since there&#39;s ~3000 pairwise distances to compute.</span>
+<span style="color:#f92672">from</span> scipy.spatial.distance <span style="color:#f92672">import</span> pdist
+dmat <span style="color:#f92672">=</span> pdist(logTpm)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Let&#39;s look at the distribution of distances</span>
+o <span style="color:#f92672">=</span> plt<span style="color:#f92672">.</span>hist(dmat)
+</code></pre></div><p><img src="/assets/notebooks/gene_exp/output_36_0.png" alt="png"></p>
+<h1 id="mds--dbscan">MDS + DBSCAN<a hidden class="anchor" aria-hidden="true" href="#mds--dbscan">#</a></h1>
+<p>For visualisation of the clusters, we&rsquo;re going to create a multi-dimensional scaling plot. In a nutshell, when given some distances between objects, MDS tries to reconstruct where various points sit with respect to each other.</p>
+<p>The analogy is something like, if you know the pairwise distances between New York, London, Tokyo, Sydney, and Dubai, MDS tries to figure out where those cities would sit (in a coordinate sense) from using just the distances alone.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">from</span> scipy.spatial.distance <span style="color:#f92672">import</span> squareform
+
+<span style="color:#75715e"># Convert distance matrix from pdist into a square matrix</span>
+sqmat <span style="color:#f92672">=</span> squareform(dmat)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Import some stuff</span>
+<span style="color:#f92672">from</span> sklearn.cluster <span style="color:#f92672">import</span> DBSCAN
+<span style="color:#f92672">from</span> sklearn.manifold <span style="color:#f92672">import</span> MDS
+
+<span style="color:#75715e"># Initialise an MDS object, this allows us to visualise points in space</span>
+mds <span style="color:#f92672">=</span> MDS(dissimilarity<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;precomputed&#39;</span>)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># This step can take a while</span>
+np<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>seed(<span style="color:#ae81ff">0</span>)
+coords <span style="color:#f92672">=</span> mds<span style="color:#f92672">.</span>fit_transform(sqmat)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Let&#39;s see what the MDS generates for the samples</span>
+plt<span style="color:#f92672">.</span>scatter(coords[:,<span style="color:#ae81ff">0</span>], coords[:,<span style="color:#ae81ff">1</span>])
+</code></pre></div><pre><code>&lt;matplotlib.collections.PathCollection at 0x1c51a4cb00&gt;
+</code></pre>
+<!-- raw HTML omitted -->
+<p>Now that we know where the samples sit with respect to each other, let&rsquo;s see what the DBSCAN algorithm generates. We mentioned earlier that the DBSCAN algorithm depends on some distance parameter, $\epsilon$, to determine how objects are clustered together.</p>
+<ul>
+<li>For large values of $$\epsilon$$, objects will all be consumed into one cluster</li>
+<li>For small values of $$\epsilon$$, objects will break down into individual singletons</li>
+</ul>
+<p>So then, how do we choose a good value of $$\epsilon$$? This is usually achievable by an algorithm called OPTICS, but looking at our distance histogram from earlier, we can see that 75 could be a reasonable choice.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">from</span> sklearn.cluster <span style="color:#f92672">import</span> DBSCAN
+
+THRESHOLD <span style="color:#f92672">=</span> <span style="color:#ae81ff">75</span>
+
+dbscan <span style="color:#f92672">=</span> DBSCAN(metric<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;precomputed&#39;</span>, eps <span style="color:#f92672">=</span> THRESHOLD) <span style="color:#75715e"># we calculated the distance already</span>
+dbscan<span style="color:#f92672">.</span>fit(sqmat)
+
+<span style="color:#66d9ef">print</span>(set(dbscan<span style="color:#f92672">.</span>labels_))
+</code></pre></div><pre><code>{0, 1, 2, -1}
+</code></pre>
+<p>This is an interesting result; there are some outliers (label -1), but it found three distinct clusters even if I did not specify that there would be three clusters! How neat. Just for sake of argument, we can see how this result changes for very large or very small values of epsilon:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">dbscan_large <span style="color:#f92672">=</span> DBSCAN(metric<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;precomputed&#39;</span>, eps <span style="color:#f92672">=</span> <span style="color:#ae81ff">250</span>) <span style="color:#75715e"># we calculated the distance already</span>
+dbscan_large<span style="color:#f92672">.</span>fit(sqmat)
+
+dbscan_small <span style="color:#f92672">=</span> DBSCAN(metric<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;precomputed&#39;</span>, eps <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>) <span style="color:#75715e"># we calculated the distance already</span>
+dbscan_small<span style="color:#f92672">.</span>fit(sqmat)
+
+<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;These are the clusters for large EPS: {}&#34;</span><span style="color:#f92672">.</span>format(set(dbscan_large<span style="color:#f92672">.</span>labels_)))
+
+<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;These are the clusters for small EPS: {}&#34;</span><span style="color:#f92672">.</span>format(set(dbscan_small<span style="color:#f92672">.</span>labels_)))
+</code></pre></div><pre><code>These are the clusters for large EPS: {0}
+These are the clusters for small EPS: {-1}
+</code></pre>
+<p>So it seems like the optimal epsilon value sits somewhere between 1 and 250. Let&rsquo;s visualise using our original results.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># Colour points based on cluster membership</span>
+cols <span style="color:#f92672">=</span> {<span style="color:#ae81ff">0</span>: <span style="color:#e6db74">&#39;#316fba&#39;</span>, <span style="color:#ae81ff">1</span>: <span style="color:#e6db74">&#39;#e8291c&#39;</span>, <span style="color:#ae81ff">2</span>: <span style="color:#e6db74">&#39;#77ff77&#39;</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>:<span style="color:#e6db74">&#39;black&#39;</span>}
+colours <span style="color:#f92672">=</span> [ cols[c] <span style="color:#66d9ef">for</span> c <span style="color:#f92672">in</span> dbscan<span style="color:#f92672">.</span>labels_ ]
+
+<span style="color:#75715e"># Now let&#39;s see what the clusters look like</span>
+plt<span style="color:#f92672">.</span>scatter(coords[:,<span style="color:#ae81ff">0</span>], coords[:,<span style="color:#ae81ff">1</span>], c <span style="color:#f92672">=</span> colours)
+</code></pre></div><pre><code>&lt;matplotlib.collections.PathCollection at 0x1c51d6eb38&gt;
+</code></pre>
+<!-- raw HTML omitted -->
+<p>That&rsquo;s beautiful isn&rsquo;t it? Notice how the green dots are situated in two distinct areas of this MDS plot. This is not a surprising behaviour because we&rsquo;re plotting the samples in a two-dimensional MDS plot, which is a reconstruction from the distance matrix we gave. In fact, in a higher-dimensional space, it&rsquo;s likely that these green dots are indeed close, but beyond three dimensions it&rsquo;s slightly hard to visualise dots.</p>
+<p>Anyway, let&rsquo;s see if our clusters vaguely capture the cellular locations.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">sample_ids_used <span style="color:#f92672">=</span> expression<span style="color:#f92672">.</span>columns[<span style="color:#ae81ff">2</span>:]
+tissues_represented <span style="color:#f92672">=</span> {<span style="color:#ae81ff">0</span>: set(), <span style="color:#ae81ff">1</span>: set(), <span style="color:#ae81ff">2</span>: set(), <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>: set()}
+
+<span style="color:#66d9ef">for</span> i, label <span style="color:#f92672">in</span> enumerate(dbscan<span style="color:#f92672">.</span>labels_):        
+    sample_id <span style="color:#f92672">=</span> sample_ids_used[i]
+    tissue <span style="color:#f92672">=</span> sample_id_to_smts[sample_id]
+    
+    tissues_represented[label]<span style="color:#f92672">.</span>add(tissue)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">tissues_represented
+</code></pre></div><pre><code>{0: {'Blood Vessel', 'Heart'},
+ 1: {'Blood'},
+ 2: {'Blood'},
+ -1: {'Blood', 'Blood Vessel'}}
+</code></pre>
+<p>This is a very neat result. It seems that samples from the Blood Vessel and Heart have similar tissue expression patterns, though Blood can be broken down to two separate clusters. Let&rsquo;s look at the finer location of the tissue (based on the <code>SMTSD</code> column from GTEx rather than <code>SMTS</code>)&hellip;</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">finer_represented <span style="color:#f92672">=</span> {<span style="color:#ae81ff">0</span>: set(), <span style="color:#ae81ff">1</span>: set(), <span style="color:#ae81ff">2</span>: set(), <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>: set()}
+
+<span style="color:#66d9ef">for</span> i, label <span style="color:#f92672">in</span> enumerate(dbscan<span style="color:#f92672">.</span>labels_):        
+    sample_id <span style="color:#f92672">=</span> sample_ids_used[i]
+    smtsd <span style="color:#f92672">=</span> sample_id_to_smtsd[sample_id]
+    
+    finer_represented[label]<span style="color:#f92672">.</span>add(smtsd)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">finer_represented
+</code></pre></div><pre><code>{0: {'Artery - Aorta',
+  'Artery - Coronary',
+  'Artery - Tibial',
+  'Heart - Atrial Appendage',
+  'Heart - Left Ventricle'},
+ 1: {'Whole Blood'},
+ 2: {'Cells - EBV-transformed lymphocytes'},
+ -1: {'Artery - Tibial', 'Whole Blood'}}
+</code></pre>
+<p>Very interesting indeed. So the arteries are close to the heart (aorta, coronary artery), and we see these samples clustering together. On the other hand, even though samples are designated as belonging to &ldquo;blood&rdquo;, we see that there are two sub-samples of whole blood or from EBV-transformed lymphocytes. This is very neat.</p>
+<p>Again, this shows how, even when I haven&rsquo;t specified the number of clusters, but merely a distance, the algorithm detects three clusters, which broadly correspond to the three regions that we had specified earlier.</p>
+<p>Hopefully this shows you all how cool DBSCAN can be, and coupled with MDS, gives us an intuition for where samples can lie in some 2-dimensional manifold.</p>
+
+</div>
+  <footer class="post-footer">
+  </footer>
+</article>
+    </main><footer class="footer">
+    <span>&copy; 2021 <a href="https://ideasbyjin.github.io/">Read between the rows</a></span>
+    <span>&middot;</span>
+    <span>Powered by <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a></span>
+    <span>&middot;</span>
+    <span>Theme <a href="https://git.io/hugopapermod" rel="noopener" target="_blank">PaperMod</a></span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)">
+    <button class="top-link" id="top-link" type="button" accesskey="g">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+            <path d="M12 6H0l6-6z" />
+        </svg>
+    </button>
+</a>
+
+
+
+<script defer src="/assets/js/highlight.min.27cd435cc9ed6abb4b496581b151804f79f366c412620272bb94e2f5f598ebcc.js" integrity="sha256-J81DXMntartLSWWBsVGAT3nzZsQSYgJyu5Ti9fWY68w="
+    onload="hljs.initHighlightingOnLoad();"></script>
+<script>
+    window.onload = function () {
+        if (localStorage.getItem("menu-scroll-position")) {
+            document.getElementById('menu').scrollLeft = localStorage.getItem("menu-scroll-position");
+        }
+    }
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+    function menu_on_scroll() {
+        localStorage.setItem("menu-scroll-position", document.getElementById('menu').scrollLeft);
+    }
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+
+</body>
+
+</html>
