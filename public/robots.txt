@@ -1,3 +1,0 @@
-User-agent: *
-Disallow:
-Sitemap: https://ideasbyjin.github.io/sitemap.xml
