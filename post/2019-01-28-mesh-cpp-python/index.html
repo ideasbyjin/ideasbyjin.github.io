@@ -11,7 +11,7 @@
 <meta name="description" content="Python is an amazing programming language for lots of applications, particularly for bioinformatics. One of the potential downsides to using Python (apart from whitespace, non-static typing) is its speed. It&rsquo;s certainly faster than languages such as R, but it&rsquo;s nowhere near the level of C/C&#43;&#43;. In fact, many Python modules are already written in C/C&#43;&#43; (such as NumPy) but it might be practical to have your own C/C&#43;&#43; code to interface with your Python objects.">
 <meta name="author" content="">
 <link rel="canonical" href="https://ideasbyjin.github.io/post/2019-01-28-mesh-cpp-python/" />
-<link href="/assets/css/stylesheet.min.54720d48c4fa0c4ebe8555f04b9fc5b856112ec49cafef19cb385e89661150b7.css" integrity="sha256-VHINSMT6DE6&#43;hVXwS5/FuFYRLsScr&#43;8ZyzheiWYRULc=" rel="preload stylesheet"
+<link href="/assets/css/stylesheet.min.fcb80b353216e4777efae25d075e5273a332ae8e4d09cc9e945f496c58eb44ca.css" integrity="sha256-/LgLNTIW5Hd&#43;&#43;uJdB15Sc6Myro5NCcyelF9JbFjrRMo=" rel="preload stylesheet"
     as="style">
 
 <link rel="icon" href="https://ideasbyjin.github.io/favicon.ico">
@@ -21,7 +21,7 @@
 <link rel="mask-icon" href="https://ideasbyjin.github.io/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<meta name="generator" content="Hugo 0.80.0" />
+<meta name="generator" content="Hugo 0.83.0" />
 
 
 
@@ -66,7 +66,7 @@
   "keywords": [
     
   ],
-  "articleBody": "Python is an amazing programming language for lots of applications, particularly for bioinformatics. One of the potential downsides to using Python (apart from whitespace, non-static typing) is its speed. It’s certainly faster than languages such as R, but it’s nowhere near the level of C/C++. In fact, many Python modules are already written in C/C++ (such as NumPy) but it might be practical to have your own C/C++ code to interface with your Python objects. However, getting them to work together is surprisingly difficult. Luckily, the Boost library is a great way to interface code, and can also work with NumPy objects (e.g. NumPy arrays) to give you versatility. Below is a set of example files, along with the compilation command.\nMake sure you have BOOST built on your machine, even if it is a local installation. Here’s a sample C++ file calculating the Euclidean norm of a NumPy array, as vectors.cpp:\n#include#include#include#include#include using namespace boost::python; namespace np = boost::python::numpy; /* Define a C++ function as you would */ double eucnorm(np::ndarray axis){ const int n = axis.shape(0); double norm = 0.0; for(int i = 0; i  n; i++){ double A = extractdouble(axis[i]); norm += A*A; } return sqrt(norm); } /* Define your module name within BOOST_PYTHON_MODULE */ BOOST_PYTHON_MODULE(vectors){ /* Initialise numpy */ np::initialize(); /* Define your function, named eucnorm */ def(\"eucnorm\", eucnorm); }  Compiling this was possibly the toughest part for me, but this is the way to do it:\ng++ vectors.cpp -shared -fpic -I $PYTHONPATH\\ -I $BOOST_ROOT -L $BOOST_LIB_PATH -lboost_numpy -lboost_python -o vectors.so In Python, the module file in vectors.so is called by:\n# vectors.py from vectors import * import numpy as np v = np.array([1,1,1]) N = eucnorm(v) # 1.7320508075688772 And that’s a very, very simple tutorial of how to mesh C++ and Python together!\n",
+  "articleBody": "Python is an amazing programming language for lots of applications, particularly for bioinformatics. One of the potential downsides to using Python (apart from whitespace, non-static typing) is its speed. It’s certainly faster than languages such as R, but it’s nowhere near the level of C/C++. In fact, many Python modules are already written in C/C++ (such as NumPy) but it might be practical to have your own C/C++ code to interface with your Python objects. However, getting them to work together is surprisingly difficult. Luckily, the Boost library is a great way to interface code, and can also work with NumPy objects (e.g. NumPy arrays) to give you versatility. Below is a set of example files, along with the compilation command.\nMake sure you have BOOST built on your machine, even if it is a local installation. Here’s a sample C++ file calculating the Euclidean norm of a NumPy array, as vectors.cpp:\n#include#include#include#include#include using namespace boost::python; namespace np = boost::python::numpy; /* Define a C++ function as you would */ double eucnorm(np::ndarray axis){ const int n = axis.shape(0); double norm = 0.0; for(int i = 0; i  n; i++){ double A = extractdouble(axis[i]); norm += A*A; } return sqrt(norm); } /* Define your module name within BOOST_PYTHON_MODULE */ BOOST_PYTHON_MODULE(vectors){ /* Initialise numpy */ np::initialize(); /* Define your function, named eucnorm */ def(\"eucnorm\", eucnorm); } Compiling this was possibly the toughest part for me, but this is the way to do it:\ng++ vectors.cpp -shared -fpic -I $PYTHONPATH\\ -I $BOOST_ROOT -L $BOOST_LIB_PATH -lboost_numpy -lboost_python -o vectors.so In Python, the module file in vectors.so is called by:\n# vectors.py from vectors import * import numpy as np v = np.array([1,1,1]) N = eucnorm(v) # 1.7320508075688772 And that’s a very, very simple tutorial of how to mesh C++ and Python together!\n",
   "wordCount" : "298",
   "inLanguage": "en",
   "datePublished": "2019-01-28T00:00:00Z",
@@ -218,8 +218,7 @@ BOOST_PYTHON_MODULE(vectors){
   np<span style="color:#f92672">::</span>initialize();
   <span style="color:#75715e">/* Define your function, named eucnorm */</span>
   def(<span style="color:#e6db74">&#34;eucnorm&#34;</span>, eucnorm);
-}
-</code></pre></div>
+}</code></pre></div>
 <p>Compiling this was possibly the toughest part for me, but this is the way to do it:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">g++ vectors.cpp -shared -fpic -I $PYTHONPATH<span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>-I $BOOST_ROOT -L $BOOST_LIB_PATH -lboost_numpy -lboost_python -o vectors.so</code></pre></div>
@@ -252,7 +251,7 @@ N <span style="color:#f92672">=</span> eucnorm(v) <span style="color:#75715e"># 
 
 
 
-<script defer src="/assets/js/highlight.min.27cd435cc9ed6abb4b496581b151804f79f366c412620272bb94e2f5f598ebcc.js" integrity="sha256-J81DXMntartLSWWBsVGAT3nzZsQSYgJyu5Ti9fWY68w="
+<script defer src="/assets/js/highlight.min.7680afc38aa6b15ddf158a4f3780b7b1f7dde7e91d26f073e6229bb7a0793c92.js" integrity="sha256-doCvw4qmsV3fFYpPN4C3sffd5&#43;kdJvBz5iKbt6B5PJI="
     onload="hljs.initHighlightingOnLoad();"></script>
 <script>
     window.onload = function () {
